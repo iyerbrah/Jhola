@@ -57,6 +57,8 @@ export const PlanSchema = z.object({
   assumptions: z.array(z.string()),
   suggestions: z.array(z.string()),
   constraints: ConstraintsSchema,
+  /** Catalog sub_categories the shopper named that every cart must contain (e.g. "chicken biryani" -> ["chicken"]). */
+  must_include: z.array(z.string()),
   variants: z.array(
     z.object({
       name: z.string(),
@@ -131,7 +133,7 @@ export type BuildCartsResponse = {
     latency_ms: number;
     model: string;
     repaired: boolean;
-    /** True when the answer came from the 24-hour cache (no LLM call). */
+    /** True when the answer came from the answer cache (no LLM call). */
     cached?: boolean;
     /** Time spent in each step (plan call, parallel cart calls, repair). */
     steps_ms?: { plan: number; carts: number; repair: number };

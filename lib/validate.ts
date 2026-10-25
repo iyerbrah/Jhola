@@ -23,6 +23,16 @@ export function matchesKind(p: Product, kind: string): boolean {
   return text.includes(k.replace(/_/g, " ").replace(/s$/, ""));
 }
 
+/** A cart must contain every kind of product the shopper named ("chicken biryani" -> chicken). */
+function missingNamed(v: LlmVariant, mustInclude: string[], index: CatalogIndex): string[] {
+  return mustInclude
+    .filter((kind) => !v.items.some((it) => {
+      const p = index.get(it.product_id);
+      return p && !it.optional && matchesKind(p, kind);
+    }))
+    .map((kind) => `${v.name} has no ${kind.replace(/_/g, " ")}, which the shopper asked for`);
+}
+
 /** Rule problems for one cart (budget, item count, items, duplicates). */
 function variantErrors(v: LlmVariant, c: Constraints, index: CatalogIndex): string[] {
   const errors: string[] = [];
@@ -79,7 +89,7 @@ export function checkOutput(out: LlmOutput, index: CatalogIndex): { global: stri
   const names = out.variants.map((v) => v.name.trim().toLowerCase());
   if (new Set(names).size !== names.length) global.push("Variant names must be distinct");
 
-  const perVariant = out.variants.map((v) => variantErrors(v, out.constraints, index));
+  const perVariant = out.variants.map((v) => [...variantErrors(v, out.constraints, index), ...missingNamed(v, out.must_include ?? [], index)]);
 
   // A cart too similar to an earlier one is the one that has to change.
   for (let i = 0; i < out.variants.length; i++) {

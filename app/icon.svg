@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Jhola: a cloth bag in indigo with a marigold handle -->
+  <rect width="64" height="64" rx="14" fill="#1f2a5a"/>
+  <path d="M22 26 V20 a10 10 0 0 1 20 0 V26" fill="none" stroke="#f0a202" stroke-width="5" stroke-linecap="round"/>
+  <path d="M14 26 H50 L46 52 a4 4 0 0 1 -4 3.5 H22 a4 4 0 0 1 -4 -3.5 Z" fill="#f6f7f4"/>
+  <path d="M24 38 H40" stroke="#1f2a5a" stroke-width="3" stroke-linecap="round"/>
+</svg>

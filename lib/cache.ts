@@ -3,8 +3,9 @@ import type { Redis } from "@upstash/redis";
 import type { BuildCartsResponse } from "./schema";
 
 /** Bump this when the prompt, catalog or pipeline changes, so old answers aren't reused. */
-export const CACHE_VERSION = "v13"; // v13: pack counts from need, amount hints, premium wording
-const TTL_SECONDS = 24 * 3600;
+export const CACHE_VERSION = "v17"; // v17: unit mix-up guard, dish-suitable budget picks
+// Prices are a fixed snapshot and any catalog or prompt change bumps CACHE_VERSION, so answers can live a month.
+const TTL_SECONDS = 30 * 24 * 3600;
 
 export interface ResponseCache {
   get(query: string): Promise<BuildCartsResponse | null>;

@@ -16,6 +16,7 @@ function plan(overrides: Partial<Plan> = {}): Plan {
     assumptions: ["Assumed 4 people"],
     suggestions: [],
     constraints: { budget_inr: null, item_count: null, item_kind: null },
+    must_include: [],
     variants: [
       { name: "Classic", reason: "From scratch", shopping_list: "paneer 400 g; tomato; onion; cream; salt (optional)" },
       { name: "Budget", reason: "Butter instead of cream", shopping_list: "paneer 400 g; tomato; butter; paneer masala" },
@@ -157,6 +158,19 @@ describe("buildCarts", () => {
     const over = fakeLlm([p], { Classic: [pricey], Budget: [pricey], Shortcut: [pricey] }, { Classic: [pricey], Budget: [pricey], Shortcut: [pricey] });
     await buildCarts("cream under 50", deps(over.llm));
     expect(over.calls.repairMath).toEqual([true, true, true]);
+  });
+
+  it("asks for a repair when a cart leaves out a named ingredient, ignoring ones the catalog lacks", async () => {
+    // Plan says every cart needs paneer (stocked) and nori (not stocked). Shortcut has no paneer.
+    const p = plan({ must_include: ["paneer", "nori"] });
+    const noPaneer = { ...toCart(shortcut), items: [item("p008")] };
+    const { llm, calls } = fakeLlm([p], { ...goodCarts(), Shortcut: [noPaneer] }, { Shortcut: [toCart(shortcut)] });
+    const res = await buildCarts("paneer for 4", deps(llm));
+    expect(calls.repair).toHaveLength(1);
+    expect(calls.repair[0].at(-1)!.content).toContain("Shortcut has no paneer, which the shopper asked for");
+    expect(calls.repair[0].at(-1)!.content).not.toContain("nori");
+    expect(calls.cart[0][0].content).toContain("Every cart must contain: paneer.");
+    expect(res.status).toBe("ok");
   });
 
   it("strips query tags from the shopper's text", async () => {

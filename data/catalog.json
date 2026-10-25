@@ -568,13 +568,13 @@
  {
   "id": "p034",
   "name": "Chana Dal",
-  "brand": "BB Popular",
+  "brand": "Natureland Organics",
   "category": "atta_rice_dal",
   "sub_category": "chana",
   "pack_size": 1000,
   "unit": "g",
-  "price": 93,
-  "mrp": 150,
+  "price": 124,
+  "mrp": 165,
   "in_stock": true,
   "tags": [
    "veg",
@@ -585,14 +585,14 @@
  },
  {
   "id": "p035",
-  "name": "Chana Dal - Helps Lower Cholesterol",
-  "brand": "Natureland Organics",
+  "name": "Chana Dal",
+  "brand": "BB Popular",
   "category": "atta_rice_dal",
   "sub_category": "chana",
   "pack_size": 1000,
   "unit": "g",
-  "price": 124,
-  "mrp": 165,
+  "price": 93,
+  "mrp": 150,
   "in_stock": true,
   "tags": [
    "veg",
@@ -754,22 +754,6 @@
  },
  {
   "id": "p045",
-  "name": "Impatient Baker - Eggless Fudge Brownie Mix",
-  "brand": "Wingreens Farms",
-  "category": "atta_rice_dal",
-  "sub_category": "flours_pre_mixes",
-  "pack_size": 300,
-  "unit": "g",
-  "price": 174,
-  "mrp": 249,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "jain"
-  ]
- },
- {
-  "id": "p046",
   "name": "Red Velvet Cake Mix",
   "brand": "American Pancake Co.",
   "category": "atta_rice_dal",
@@ -786,7 +770,7 @@
   ]
  },
  {
-  "id": "p047",
+  "id": "p046",
   "name": "Vanilla Cake Mix",
   "brand": "American Pancake Co.",
   "category": "atta_rice_dal",
@@ -803,8 +787,25 @@
   ]
  },
  {
+  "id": "p047",
+  "name": "Atta Sharbati 100% Mp Whole Wheat",
+  "brand": "BB Royal",
+  "category": "atta_rice_dal",
+  "sub_category": "frozen_bread",
+  "pack_size": 1000,
+  "unit": "g",
+  "price": 59,
+  "mrp": 68,
+  "in_stock": false,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
   "id": "p048",
-  "name": "Atta Sharbati 100% MP Whole Wheat Rotis Stay Softer For Longer",
+  "name": "Atta Sharbati 100% MP Whole Wheat Rotis",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
   "sub_category": "frozen_bread",
@@ -821,24 +822,25 @@
  },
  {
   "id": "p049",
-  "name": "Atta Sharbati 100% Mp Whole Wheat, Rotis Stay Softer For Longer",
+  "name": "Atta With 9 Multigrains",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
   "sub_category": "frozen_bread",
   "pack_size": 1000,
   "unit": "g",
-  "price": 59,
+  "price": 62,
   "mrp": 68,
   "in_stock": true,
   "tags": [
    "veg",
    "vegan",
-   "jain"
+   "jain",
+   "high_protein"
   ]
  },
  {
   "id": "p050",
-  "name": "Atta With 9 Multigrains High Fibre And High Protein Soft Rotis",
+  "name": "Atta With 9 Multigrains High Fibre And High",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
   "sub_category": "frozen_bread",
@@ -856,20 +858,19 @@
  },
  {
   "id": "p051",
-  "name": "Atta With 9 Multigrains, High Fibre & High Protein Soft Rotis",
-  "brand": "BB Royal",
+  "name": "Jaggery",
+  "brand": "Super Saver",
   "category": "atta_rice_dal",
-  "sub_category": "frozen_bread",
-  "pack_size": 1000,
+  "sub_category": "jaggery",
+  "pack_size": 500,
   "unit": "g",
-  "price": 62,
-  "mrp": 68,
+  "price": 33,
+  "mrp": 48,
   "in_stock": true,
   "tags": [
    "veg",
    "vegan",
-   "jain",
-   "high_protein"
+   "jain"
   ]
  },
  {
@@ -892,6 +893,23 @@
  {
   "id": "p053",
   "name": "Jaggery",
+  "brand": "Super Saver",
+  "category": "atta_rice_dal",
+  "sub_category": "jaggery",
+  "pack_size": 1000,
+  "unit": "g",
+  "price": 64,
+  "mrp": 96,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p054",
+  "name": "Jaggery",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
   "sub_category": "jaggery",
@@ -907,7 +925,7 @@
   ]
  },
  {
-  "id": "p054",
+  "id": "p055",
   "name": "Jaggery - Kolhapuri",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -924,7 +942,7 @@
   ]
  },
  {
-  "id": "p055",
+  "id": "p056",
   "name": "Jaggery - Kolhapuri",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -941,41 +959,7 @@
   ]
  },
  {
-  "id": "p056",
-  "name": "Jaggery - Rich In Iron",
-  "brand": "Super Saver",
-  "category": "atta_rice_dal",
-  "sub_category": "jaggery",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 33,
-  "mrp": 48,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
   "id": "p057",
-  "name": "Jaggery - Rich In Iron",
-  "brand": "Super Saver",
-  "category": "atta_rice_dal",
-  "sub_category": "jaggery",
-  "pack_size": 1000,
-  "unit": "g",
-  "price": 64,
-  "mrp": 96,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p058",
   "name": "Jaggery - Square",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -992,7 +976,7 @@
   ]
  },
  {
-  "id": "p059",
+  "id": "p058",
   "name": "Jaggery Bucket",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1009,7 +993,7 @@
   ]
  },
  {
-  "id": "p060",
+  "id": "p059",
   "name": "Jaggery Bucket",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1026,7 +1010,7 @@
   ]
  },
  {
-  "id": "p061",
+  "id": "p060",
   "name": "Organic Kadha Kwath - Immunity Booster",
   "brand": "Turn Organic",
   "category": "atta_rice_dal",
@@ -1043,7 +1027,7 @@
   ]
  },
  {
-  "id": "p062",
+  "id": "p061",
   "name": "Maida",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1060,7 +1044,7 @@
   ]
  },
  {
-  "id": "p063",
+  "id": "p062",
   "name": "Maida",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1077,7 +1061,7 @@
   ]
  },
  {
-  "id": "p064",
+  "id": "p063",
   "name": "Wheat Maida - Refined & Bleached",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1094,7 +1078,7 @@
   ]
  },
  {
-  "id": "p065",
+  "id": "p064",
   "name": "Bengali Sona Masoor Dal",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1112,7 +1096,7 @@
   ]
  },
  {
-  "id": "p066",
+  "id": "p065",
   "name": "Green Moong - Whole",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -1130,7 +1114,7 @@
   ]
  },
  {
-  "id": "p067",
+  "id": "p066",
   "name": "Green Moong - Whole",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -1148,7 +1132,7 @@
   ]
  },
  {
-  "id": "p068",
+  "id": "p067",
   "name": "Green Moong Whole - Sabut",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1166,7 +1150,7 @@
   ]
  },
  {
-  "id": "p069",
+  "id": "p068",
   "name": "Moong - Green",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1184,7 +1168,7 @@
   ]
  },
  {
-  "id": "p070",
+  "id": "p069",
   "name": "Moong Dal",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1202,7 +1186,7 @@
   ]
  },
  {
-  "id": "p071",
+  "id": "p070",
   "name": "Moong Dal",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -1220,7 +1204,7 @@
   ]
  },
  {
-  "id": "p072",
+  "id": "p071",
   "name": "Moong Dal",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1238,7 +1222,7 @@
   ]
  },
  {
-  "id": "p073",
+  "id": "p072",
   "name": "Moong Dal",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -1256,7 +1240,7 @@
   ]
  },
  {
-  "id": "p074",
+  "id": "p073",
   "name": "Moong Split - Washed",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1274,7 +1258,7 @@
   ]
  },
  {
-  "id": "p075",
+  "id": "p074",
   "name": "Organic - Green Moong Whole",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1292,7 +1276,7 @@
   ]
  },
  {
-  "id": "p076",
+  "id": "p075",
   "name": "Cowpea Black Eye",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1309,7 +1293,7 @@
   ]
  },
  {
-  "id": "p077",
+  "id": "p076",
   "name": "Moth - Whole",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1326,7 +1310,7 @@
   ]
  },
  {
-  "id": "p078",
+  "id": "p077",
   "name": "Panchrangi Dal",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1344,7 +1328,7 @@
   ]
  },
  {
-  "id": "p079",
+  "id": "p078",
   "name": "Bajra Flour",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1361,7 +1345,7 @@
   ]
  },
  {
-  "id": "p080",
+  "id": "p079",
   "name": "Organic Sprouted Ragi Powder",
   "brand": "Slurrp Farm",
   "category": "atta_rice_dal",
@@ -1378,7 +1362,7 @@
   ]
  },
  {
-  "id": "p081",
+  "id": "p080",
   "name": "Organic Suji",
   "brand": "Organic Tattva",
   "category": "atta_rice_dal",
@@ -1395,7 +1379,7 @@
   ]
  },
  {
-  "id": "p082",
+  "id": "p081",
   "name": "Soybean Flour",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1412,7 +1396,7 @@
   ]
  },
  {
-  "id": "p083",
+  "id": "p082",
   "name": "Wheat Dalia - Low In Fat & Calories",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1429,7 +1413,7 @@
   ]
  },
  {
-  "id": "p084",
+  "id": "p083",
   "name": "Organic - Ragi Flour",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1446,7 +1430,7 @@
   ]
  },
  {
-  "id": "p085",
+  "id": "p084",
   "name": "Organic - Ragi Flour",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1463,7 +1447,7 @@
   ]
  },
  {
-  "id": "p086",
+  "id": "p085",
   "name": "Organic Jowar",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1480,7 +1464,7 @@
   ]
  },
  {
-  "id": "p087",
+  "id": "p086",
   "name": "Organic Jowar",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1497,7 +1481,7 @@
   ]
  },
  {
-  "id": "p088",
+  "id": "p087",
   "name": "Organic Ragi Flour",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1514,7 +1498,7 @@
   ]
  },
  {
-  "id": "p089",
+  "id": "p088",
   "name": "Organic - Quinoa",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1532,7 +1516,7 @@
   ]
  },
  {
-  "id": "p090",
+  "id": "p089",
   "name": "Organic - Quinoa",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1550,7 +1534,7 @@
   ]
  },
  {
-  "id": "p091",
+  "id": "p090",
   "name": "Organic Barley",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1567,7 +1551,7 @@
   ]
  },
  {
-  "id": "p092",
+  "id": "p091",
   "name": "Organic Barley",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1584,7 +1568,7 @@
   ]
  },
  {
-  "id": "p093",
+  "id": "p092",
   "name": "Organic Buckwheat Whole",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1601,7 +1585,7 @@
   ]
  },
  {
-  "id": "p094",
+  "id": "p093",
   "name": "Green Peas",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -1618,7 +1602,7 @@
   ]
  },
  {
-  "id": "p095",
+  "id": "p094",
   "name": "Green Peas",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1635,7 +1619,7 @@
   ]
  },
  {
-  "id": "p096",
+  "id": "p095",
   "name": "Green Peas",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -1652,7 +1636,7 @@
   ]
  },
  {
-  "id": "p097",
+  "id": "p096",
   "name": "Green Peas",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1669,7 +1653,7 @@
   ]
  },
  {
-  "id": "p098",
+  "id": "p097",
   "name": "Peas - Green",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1686,7 +1670,7 @@
   ]
  },
  {
-  "id": "p099",
+  "id": "p098",
   "name": "Peas - White",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1703,7 +1687,7 @@
   ]
  },
  {
-  "id": "p100",
+  "id": "p099",
   "name": "White Peas",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1720,7 +1704,7 @@
   ]
  },
  {
-  "id": "p101",
+  "id": "p100",
   "name": "White Peas",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1737,7 +1721,7 @@
   ]
  },
  {
-  "id": "p102",
+  "id": "p101",
   "name": "Organic - Poha Medium",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1754,7 +1738,7 @@
   ]
  },
  {
-  "id": "p103",
+  "id": "p102",
   "name": "Organic - Poha Medium",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -1771,7 +1755,7 @@
   ]
  },
  {
-  "id": "p104",
+  "id": "p103",
   "name": "Organic Sweet Potato Flour",
   "brand": "Pure & Sure",
   "category": "atta_rice_dal",
@@ -1787,7 +1771,7 @@
   ]
  },
  {
-  "id": "p105",
+  "id": "p104",
   "name": "Buckwheat Seeds",
   "brand": "GoodDiet",
   "category": "atta_rice_dal",
@@ -1804,7 +1788,7 @@
   ]
  },
  {
-  "id": "p106",
+  "id": "p105",
   "name": "Organic Tricolor Quinoa - 100% Natural",
   "brand": "Jiwa",
   "category": "atta_rice_dal",
@@ -1822,7 +1806,7 @@
   ]
  },
  {
-  "id": "p107",
+  "id": "p106",
   "name": "Organic White Quinoa - 100% Natural",
   "brand": "Jiwa",
   "category": "atta_rice_dal",
@@ -1840,7 +1824,7 @@
   ]
  },
  {
-  "id": "p108",
+  "id": "p107",
   "name": "Organic White Quinoa - 100% Natural",
   "brand": "Jiwa",
   "category": "atta_rice_dal",
@@ -1858,7 +1842,7 @@
   ]
  },
  {
-  "id": "p109",
+  "id": "p108",
   "name": "Quinoa - 100% Wholegrain",
   "brand": "True Elements",
   "category": "atta_rice_dal",
@@ -1876,7 +1860,7 @@
   ]
  },
  {
-  "id": "p110",
+  "id": "p109",
   "name": "Quinoa - 100% Wholegrain",
   "brand": "True Elements",
   "category": "atta_rice_dal",
@@ -1894,7 +1878,7 @@
   ]
  },
  {
-  "id": "p111",
+  "id": "p110",
   "name": "White Quinoa Grains",
   "brand": "GoodDiet",
   "category": "atta_rice_dal",
@@ -1912,7 +1896,7 @@
   ]
  },
  {
-  "id": "p112",
+  "id": "p111",
   "name": "White Quinoa Grains",
   "brand": "GoodDiet",
   "category": "atta_rice_dal",
@@ -1930,7 +1914,7 @@
   ]
  },
  {
-  "id": "p113",
+  "id": "p112",
   "name": "Chitra Rajma",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1948,7 +1932,7 @@
   ]
  },
  {
-  "id": "p114",
+  "id": "p113",
   "name": "Jammu Rajma",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -1966,7 +1950,7 @@
   ]
  },
  {
-  "id": "p115",
+  "id": "p114",
   "name": "Kashmiri Rajma",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -1984,7 +1968,7 @@
   ]
  },
  {
-  "id": "p116",
+  "id": "p115",
   "name": "Organic Rajma",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2002,7 +1986,7 @@
   ]
  },
  {
-  "id": "p117",
+  "id": "p116",
   "name": "Organic Rajma",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2020,7 +2004,7 @@
   ]
  },
  {
-  "id": "p118",
+  "id": "p117",
   "name": "Rajma - Kashmiri",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2038,7 +2022,7 @@
   ]
  },
  {
-  "id": "p119",
+  "id": "p118",
   "name": "Rajma - Kashmiri",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2056,7 +2040,7 @@
   ]
  },
  {
-  "id": "p120",
+  "id": "p119",
   "name": "Rajma Chitra",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -2074,7 +2058,7 @@
   ]
  },
  {
-  "id": "p121",
+  "id": "p120",
   "name": "Rajma Chitra",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -2092,7 +2076,7 @@
   ]
  },
  {
-  "id": "p122",
+  "id": "p121",
   "name": "Red Rajma",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -2110,7 +2094,7 @@
   ]
  },
  {
-  "id": "p123",
+  "id": "p122",
   "name": "New Rice - Sona Masoori",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -2128,7 +2112,7 @@
   ]
  },
  {
-  "id": "p124",
+  "id": "p123",
   "name": "New Rice - Sona Masoori",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -2146,7 +2130,7 @@
   ]
  },
  {
-  "id": "p125",
+  "id": "p124",
   "name": "Organic - Red Rice Flour",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2163,7 +2147,7 @@
   ]
  },
  {
-  "id": "p126",
+  "id": "p125",
   "name": "Rice - Flour",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2180,7 +2164,7 @@
   ]
  },
  {
-  "id": "p127",
+  "id": "p126",
   "name": "Rice - Flour",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2197,7 +2181,7 @@
   ]
  },
  {
-  "id": "p128",
+  "id": "p127",
   "name": "Sona Masoori Raw Rice",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2215,7 +2199,7 @@
   ]
  },
  {
-  "id": "p129",
+  "id": "p128",
   "name": "Sona Masoori Raw Rice",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2233,7 +2217,7 @@
   ]
  },
  {
-  "id": "p130",
+  "id": "p129",
   "name": "Bajra Flour",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2250,7 +2234,7 @@
   ]
  },
  {
-  "id": "p131",
+  "id": "p130",
   "name": "Nature's Super Foods - Ragi Flour",
   "brand": "Aashirvaad",
   "category": "atta_rice_dal",
@@ -2267,7 +2251,7 @@
   ]
  },
  {
-  "id": "p132",
+  "id": "p131",
   "name": "Nature's Super Foods - Ragi Flour",
   "brand": "Aashirvaad",
   "category": "atta_rice_dal",
@@ -2284,8 +2268,8 @@
   ]
  },
  {
-  "id": "p133",
-  "name": "Nature’s Superfoods Gluten Free Flour - Rich In Dietary Fibre",
+  "id": "p132",
+  "name": "Nature’s Superfoods Gluten Free Flour",
   "brand": "Aashirvaad",
   "category": "atta_rice_dal",
   "sub_category": "rice_other_flours",
@@ -2302,8 +2286,8 @@
   ]
  },
  {
-  "id": "p134",
-  "name": "Nature’s Superfoods Gluten Free Flour - Rich In Dietary Fibre",
+  "id": "p133",
+  "name": "Nature’s Superfoods Gluten Free Flour",
   "brand": "Aashirvaad",
   "category": "atta_rice_dal",
   "sub_category": "rice_other_flours",
@@ -2320,8 +2304,8 @@
   ]
  },
  {
-  "id": "p135",
-  "name": "Nature’s Superfoods Multi Millet Mix - Rich In Dietary Fibre",
+  "id": "p134",
+  "name": "Nature’s Superfoods Multi Millet Mix",
   "brand": "Aashirvaad",
   "category": "atta_rice_dal",
   "sub_category": "rice_other_flours",
@@ -2337,7 +2321,7 @@
   ]
  },
  {
-  "id": "p136",
+  "id": "p135",
   "name": "Ragi Flour",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2354,24 +2338,7 @@
   ]
  },
  {
-  "id": "p137",
-  "name": "Ragi Flour",
-  "brand": "BB Popular",
-  "category": "atta_rice_dal",
-  "sub_category": "rice_other_flours",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 22,
-  "mrp": 50,
-  "in_stock": false,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p138",
+  "id": "p136",
   "name": "Ragi Flour",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2388,8 +2355,25 @@
   ]
  },
  {
-  "id": "p139",
-  "name": "Ragi Flour",
+  "id": "p137",
+  "name": "Ragi Flour - High",
+  "brand": "BB Popular",
+  "category": "atta_rice_dal",
+  "sub_category": "rice_other_flours",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 22,
+  "mrp": 50,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p138",
+  "name": "Ragi Flour - High",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
   "sub_category": "rice_other_flours",
@@ -2405,7 +2389,7 @@
   ]
  },
  {
-  "id": "p140",
+  "id": "p139",
   "name": "Bansi Sooji",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2422,7 +2406,7 @@
   ]
  },
  {
-  "id": "p141",
+  "id": "p140",
   "name": "Idli - Sooji",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2439,7 +2423,7 @@
   ]
  },
  {
-  "id": "p142",
+  "id": "p141",
   "name": "Idli Sooji",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2456,7 +2440,7 @@
   ]
  },
  {
-  "id": "p143",
+  "id": "p142",
   "name": "Idli Sooji",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2473,7 +2457,7 @@
   ]
  },
  {
-  "id": "p144",
+  "id": "p143",
   "name": "Idli Sooji",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2490,7 +2474,7 @@
   ]
  },
  {
-  "id": "p145",
+  "id": "p144",
   "name": "Idli Sooji",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2507,7 +2491,7 @@
   ]
  },
  {
-  "id": "p146",
+  "id": "p145",
   "name": "Sooji - Bansi",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2524,7 +2508,7 @@
   ]
  },
  {
-  "id": "p147",
+  "id": "p146",
   "name": "Wheat Dalia",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2541,7 +2525,7 @@
   ]
  },
  {
-  "id": "p148",
+  "id": "p147",
   "name": "Wheat Dalia",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2558,7 +2542,7 @@
   ]
  },
  {
-  "id": "p149",
+  "id": "p148",
   "name": "Broken Wheat",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2575,7 +2559,7 @@
   ]
  },
  {
-  "id": "p150",
+  "id": "p149",
   "name": "Brown Sugar",
   "brand": "Natureland Organics",
   "category": "atta_rice_dal",
@@ -2592,7 +2576,7 @@
   ]
  },
  {
-  "id": "p151",
+  "id": "p150",
   "name": "Organic - Brown Sugar",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2609,7 +2593,7 @@
   ]
  },
  {
-  "id": "p152",
+  "id": "p151",
   "name": "Organic - Brown Sugar",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2626,7 +2610,7 @@
   ]
  },
  {
-  "id": "p153",
+  "id": "p152",
   "name": "Organic - Sugar",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2643,7 +2627,7 @@
   ]
  },
  {
-  "id": "p154",
+  "id": "p153",
   "name": "Organic - Sugar",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -2660,7 +2644,7 @@
   ]
  },
  {
-  "id": "p155",
+  "id": "p154",
   "name": "Organic Raw Jackfruit Flour",
   "brand": "Pure & Sure",
   "category": "atta_rice_dal",
@@ -2677,7 +2661,7 @@
   ]
  },
  {
-  "id": "p156",
+  "id": "p155",
   "name": "Organic Sugar",
   "brand": "24 Mantra",
   "category": "atta_rice_dal",
@@ -2694,7 +2678,7 @@
   ]
  },
  {
-  "id": "p157",
+  "id": "p156",
   "name": "Sugar - White Label",
   "brand": "Parry's",
   "category": "atta_rice_dal",
@@ -2711,7 +2695,7 @@
   ]
  },
  {
-  "id": "p158",
+  "id": "p157",
   "name": "Superfine Sugar",
   "brand": "Parry's",
   "category": "atta_rice_dal",
@@ -2728,7 +2712,7 @@
   ]
  },
  {
-  "id": "p159",
+  "id": "p158",
   "name": "Green 100% Natural Made From Stevia",
   "brand": "Sugar free",
   "category": "atta_rice_dal",
@@ -2745,7 +2729,7 @@
   ]
  },
  {
-  "id": "p160",
+  "id": "p159",
   "name": "Ragi Porridge Ready Mix - Sugar Free",
   "brand": "Burlyfield",
   "category": "atta_rice_dal",
@@ -2763,7 +2747,7 @@
   ]
  },
  {
-  "id": "p161",
+  "id": "p160",
   "name": "Stevia Natural Sweetener - Sugar Free",
   "brand": "Equal",
   "category": "atta_rice_dal",
@@ -2780,7 +2764,7 @@
   ]
  },
  {
-  "id": "p162",
+  "id": "p161",
   "name": "Green Mung",
   "brand": "Safe Harvest",
   "category": "atta_rice_dal",
@@ -2797,7 +2781,7 @@
   ]
  },
  {
-  "id": "p163",
+  "id": "p162",
   "name": "Unpolished Toor Dal",
   "brand": "Tata Sampann",
   "category": "atta_rice_dal",
@@ -2814,7 +2798,7 @@
   ]
  },
  {
-  "id": "p164",
+  "id": "p163",
   "name": "Unpolished Toor Dal",
   "brand": "Tata Sampann",
   "category": "atta_rice_dal",
@@ -2831,7 +2815,7 @@
   ]
  },
  {
-  "id": "p165",
+  "id": "p164",
   "name": "Nature's Super Foods Organic Urad Dal Split",
   "brand": "Aashirvaad",
   "category": "atta_rice_dal",
@@ -2849,7 +2833,7 @@
   ]
  },
  {
-  "id": "p166",
+  "id": "p165",
   "name": "Nature's Super Foods Organic Urad Dal Split",
   "brand": "Aashirvaad",
   "category": "atta_rice_dal",
@@ -2867,7 +2851,7 @@
   ]
  },
  {
-  "id": "p167",
+  "id": "p166",
   "name": "Urad Dal - Split",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2885,7 +2869,7 @@
   ]
  },
  {
-  "id": "p168",
+  "id": "p167",
   "name": "Urad Dal - Split",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -2903,7 +2887,7 @@
   ]
  },
  {
-  "id": "p169",
+  "id": "p168",
   "name": "Urad Dal - Split",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2921,7 +2905,7 @@
   ]
  },
  {
-  "id": "p170",
+  "id": "p169",
   "name": "Urad Dal - Split",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -2939,7 +2923,7 @@
   ]
  },
  {
-  "id": "p171",
+  "id": "p170",
   "name": "Urad Gota - Whole",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2957,7 +2941,7 @@
   ]
  },
  {
-  "id": "p172",
+  "id": "p171",
   "name": "Urad Gota - Whole",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -2975,7 +2959,7 @@
   ]
  },
  {
-  "id": "p173",
+  "id": "p172",
   "name": "Urad Gota - Whole",
   "brand": "Super Saver",
   "category": "atta_rice_dal",
@@ -2993,7 +2977,7 @@
   ]
  },
  {
-  "id": "p174",
+  "id": "p173",
   "name": "Urad Gota - Whole",
   "brand": "BB Royal",
   "category": "atta_rice_dal",
@@ -3011,7 +2995,7 @@
   ]
  },
  {
-  "id": "p175",
+  "id": "p174",
   "name": "Fried Gram",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -3028,7 +3012,7 @@
   ]
  },
  {
-  "id": "p176",
+  "id": "p175",
   "name": "Fried Gram",
   "brand": "BB Popular",
   "category": "atta_rice_dal",
@@ -3045,7 +3029,7 @@
   ]
  },
  {
-  "id": "p177",
+  "id": "p176",
   "name": "French Heart",
   "brand": "Tasties",
   "category": "bakery",
@@ -3062,7 +3046,7 @@
   ]
  },
  {
-  "id": "p178",
+  "id": "p177",
   "name": "Khatai - Mango",
   "brand": "Tasties",
   "category": "bakery",
@@ -3079,7 +3063,7 @@
   ]
  },
  {
-  "id": "p179",
+  "id": "p178",
   "name": "Banana Pudding Cake - Sliced",
   "brand": "Elite",
   "category": "bakery",
@@ -3095,7 +3079,7 @@
   ]
  },
  {
-  "id": "p180",
+  "id": "p179",
   "name": "Rusk - Milk",
   "brand": "Elite",
   "category": "bakery",
@@ -3110,7 +3094,7 @@
   ]
  },
  {
-  "id": "p181",
+  "id": "p180",
   "name": "Rusk - Milk",
   "brand": "Elite",
   "category": "bakery",
@@ -3125,7 +3109,7 @@
   ]
  },
  {
-  "id": "p182",
+  "id": "p181",
   "name": "Bread Sticks - Plain",
   "brand": "Fresho Signature",
   "category": "bakery",
@@ -3142,7 +3126,7 @@
   ]
  },
  {
-  "id": "p183",
+  "id": "p182",
   "name": "Brown Bread",
   "brand": "Britannia",
   "category": "bakery",
@@ -3158,7 +3142,7 @@
   ]
  },
  {
-  "id": "p184",
+  "id": "p183",
   "name": "English Short Bread - Vanilla",
   "brand": "Fresho Signature",
   "category": "bakery",
@@ -3175,8 +3159,8 @@
   ]
  },
  {
-  "id": "p185",
-  "name": "Instant Dry Yeast Powder - Used Or Bread & Pizza",
+  "id": "p184",
+  "name": "Instant Dry Yeast Powder",
   "brand": "5:15PM",
   "category": "bakery",
   "sub_category": "bread",
@@ -3191,7 +3175,7 @@
   ]
  },
  {
-  "id": "p186",
+  "id": "p185",
   "name": "Ladi Pav",
   "brand": "Modern",
   "category": "bakery",
@@ -3207,7 +3191,7 @@
   ]
  },
  {
-  "id": "p187",
+  "id": "p186",
   "name": "Sandwich Bread",
   "brand": "Britannia",
   "category": "bakery",
@@ -3223,7 +3207,7 @@
   ]
  },
  {
-  "id": "p188",
+  "id": "p187",
   "name": "Whole Wheat Bread",
   "brand": "Modern",
   "category": "bakery",
@@ -3239,7 +3223,7 @@
   ]
  },
  {
-  "id": "p189",
+  "id": "p188",
   "name": "Masala Lavash",
   "brand": "Fresho Signature",
   "category": "bakery",
@@ -3256,7 +3240,7 @@
   ]
  },
  {
-  "id": "p190",
+  "id": "p189",
   "name": "Peri Peri Crackers - 100% Wholewheat",
   "brand": "The Baker's Dozen",
   "category": "bakery",
@@ -3273,7 +3257,7 @@
   ]
  },
  {
-  "id": "p191",
+  "id": "p190",
   "name": "Spicy Paprika Croutons Bites",
   "brand": "Fresho Signature",
   "category": "bakery",
@@ -3290,7 +3274,7 @@
   ]
  },
  {
-  "id": "p192",
+  "id": "p191",
   "name": "Dreams Cup Cake - Butter",
   "brand": "Elite",
   "category": "bakery",
@@ -3305,7 +3289,7 @@
   ]
  },
  {
-  "id": "p193",
+  "id": "p192",
   "name": "New York Cheese Cake",
   "brand": "Fresho Signature",
   "category": "bakery",
@@ -3321,7 +3305,7 @@
   ]
  },
  {
-  "id": "p194",
+  "id": "p193",
   "name": "Spicy Cheese Straw",
   "brand": "Fresho Signature",
   "category": "bakery",
@@ -3337,7 +3321,7 @@
   ]
  },
  {
-  "id": "p195",
+  "id": "p194",
   "name": "Moonfils - Orange Cream",
   "brand": "Bauli",
   "category": "bakery",
@@ -3353,7 +3337,7 @@
   ]
  },
  {
-  "id": "p196",
+  "id": "p195",
   "name": "Khari - Jeera",
   "brand": "Tasties",
   "category": "bakery",
@@ -3370,7 +3354,7 @@
   ]
  },
  {
-  "id": "p197",
+  "id": "p196",
   "name": "Khari - Maska",
   "brand": "Tasties",
   "category": "bakery",
@@ -3387,7 +3371,7 @@
   ]
  },
  {
-  "id": "p198",
+  "id": "p197",
   "name": "Assorted French Macarons",
   "brand": "Lindberg",
   "category": "bakery",
@@ -3404,7 +3388,7 @@
   ]
  },
  {
-  "id": "p199",
+  "id": "p198",
   "name": "Red Velvet Cake",
   "brand": "Fresho Signature",
   "category": "bakery",
@@ -3421,8 +3405,8 @@
   ]
  },
  {
-  "id": "p200",
-  "name": "Radler Non-Alcoholic Malt Drink - Strawberry Cranberry",
+  "id": "p199",
+  "name": "Radler Non-Alcoholic Malt Drink",
   "brand": "Kingfisher",
   "category": "beverages",
   "sub_category": "aerated_still_sparkling",
@@ -3438,7 +3422,7 @@
   ]
  },
  {
-  "id": "p201",
+  "id": "p200",
   "name": "Vodka Water",
   "brand": "ESTUARY",
   "category": "beverages",
@@ -3455,8 +3439,8 @@
   ]
  },
  {
-  "id": "p202",
-  "name": "Hi Protein Slim Meal-Shake - Pistachio & Almond",
+  "id": "p201",
+  "name": "Hi Protein Slim Meal-Shake - Pistachio",
   "brand": "Saffola FITTIFY Gourmet",
   "category": "beverages",
   "sub_category": "almonds",
@@ -3473,7 +3457,7 @@
   ]
  },
  {
-  "id": "p203",
+  "id": "p202",
   "name": "Effervescent Tablets - Apple Cider Vinegar",
   "brand": "Suprfit",
   "category": "beverages",
@@ -3490,7 +3474,7 @@
   ]
  },
  {
-  "id": "p204",
+  "id": "p203",
   "name": "Fruit Drink - Juicy Apple",
   "brand": "Sante",
   "category": "beverages",
@@ -3507,7 +3491,7 @@
   ]
  },
  {
-  "id": "p205",
+  "id": "p204",
   "name": "Assorted Hot Brew Bags",
   "brand": "Sleepy Owl",
   "category": "beverages",
@@ -3524,7 +3508,7 @@
   ]
  },
  {
-  "id": "p206",
+  "id": "p205",
   "name": "Milk Drink - Strawberry",
   "brand": "Again",
   "category": "beverages",
@@ -3539,7 +3523,7 @@
   ]
  },
  {
-  "id": "p207",
+  "id": "p206",
   "name": "Instant Drink Mix - Orange",
   "brand": "Tang",
   "category": "beverages",
@@ -3556,7 +3540,7 @@
   ]
  },
  {
-  "id": "p208",
+  "id": "p207",
   "name": "Coconut Water With Mango",
   "brand": "FOCO",
   "category": "beverages",
@@ -3573,7 +3557,7 @@
   ]
  },
  {
-  "id": "p209",
+  "id": "p208",
   "name": "Coconut Water With Mango",
   "brand": "FOCO",
   "category": "beverages",
@@ -3582,6 +3566,23 @@
   "unit": "ml",
   "price": 131,
   "mrp": 175,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p209",
+  "name": "Coconut Water With Pineapple",
+  "brand": "FOCO",
+  "category": "beverages",
+  "sub_category": "coconut_water",
+  "pack_size": 330,
+  "unit": "ml",
+  "price": 94,
+  "mrp": 125,
   "in_stock": true,
   "tags": [
    "veg",
@@ -3595,23 +3596,6 @@
   "brand": "FOCO",
   "category": "beverages",
   "sub_category": "coconut_water",
-  "pack_size": 330,
-  "unit": "ml",
-  "price": 94,
-  "mrp": 125,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p211",
-  "name": "Coconut Water With Pineapple",
-  "brand": "FOCO",
-  "category": "beverages",
-  "sub_category": "coconut_water",
   "pack_size": 500,
   "unit": "ml",
   "price": 131,
@@ -3624,7 +3608,7 @@
   ]
  },
  {
-  "id": "p212",
+  "id": "p211",
   "name": "Coconut Water With Pink Guava",
   "brand": "FOCO",
   "category": "beverages",
@@ -3641,7 +3625,7 @@
   ]
  },
  {
-  "id": "p213",
+  "id": "p212",
   "name": "Coconut Water With Pomegranate",
   "brand": "FOCO",
   "category": "beverages",
@@ -3658,8 +3642,8 @@
   ]
  },
  {
-  "id": "p214",
-  "name": "Tender Coconut Water - No Added Sugar",
+  "id": "p213",
+  "name": "Tender Coconut Water",
   "brand": "Fresho",
   "category": "beverages",
   "sub_category": "coconut_water",
@@ -3676,8 +3660,8 @@
   ]
  },
  {
-  "id": "p215",
-  "name": "Coffee - Provides Strength",
+  "id": "p214",
+  "name": "Coffee",
   "brand": "HELL ENERGY",
   "category": "beverages",
   "sub_category": "coffee",
@@ -3693,7 +3677,7 @@
   ]
  },
  {
-  "id": "p216",
+  "id": "p215",
   "name": "Coffee Delight",
   "brand": "Bayars",
   "category": "beverages",
@@ -3710,7 +3694,7 @@
   ]
  },
  {
-  "id": "p217",
+  "id": "p216",
   "name": "Filter Coffee - Grand",
   "brand": "Tata Coffee",
   "category": "beverages",
@@ -3727,7 +3711,7 @@
   ]
  },
  {
-  "id": "p218",
+  "id": "p217",
   "name": "Grand Filter Coffee",
   "brand": "Tata Coffee",
   "category": "beverages",
@@ -3744,7 +3728,7 @@
   ]
  },
  {
-  "id": "p219",
+  "id": "p218",
   "name": "Grand Filter Coffee",
   "brand": "Tata Coffee",
   "category": "beverages",
@@ -3761,8 +3745,8 @@
   ]
  },
  {
-  "id": "p220",
-  "name": "Hi Protein Slim Meal-Shake - Coffee & Caramel",
+  "id": "p219",
+  "name": "Hi Protein Slim Meal-Shake - Coffee",
   "brand": "Saffola FITTIFY Gourmet",
   "category": "beverages",
   "sub_category": "coffee",
@@ -3779,7 +3763,7 @@
   ]
  },
  {
-  "id": "p221",
+  "id": "p220",
   "name": "Roasted Coffee Beans",
   "brand": "Blv Fine Blend",
   "category": "beverages",
@@ -3796,7 +3780,7 @@
   ]
  },
  {
-  "id": "p222",
+  "id": "p221",
   "name": "Sunrise Instant Coffee Powder - Chicory Mix",
   "brand": "Nescafe",
   "category": "beverages",
@@ -3812,7 +3796,7 @@
   ]
  },
  {
-  "id": "p223",
+  "id": "p222",
   "name": "Soft Drink",
   "brand": "Mountain Dew",
   "category": "beverages",
@@ -3829,8 +3813,8 @@
   ]
  },
  {
-  "id": "p224",
-  "name": "Turmeric Water Elixir, Traditional Spice Blend | High Curcumin Lakadon",
+  "id": "p223",
+  "name": "Turmeric Water Elixir",
   "brand": "Rooted Peepul",
   "category": "beverages",
   "sub_category": "cumin",
@@ -3846,7 +3830,7 @@
   ]
  },
  {
-  "id": "p225",
+  "id": "p224",
   "name": "Organic Tulsi Ginger & Turmeric",
   "brand": "IndiSecrets",
   "category": "beverages",
@@ -3862,7 +3846,7 @@
   ]
  },
  {
-  "id": "p226",
+  "id": "p225",
   "name": "Amla - Mint Herbal Infusion",
   "brand": "Teamonk",
   "category": "beverages",
@@ -3879,7 +3863,7 @@
   ]
  },
  {
-  "id": "p227",
+  "id": "p226",
   "name": "Amla Herbal Infusion",
   "brand": "Teamonk",
   "category": "beverages",
@@ -3896,8 +3880,8 @@
   ]
  },
  {
-  "id": "p228",
-  "name": "Assam Masala Chai - Provides Energy",
+  "id": "p227",
+  "name": "Assam Masala Chai",
   "brand": "Teamonk",
   "category": "beverages",
   "sub_category": "gourmet_tea_tea_bags",
@@ -3913,7 +3897,7 @@
   ]
  },
  {
-  "id": "p229",
+  "id": "p228",
   "name": "Ayush Kwath - Immunity Booster",
   "brand": "Organic India",
   "category": "beverages",
@@ -3930,7 +3914,7 @@
   ]
  },
  {
-  "id": "p230",
+  "id": "p229",
   "name": "Moringa - Mint Herbal Infusion",
   "brand": "Teamonk",
   "category": "beverages",
@@ -3947,7 +3931,7 @@
   ]
  },
  {
-  "id": "p231",
+  "id": "p230",
   "name": "Olive Leaf Infusion - Classic",
   "brand": "BORGES",
   "category": "beverages",
@@ -3964,7 +3948,7 @@
   ]
  },
  {
-  "id": "p232",
+  "id": "p231",
   "name": "Olive Leaf Infusion - Olive & Basil Leaves",
   "brand": "BORGES",
   "category": "beverages",
@@ -3981,7 +3965,7 @@
   ]
  },
  {
-  "id": "p233",
+  "id": "p232",
   "name": "Olive Leaf Infusion - Olive & Lemongrass",
   "brand": "BORGES",
   "category": "beverages",
@@ -3998,7 +3982,7 @@
   ]
  },
  {
-  "id": "p234",
+  "id": "p233",
   "name": "Olive Leaf Infusion - Olive & Mint Leaves",
   "brand": "BORGES",
   "category": "beverages",
@@ -4015,8 +3999,8 @@
   ]
  },
  {
-  "id": "p235",
-  "name": "Ashwagandha Green Tea - Boosts Immunity",
+  "id": "p234",
+  "name": "Ashwagandha Green Tea",
   "brand": "Teamonk",
   "category": "beverages",
   "sub_category": "green_tea",
@@ -4032,8 +4016,8 @@
   ]
  },
  {
-  "id": "p236",
-  "name": "Ashwagandha Green Tea - Boosts Immunity",
+  "id": "p235",
+  "name": "Ashwagandha Green Tea",
   "brand": "Teamonk",
   "category": "beverages",
   "sub_category": "green_tea",
@@ -4049,7 +4033,7 @@
   ]
  },
  {
-  "id": "p237",
+  "id": "p236",
   "name": "Avana Darjeeling Green Tea",
   "brand": "Teamonk",
   "category": "beverages",
@@ -4066,7 +4050,7 @@
   ]
  },
  {
-  "id": "p238",
+  "id": "p237",
   "name": "Green Tea - With Peppermint Leaves",
   "brand": "Wingreens Farms",
   "category": "beverages",
@@ -4083,8 +4067,8 @@
   ]
  },
  {
-  "id": "p239",
-  "name": "Joriki Green Tea - Helps To Detox",
+  "id": "p238",
+  "name": "Joriki Green Tea",
   "brand": "Teamonk",
   "category": "beverages",
   "sub_category": "green_tea",
@@ -4100,8 +4084,8 @@
   ]
  },
  {
-  "id": "p240",
-  "name": "Kadha Green Tea - Boosts Immunity",
+  "id": "p239",
+  "name": "Kadha Green Tea",
   "brand": "Teamonk",
   "category": "beverages",
   "sub_category": "green_tea",
@@ -4117,7 +4101,7 @@
   ]
  },
  {
-  "id": "p241",
+  "id": "p240",
   "name": "Nilgiri Green Tea - Koge Jasmine",
   "brand": "Teamonk",
   "category": "beverages",
@@ -4134,7 +4118,7 @@
   ]
  },
  {
-  "id": "p242",
+  "id": "p241",
   "name": "Nilgiri Green Tea - Taizen Cinnamon",
   "brand": "Teamonk",
   "category": "beverages",
@@ -4151,7 +4135,7 @@
   ]
  },
  {
-  "id": "p243",
+  "id": "p242",
   "name": "Nilgiris Green Tea - Kozan Spearmint",
   "brand": "Teamonk",
   "category": "beverages",
@@ -4168,7 +4152,7 @@
   ]
  },
  {
-  "id": "p244",
+  "id": "p243",
   "name": "Spice Green Tea",
   "brand": "Teamonk",
   "category": "beverages",
@@ -4185,7 +4169,7 @@
   ]
  },
  {
-  "id": "p245",
+  "id": "p244",
   "name": "Effervescent Tablets - Active Multi Vitamins",
   "brand": "Suprfit",
   "category": "beverages",
@@ -4202,7 +4186,7 @@
   ]
  },
  {
-  "id": "p246",
+  "id": "p245",
   "name": "Effervescent Tablets - Biotin",
   "brand": "Suprfit",
   "category": "beverages",
@@ -4219,7 +4203,7 @@
   ]
  },
  {
-  "id": "p247",
+  "id": "p246",
   "name": "Effervescent Tablets - Melatonin Sleep",
   "brand": "Suprfit",
   "category": "beverages",
@@ -4236,7 +4220,7 @@
   ]
  },
  {
-  "id": "p248",
+  "id": "p247",
   "name": "Hi Protein Slim Meal-Shake - Alphonso Mango",
   "brand": "Saffola FITTIFY Gourmet",
   "category": "beverages",
@@ -4254,7 +4238,7 @@
   ]
  },
  {
-  "id": "p249",
+  "id": "p248",
   "name": "Spiced Turmeric Latte Mix",
   "brand": "Rooted Peepul",
   "category": "beverages",
@@ -4271,24 +4255,7 @@
   ]
  },
  {
-  "id": "p250",
-  "name": "Turmeric Water Elixir, Traditional Superfood Blend",
-  "brand": "Rooted Peepul",
-  "category": "beverages",
-  "sub_category": "health_drinks",
-  "pack_size": 150,
-  "unit": "g",
-  "price": 562,
-  "mrp": 749,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p251",
+  "id": "p249",
   "name": "Organic Tulsi & Honey Chamomile",
   "brand": "IndiSecrets",
   "category": "beverages",
@@ -4304,7 +4271,7 @@
   ]
  },
  {
-  "id": "p252",
+  "id": "p250",
   "name": "Idli Rice",
   "brand": "BB Popular",
   "category": "beverages",
@@ -4321,7 +4288,7 @@
   ]
  },
  {
-  "id": "p253",
+  "id": "p251",
   "name": "Idli Rice",
   "brand": "BB Royal",
   "category": "beverages",
@@ -4338,7 +4305,7 @@
   ]
  },
  {
-  "id": "p254",
+  "id": "p252",
   "name": "Idli Rice",
   "brand": "BB Popular",
   "category": "beverages",
@@ -4355,7 +4322,7 @@
   ]
  },
  {
-  "id": "p255",
+  "id": "p253",
   "name": "Idli Rice",
   "brand": "BB Royal",
   "category": "beverages",
@@ -4372,7 +4339,7 @@
   ]
  },
  {
-  "id": "p256",
+  "id": "p254",
   "name": "Sunrise Rich Aroma",
   "brand": "Nescafe",
   "category": "beverages",
@@ -4388,7 +4355,7 @@
   ]
  },
  {
-  "id": "p257",
+  "id": "p255",
   "name": "Aamras Juice",
   "brand": "Paper Boat",
   "category": "beverages",
@@ -4405,7 +4372,7 @@
   ]
  },
  {
-  "id": "p258",
+  "id": "p256",
   "name": "Aamras Mango Fruit Juice",
   "brand": "Paper Boat",
   "category": "beverages",
@@ -4422,7 +4389,7 @@
   ]
  },
  {
-  "id": "p259",
+  "id": "p257",
   "name": "Apple Carrot Beetroot Juice - Cold-Pressed",
   "brand": "Fresho Signature",
   "category": "beverages",
@@ -4439,7 +4406,7 @@
   ]
  },
  {
-  "id": "p260",
+  "id": "p258",
   "name": "Fruit Power Juice - Litchi",
   "brand": "Real",
   "category": "beverages",
@@ -4456,8 +4423,8 @@
   ]
  },
  {
-  "id": "p261",
-  "name": "Fruit Power Mixed Fruit Juice - Vitamin Boost",
+  "id": "p259",
+  "name": "Fruit Power Mixed Fruit Juice - Vitamin",
   "brand": "Real",
   "category": "beverages",
   "sub_category": "juice",
@@ -4473,7 +4440,7 @@
   ]
  },
  {
-  "id": "p262",
+  "id": "p260",
   "name": "India's No.1 Juice - Litchi",
   "brand": "Real",
   "category": "beverages",
@@ -4490,7 +4457,7 @@
   ]
  },
  {
-  "id": "p263",
+  "id": "p261",
   "name": "Mango",
   "brand": "Raw Pressery",
   "category": "beverages",
@@ -4507,7 +4474,7 @@
   ]
  },
  {
-  "id": "p264",
+  "id": "p262",
   "name": "Sugarcane Juice - Cold-Pressed",
   "brand": "Fresho Signature",
   "category": "beverages",
@@ -4525,7 +4492,7 @@
   ]
  },
  {
-  "id": "p265",
+  "id": "p263",
   "name": "Valencia Orange Juice - Cold-Pressed",
   "brand": "Fresho Signature",
   "category": "beverages",
@@ -4543,7 +4510,7 @@
   ]
  },
  {
-  "id": "p266",
+  "id": "p264",
   "name": "Vita Punch Mixed Fruit Drink",
   "brand": "Minute Maid",
   "category": "beverages",
@@ -4559,7 +4526,7 @@
   ]
  },
  {
-  "id": "p267",
+  "id": "p265",
   "name": "Organic Vanilla Spiced Long Leaf Chai",
   "brand": "VAHDAM",
   "category": "beverages",
@@ -4576,7 +4543,7 @@
   ]
  },
  {
-  "id": "p268",
+  "id": "p266",
   "name": "Golden Milk Powder With Curcumin",
   "brand": "VAHDAM",
   "category": "beverages",
@@ -4592,24 +4559,7 @@
   ]
  },
  {
-  "id": "p269",
-  "name": "Sunrise Instant Coffee - Chicory Mixture",
-  "brand": "Nescafe",
-  "category": "beverages",
-  "sub_category": "namkeen",
-  "pack_size": 50,
-  "unit": "g",
-  "price": 90,
-  "mrp": 95,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p270",
+  "id": "p267",
   "name": "Non-Alcoholic Beverage - Low Calorie",
   "brand": "Booch",
   "category": "beverages",
@@ -4626,8 +4576,8 @@
   ]
  },
  {
-  "id": "p271",
-  "name": "Prebiotic Break Shake - Chocolate & Oats Milkshake",
+  "id": "p268",
+  "name": "Prebiotic Break Shake",
   "brand": "LiL'Goodness",
   "category": "beverages",
   "sub_category": "oats",
@@ -4643,7 +4593,7 @@
   ]
  },
  {
-  "id": "p272",
+  "id": "p269",
   "name": "Rice - Ponni",
   "brand": "BB Popular",
   "category": "beverages",
@@ -4660,7 +4610,7 @@
   ]
  },
  {
-  "id": "p273",
+  "id": "p270",
   "name": "Rice - Ponni",
   "brand": "BB Popular",
   "category": "beverages",
@@ -4677,7 +4627,7 @@
   ]
  },
  {
-  "id": "p274",
+  "id": "p271",
   "name": "Bar Cake - Vanilla",
   "brand": "Elite",
   "category": "beverages",
@@ -4694,7 +4644,7 @@
   ]
  },
  {
-  "id": "p275",
+  "id": "p272",
   "name": "Bar Cake - Vanilla",
   "brand": "Elite",
   "category": "beverages",
@@ -4710,7 +4660,7 @@
   ]
  },
  {
-  "id": "p276",
+  "id": "p273",
   "name": "Coca-Cola",
   "brand": "Coca-Cola",
   "category": "beverages",
@@ -4726,7 +4676,7 @@
   ]
  },
  {
-  "id": "p277",
+  "id": "p274",
   "name": "Sprite",
   "brand": "Sprite",
   "category": "beverages",
@@ -4742,7 +4692,7 @@
   ]
  },
  {
-  "id": "p278",
+  "id": "p275",
   "name": "Thums Up",
   "brand": "Thums Up",
   "category": "beverages",
@@ -4758,7 +4708,7 @@
   ]
  },
  {
-  "id": "p279",
+  "id": "p276",
   "name": "Palakkad Red Matta Boiled Rice - Unda",
   "brand": "BB Royal",
   "category": "beverages",
@@ -4775,7 +4725,7 @@
   ]
  },
  {
-  "id": "p280",
+  "id": "p277",
   "name": "Palakkad Red Matta Boiled Rice - Unda",
   "brand": "BB Royal",
   "category": "beverages",
@@ -4792,7 +4742,7 @@
   ]
  },
  {
-  "id": "p281",
+  "id": "p278",
   "name": "Black Soft Drink - Max Taste",
   "brand": "Pepsi",
   "category": "beverages",
@@ -4809,7 +4759,7 @@
   ]
  },
  {
-  "id": "p282",
+  "id": "p279",
   "name": "Instant Drink Mix - Lemon",
   "brand": "Tang",
   "category": "beverages",
@@ -4825,7 +4775,7 @@
   ]
  },
  {
-  "id": "p283",
+  "id": "p280",
   "name": "Instant Drink Mix - Lemon",
   "brand": "Tang",
   "category": "beverages",
@@ -4842,7 +4792,7 @@
   ]
  },
  {
-  "id": "p284",
+  "id": "p281",
   "name": "Instant Drink Mix - Mango",
   "brand": "Tang",
   "category": "beverages",
@@ -4859,7 +4809,7 @@
   ]
  },
  {
-  "id": "p285",
+  "id": "p282",
   "name": "Rasna insta-promo-pack-mixed-fruit 500 g",
   "brand": "Rasna",
   "category": "beverages",
@@ -4876,7 +4826,7 @@
   ]
  },
  {
-  "id": "p286",
+  "id": "p283",
   "name": "Sharbat - Paan",
   "brand": "Gulabs",
   "category": "beverages",
@@ -4892,8 +4842,8 @@
   ]
  },
  {
-  "id": "p287",
-  "name": "Assam Teas With Gently Rolled Aromatic Long Leaves, Rich & Aromatic Ch",
+  "id": "p284",
+  "name": "Assam Teas With Gently Rolled Aromatic Long",
   "brand": "Tata Tea Gold",
   "category": "beverages",
   "sub_category": "tea",
@@ -4909,8 +4859,8 @@
   ]
  },
  {
-  "id": "p288",
-  "name": "Assam Teas With Gently Rolled Aromatic Long Leaves, Rich & Aromatic Ch",
+  "id": "p285",
+  "name": "Assam Teas With Gently Rolled Aromatic Long",
   "brand": "Tata Tea Gold",
   "category": "beverages",
   "sub_category": "tea",
@@ -4926,7 +4876,7 @@
   ]
  },
  {
-  "id": "p289",
+  "id": "p286",
   "name": "Kadak Tea",
   "brand": "Emperia",
   "category": "beverages",
@@ -4943,7 +4893,7 @@
   ]
  },
  {
-  "id": "p290",
+  "id": "p287",
   "name": "Kadak Tea",
   "brand": "Emperia",
   "category": "beverages",
@@ -4960,15 +4910,15 @@
   ]
  },
  {
-  "id": "p291",
-  "name": "Kumud Oolong Tea - Helps To Manage Weight",
-  "brand": "Teamonk",
+  "id": "p288",
+  "name": "Organic Tea - Infusion",
+  "brand": "IndiSecrets",
   "category": "beverages",
   "sub_category": "tea",
-  "pack_size": 150,
+  "pack_size": 34,
   "unit": "g",
-  "price": 570,
-  "mrp": 950,
+  "price": 139,
+  "mrp": 199,
   "in_stock": true,
   "tags": [
    "veg",
@@ -4977,8 +4927,8 @@
   ]
  },
  {
-  "id": "p292",
-  "name": "Rooibos Herbal Tea - Helps To Detox The System",
+  "id": "p289",
+  "name": "Rooibos Herbal Tea",
   "brand": "Teamonk",
   "category": "beverages",
   "sub_category": "tea",
@@ -4994,7 +4944,7 @@
   ]
  },
  {
-  "id": "p293",
+  "id": "p290",
   "name": "Tea",
   "brand": "Red Label",
   "category": "beverages",
@@ -5010,7 +4960,7 @@
   ]
  },
  {
-  "id": "p294",
+  "id": "p291",
   "name": "Tea",
   "brand": "Tata Tea Gold",
   "category": "beverages",
@@ -5026,7 +4976,7 @@
   ]
  },
  {
-  "id": "p295",
+  "id": "p292",
   "name": "Tea",
   "brand": "Red Label",
   "category": "beverages",
@@ -5043,7 +4993,7 @@
   ]
  },
  {
-  "id": "p296",
+  "id": "p293",
   "name": "Tea",
   "brand": "Tata Tea Gold",
   "category": "beverages",
@@ -5059,8 +5009,8 @@
   ]
  },
  {
-  "id": "p297",
-  "name": "Organic Recover Turmeric Elixir - Improves Overall Health",
+  "id": "p294",
+  "name": "Organic Recover Turmeric Elixir",
   "brand": "VAHDAM",
   "category": "beverages",
   "sub_category": "tea_bags",
@@ -5076,7 +5026,7 @@
   ]
  },
  {
-  "id": "p298",
+  "id": "p295",
   "name": "Classic Vanilla Cake Mix",
   "brand": "The Baker's Dozen",
   "category": "beverages",
@@ -5093,7 +5043,7 @@
   ]
  },
  {
-  "id": "p299",
+  "id": "p296",
   "name": "Packaged Drinking Water",
   "brand": "Bisleri",
   "category": "beverages",
@@ -5109,8 +5059,8 @@
   ]
  },
  {
-  "id": "p300",
-  "name": "Corn Flakes - With Real Almonds & Honey",
+  "id": "p297",
+  "name": "Corn Flakes",
   "brand": "Zerobeli",
   "category": "breakfast",
   "sub_category": "almonds",
@@ -5126,8 +5076,8 @@
   ]
  },
  {
-  "id": "p301",
-  "name": "Breakfast Mix - Kodo Millet Bisibele Bhath",
+  "id": "p298",
+  "name": "Breakfast Mix",
   "brand": "GoodDiet",
   "category": "breakfast",
   "sub_category": "breakfast_snack_mixes",
@@ -5143,7 +5093,7 @@
   ]
  },
  {
-  "id": "p302",
+  "id": "p299",
   "name": "Health Drink - Millet Vita",
   "brand": "GoodDiet",
   "category": "breakfast",
@@ -5160,7 +5110,7 @@
   ]
  },
  {
-  "id": "p303",
+  "id": "p300",
   "name": "Little Millet Kesari Bath",
   "brand": "GoodDiet",
   "category": "breakfast",
@@ -5177,7 +5127,7 @@
   ]
  },
  {
-  "id": "p304",
+  "id": "p301",
   "name": "Little Millet Pongal",
   "brand": "GoodDiet",
   "category": "breakfast",
@@ -5194,8 +5144,8 @@
   ]
  },
  {
-  "id": "p305",
-  "name": "Super Food Millet Mexican Salsa Khichdi - Ready To Cook",
+  "id": "p302",
+  "name": "Super Food Millet Mexican Salsa Khichdi",
   "brand": "Fortune",
   "category": "breakfast",
   "sub_category": "breakfast_snack_mixes",
@@ -5212,7 +5162,7 @@
   ]
  },
  {
-  "id": "p306",
+  "id": "p303",
   "name": "Chia Seeds",
   "brand": "Himalayan Natives",
   "category": "breakfast",
@@ -5229,7 +5179,7 @@
   ]
  },
  {
-  "id": "p307",
+  "id": "p304",
   "name": "Soya Chunks",
   "brand": "BB Royal",
   "category": "breakfast",
@@ -5247,7 +5197,7 @@
   ]
  },
  {
-  "id": "p308",
+  "id": "p305",
   "name": "Soya Chunks",
   "brand": "BB Royal",
   "category": "breakfast",
@@ -5265,8 +5215,8 @@
   ]
  },
  {
-  "id": "p309",
-  "name": "Muesli Wholegrain Breakfast - Rich In Fibre & Protein",
+  "id": "p306",
+  "name": "Muesli Wholegrain Breakfast",
   "brand": "ASAP",
   "category": "breakfast",
   "sub_category": "coffee",
@@ -5283,7 +5233,7 @@
   ]
  },
  {
-  "id": "p310",
+  "id": "p307",
   "name": "Corn Flakes - With Real Mango Puree",
   "brand": "Zerobeli",
   "category": "breakfast",
@@ -5300,7 +5250,7 @@
   ]
  },
  {
-  "id": "p311",
+  "id": "p308",
   "name": "Corn Flakes Plus - Original & Healthier",
   "brand": "Bagrrys",
   "category": "breakfast",
@@ -5316,7 +5266,7 @@
   ]
  },
  {
-  "id": "p312",
+  "id": "p309",
   "name": "Corn Flakes Plus - Original & Healthier",
   "brand": "Bagrrys",
   "category": "breakfast",
@@ -5332,7 +5282,7 @@
   ]
  },
  {
-  "id": "p313",
+  "id": "p310",
   "name": "Idly & Dosa Batter",
   "brand": "iD Fresho",
   "category": "breakfast",
@@ -5349,7 +5299,7 @@
   ]
  },
  {
-  "id": "p314",
+  "id": "p311",
   "name": "Instant Multigrain Millet Dosa Ready Mix",
   "brand": "Manna",
   "category": "breakfast",
@@ -5366,8 +5316,8 @@
   ]
  },
  {
-  "id": "p315",
-  "name": "Instant Multigrain Rava Dosa Ready Mix - Millets & More",
+  "id": "p312",
+  "name": "Instant Multigrain Rava Dosa Ready Mix",
   "brand": "Manna",
   "category": "breakfast",
   "sub_category": "dosa_batter",
@@ -5383,7 +5333,7 @@
   ]
  },
  {
-  "id": "p316",
+  "id": "p313",
   "name": "Millet Dosa Mix - Supergrains + Beetroot",
   "brand": "Slurrp Farm",
   "category": "breakfast",
@@ -5398,7 +5348,7 @@
   ]
  },
  {
-  "id": "p317",
+  "id": "p314",
   "name": "Millet Dosa Mix - Supergrains + Spinach",
   "brand": "Slurrp Farm",
   "category": "breakfast",
@@ -5414,8 +5364,8 @@
   ]
  },
  {
-  "id": "p318",
-  "name": "Berry Crunch Breakfast Cereal - Ragi Stars & Moons",
+  "id": "p315",
+  "name": "Berry Crunch Breakfast Cereal",
   "brand": "Slurrp Farm",
   "category": "breakfast",
   "sub_category": "maida",
@@ -5431,7 +5381,24 @@
   ]
  },
  {
-  "id": "p319",
+  "id": "p316",
+  "name": "Crunchy Muesli",
+  "brand": "Monsoon Harvest",
+  "category": "breakfast",
+  "sub_category": "muesli",
+  "pack_size": 200,
+  "unit": "g",
+  "price": 139,
+  "mrp": 185,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p317",
   "name": "Crunchy Muesli - Amaranth",
   "brand": "Gaia",
   "category": "breakfast",
@@ -5448,24 +5415,7 @@
   ]
  },
  {
-  "id": "p320",
-  "name": "Crunchy Muesli - Oat Clusters With Raisins",
-  "brand": "Monsoon Harvest",
-  "category": "breakfast",
-  "sub_category": "muesli",
-  "pack_size": 200,
-  "unit": "g",
-  "price": 139,
-  "mrp": 185,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p321",
+  "id": "p318",
   "name": "Muesli - 20% Nuts Delight",
   "brand": "Kelloggs",
   "category": "breakfast",
@@ -5482,7 +5432,7 @@
   ]
  },
  {
-  "id": "p322",
+  "id": "p319",
   "name": "Muesli - Gluten Free",
   "brand": "Bobs Red Mill",
   "category": "breakfast",
@@ -5499,7 +5449,7 @@
   ]
  },
  {
-  "id": "p323",
+  "id": "p320",
   "name": "Muesli - With 0% Added Sugar",
   "brand": "Kelloggs",
   "category": "breakfast",
@@ -5516,7 +5466,7 @@
   ]
  },
  {
-  "id": "p324",
+  "id": "p321",
   "name": "Muesli Breakfast Cereal",
   "brand": "BB Royal",
   "category": "breakfast",
@@ -5533,7 +5483,7 @@
   ]
  },
  {
-  "id": "p325",
+  "id": "p322",
   "name": "Multi Millet Muesli - With Fruits",
   "brand": "GoodDiet",
   "category": "breakfast",
@@ -5550,7 +5500,7 @@
   ]
  },
  {
-  "id": "p326",
+  "id": "p323",
   "name": "Toasted Millet Muesli Cranberry & Almond",
   "brand": "Monsoon Harvest",
   "category": "breakfast",
@@ -5568,24 +5518,8 @@
   ]
  },
  {
-  "id": "p327",
-  "name": "Toasted Millet Muesli Dark Chocolate & Orange Peel",
-  "brand": "Monsoon Harvest",
-  "category": "breakfast",
-  "sub_category": "muesli",
-  "pack_size": 1000,
-  "unit": "g",
-  "price": 518,
-  "mrp": 740,
-  "in_stock": false,
-  "tags": [
-   "veg",
-   "jain"
-  ]
- },
- {
-  "id": "p328",
-  "name": "Toasted Millet Muesli Fig & Honey With Salted Pistachios",
+  "id": "p324",
+  "name": "Toasted Millet Muesli Dark Chocolate",
   "brand": "Monsoon Harvest",
   "category": "breakfast",
   "sub_category": "muesli",
@@ -5600,75 +5534,23 @@
   ]
  },
  {
-  "id": "p329",
-  "name": "Poha - Flattened & Beaten Rice",
-  "brand": "BB Popular",
+  "id": "p325",
+  "name": "Toasted Millet Muesli Fig & Honey With",
+  "brand": "Monsoon Harvest",
   "category": "breakfast",
-  "sub_category": "namkeen",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 30,
-  "mrp": 40,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p330",
-  "name": "Poha - Flattened & Beaten Rice",
-  "brand": "BB Royal",
-  "category": "breakfast",
-  "sub_category": "namkeen",
+  "sub_category": "muesli",
   "pack_size": 1000,
   "unit": "g",
-  "price": 58,
-  "mrp": 80,
+  "price": 518,
+  "mrp": 740,
   "in_stock": true,
   "tags": [
    "veg",
-   "vegan",
    "jain"
   ]
  },
  {
-  "id": "p331",
-  "name": "Poha - Flattened & Beaten Rice",
-  "brand": "BB Popular",
-  "category": "breakfast",
-  "sub_category": "namkeen",
-  "pack_size": 1000,
-  "unit": "g",
-  "price": 49,
-  "mrp": 80,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p332",
-  "name": "Poha - Thick",
-  "brand": "BB Royal",
-  "category": "breakfast",
-  "sub_category": "namkeen",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 35,
-  "mrp": 40,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p333",
+  "id": "p326",
   "name": "100% Whole Grain Oats",
   "brand": "Disano",
   "category": "breakfast",
@@ -5686,8 +5568,8 @@
   ]
  },
  {
-  "id": "p334",
-  "name": "Oats Breakfast Cereal - Rich In Protein",
+  "id": "p327",
+  "name": "Oats Breakfast Cereal",
   "brand": "Quaker",
   "category": "breakfast",
   "sub_category": "oats",
@@ -5695,24 +5577,6 @@
   "unit": "g",
   "price": 73,
   "mrp": 79,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain",
-   "high_protein"
-  ]
- },
- {
-  "id": "p335",
-  "name": "Oats Breakfast Cereal - Rich In Protein",
-  "brand": "Quaker",
-  "category": "breakfast",
-  "sub_category": "oats",
-  "pack_size": 1000,
-  "unit": "g",
-  "price": 179,
-  "mrp": 199,
   "in_stock": false,
   "tags": [
    "veg",
@@ -5722,8 +5586,8 @@
   ]
  },
  {
-  "id": "p336",
-  "name": "Oats Breakfast Cereal- Rich In Protein, Dietary Fibre, Nutritious, Eas",
+  "id": "p328",
+  "name": "Oats Breakfast Cereal",
   "brand": "BB Royal",
   "category": "breakfast",
   "sub_category": "oats",
@@ -5740,7 +5604,25 @@
   ]
  },
  {
-  "id": "p337",
+  "id": "p329",
+  "name": "Oats Breakfast Cereal",
+  "brand": "Quaker",
+  "category": "breakfast",
+  "sub_category": "oats",
+  "pack_size": 1000,
+  "unit": "g",
+  "price": 179,
+  "mrp": 199,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain",
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p330",
   "name": "Oats Dalia - 100% Natural",
   "brand": "Jiwa",
   "category": "breakfast",
@@ -5758,7 +5640,7 @@
   ]
  },
  {
-  "id": "p338",
+  "id": "p331",
   "name": "Oats Pongal",
   "brand": "GoodDiet",
   "category": "breakfast",
@@ -5776,7 +5658,24 @@
   ]
  },
  {
-  "id": "p339",
+  "id": "p332",
+  "name": "Rolled Oats",
+  "brand": "Quaker",
+  "category": "breakfast",
+  "sub_category": "oats",
+  "pack_size": 2000,
+  "unit": "g",
+  "price": 338,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain",
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p333",
   "name": "Rolled Oats - 100% Natural",
   "brand": "Jiwa",
   "category": "breakfast",
@@ -5794,24 +5693,7 @@
   ]
  },
  {
-  "id": "p340",
-  "name": "Rolled Oats - Rich In Protein",
-  "brand": "Quaker",
-  "category": "breakfast",
-  "sub_category": "oats",
-  "pack_size": 2000,
-  "unit": "g",
-  "price": 338,
-  "in_stock": false,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain",
-   "high_protein"
-  ]
- },
- {
-  "id": "p341",
+  "id": "p334",
   "name": "Steel Cut Oats - 100% Natural",
   "brand": "Jiwa",
   "category": "breakfast",
@@ -5829,7 +5711,7 @@
   ]
  },
  {
-  "id": "p342",
+  "id": "p335",
   "name": "Peanuts - Raw",
   "brand": "BB Royal",
   "category": "breakfast",
@@ -5847,24 +5729,7 @@
   ]
  },
  {
-  "id": "p343",
-  "name": "Aval - Flattened & Beaten Rice",
-  "brand": "BB Royal",
-  "category": "breakfast",
-  "sub_category": "poha",
-  "pack_size": 200,
-  "unit": "g",
-  "price": 20,
-  "mrp": 25,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p344",
+  "id": "p336",
   "name": "Avalakki Medium - Flattened & Beaten Rice",
   "brand": "BB Royal",
   "category": "breakfast",
@@ -5881,25 +5746,8 @@
   ]
  },
  {
-  "id": "p345",
-  "name": "Avalakki Medium - Flattened & Beaten Rice",
-  "brand": "BB Royal",
-  "category": "breakfast",
-  "sub_category": "poha",
-  "pack_size": 1000,
-  "unit": "g",
-  "price": 60,
-  "mrp": 80,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p346",
-  "name": "High In Fibre Thick Poha - Flattened & Beaten Rice",
+  "id": "p337",
+  "name": "Flattened & Beaten Rice",
   "brand": "Tata Sampann",
   "category": "breakfast",
   "sub_category": "poha",
@@ -5915,15 +5763,15 @@
   ]
  },
  {
-  "id": "p347",
-  "name": "Poha Instant Mix",
-  "brand": "Motherss Recipe",
+  "id": "p338",
+  "name": "Poha - Flattened & Beaten Rice",
+  "brand": "BB Popular",
   "category": "breakfast",
   "sub_category": "poha",
-  "pack_size": 160,
+  "pack_size": 500,
   "unit": "g",
-  "price": 55,
-  "mrp": 60,
+  "price": 30,
+  "mrp": 40,
   "in_stock": true,
   "tags": [
    "veg",
@@ -5932,7 +5780,41 @@
   ]
  },
  {
-  "id": "p348",
+  "id": "p339",
+  "name": "Poha - Flattened & Beaten Rice",
+  "brand": "BB Royal",
+  "category": "breakfast",
+  "sub_category": "poha",
+  "pack_size": 1000,
+  "unit": "g",
+  "price": 58,
+  "mrp": 80,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p340",
+  "name": "Poha - Flattened & Beaten Rice",
+  "brand": "BB Popular",
+  "category": "breakfast",
+  "sub_category": "poha",
+  "pack_size": 1000,
+  "unit": "g",
+  "price": 49,
+  "mrp": 80,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p341",
   "name": "Thick Poha - Flattened & Beaten Rice",
   "brand": "Super Saver",
   "category": "breakfast",
@@ -5949,7 +5831,7 @@
   ]
  },
  {
-  "id": "p349",
+  "id": "p342",
   "name": "Thick Poha - Flattened & Beaten Rice",
   "brand": "Super Saver",
   "category": "breakfast",
@@ -5966,24 +5848,7 @@
   ]
  },
  {
-  "id": "p350",
-  "name": "White Thick Poha - High In Fibre",
-  "brand": "Tata Sampann",
-  "category": "breakfast",
-  "sub_category": "poha",
-  "pack_size": 1000,
-  "unit": "g",
-  "price": 82,
-  "mrp": 88,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p351",
+  "id": "p343",
   "name": "Jowar",
   "brand": "BB Royal",
   "category": "breakfast",
@@ -6000,7 +5865,7 @@
   ]
  },
  {
-  "id": "p352",
+  "id": "p344",
   "name": "Sabudana - White",
   "brand": "BB Royal",
   "category": "breakfast",
@@ -6017,7 +5882,7 @@
   ]
  },
  {
-  "id": "p353",
+  "id": "p345",
   "name": "Sabudana - White",
   "brand": "BB Royal",
   "category": "breakfast",
@@ -6034,7 +5899,7 @@
   ]
  },
  {
-  "id": "p354",
+  "id": "p346",
   "name": "Instant Veggie Upma - Ready To Eat",
   "brand": "Aashirvaad",
   "category": "breakfast",
@@ -6049,7 +5914,7 @@
   ]
  },
  {
-  "id": "p355",
+  "id": "p347",
   "name": "Rice Cakes - Classic Plain",
   "brand": "Suprfit",
   "category": "breakfast",
@@ -6066,25 +5931,24 @@
   ]
  },
  {
-  "id": "p356",
-  "name": "No Added Sugar Protein Bar - Hazelnut",
-  "brand": "Yoga Bar",
+  "id": "p348",
+  "name": "Nutrition Energy Bar",
+  "brand": "GoodDiet",
   "category": "breakfast",
   "sub_category": "snack_bar",
-  "pack_size": 70,
+  "pack_size": 40,
   "unit": "g",
-  "price": 699,
+  "price": 44,
+  "mrp": 52,
   "in_stock": true,
   "tags": [
    "veg",
    "vegan",
-   "jain",
-   "high_protein",
-   "sugar_free"
+   "jain"
   ]
  },
  {
-  "id": "p357",
+  "id": "p349",
   "name": "Nutrition Energy Bar - Almonds & Raisins",
   "brand": "GoodDiet",
   "category": "breakfast",
@@ -6102,7 +5966,7 @@
   ]
  },
  {
-  "id": "p358",
+  "id": "p350",
   "name": "Nutrition Energy Bar - Dates & Walnut",
   "brand": "GoodDiet",
   "category": "breakfast",
@@ -6119,7 +5983,7 @@
   ]
  },
  {
-  "id": "p359",
+  "id": "p351",
   "name": "Nutrition Energy Bar - Gojiberry",
   "brand": "GoodDiet",
   "category": "breakfast",
@@ -6136,15 +6000,33 @@
   ]
  },
  {
-  "id": "p360",
-  "name": "Nutrition Energy Bar - Pumpkin Seeds & Cranberries",
-  "brand": "GoodDiet",
+  "id": "p352",
+  "name": "Refresh - Coconut Lime Bar",
+  "brand": "Nourish Organics",
   "category": "breakfast",
   "sub_category": "snack_bar",
-  "pack_size": 40,
+  "pack_size": 30,
   "unit": "g",
-  "price": 44,
-  "mrp": 52,
+  "price": 270,
+  "mrp": 360,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain",
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p353",
+  "name": "Snack Bar - Fruit & Nut",
+  "brand": "Unibic",
+  "category": "breakfast",
+  "sub_category": "snack_bar",
+  "pack_size": 30,
+  "unit": "g",
+  "price": 34,
+  "mrp": 40,
   "in_stock": true,
   "tags": [
    "veg",
@@ -6153,7 +6035,7 @@
   ]
  },
  {
-  "id": "p361",
+  "id": "p354",
   "name": "Rava Idli Instant Mix",
   "brand": "Aashirvaad",
   "category": "breakfast",
@@ -6170,7 +6052,7 @@
   ]
  },
  {
-  "id": "p362",
+  "id": "p355",
   "name": "3 Minute Breakfast Vegetable Upma",
   "brand": "MTR",
   "category": "breakfast",
@@ -6187,7 +6069,7 @@
   ]
  },
  {
-  "id": "p363",
+  "id": "p356",
   "name": "Little Millet Upma",
   "brand": "GoodDiet",
   "category": "breakfast",
@@ -6204,7 +6086,7 @@
   ]
  },
  {
-  "id": "p364",
+  "id": "p357",
   "name": "Chocorich Eclairs Chocolate - Assorted",
   "brand": "LuvIt",
   "category": "chocolates",
@@ -6221,8 +6103,8 @@
   ]
  },
  {
-  "id": "p365",
-  "name": "Sephra Fruit Center Filled Choco Assortments.",
+  "id": "p358",
+  "name": "Sephra Fruit Center Filled Choco",
   "brand": "KOKOLEKA",
   "category": "chocolates",
   "sub_category": "chocolate",
@@ -6237,7 +6119,7 @@
   ]
  },
  {
-  "id": "p366",
+  "id": "p359",
   "name": "Duo Coconut 12 Pralines Pack",
   "brand": "Sundrop",
   "category": "chocolates",
@@ -6253,7 +6135,7 @@
   ]
  },
  {
-  "id": "p367",
+  "id": "p360",
   "name": "Gems Home Treats Pack",
   "brand": "Cadbury",
   "category": "chocolates",
@@ -6270,8 +6152,8 @@
   ]
  },
  {
-  "id": "p368",
-  "name": "Premium Orange Candy - Provides Freshness",
+  "id": "p361",
+  "name": "Premium Orange Candy",
   "brand": "Delight Nuts",
   "category": "chocolates",
   "sub_category": "citrus",
@@ -6287,7 +6169,7 @@
   ]
  },
  {
-  "id": "p369",
+  "id": "p362",
   "name": "100% Belgian Dark Chocolate - Raisins",
   "brand": "Lindberg",
   "category": "chocolates",
@@ -6306,7 +6188,7 @@
   ]
  },
  {
-  "id": "p370",
+  "id": "p363",
   "name": "100% Belgian Dark Chocolate - with Apricot",
   "brand": "Lindberg",
   "category": "chocolates",
@@ -6325,8 +6207,8 @@
   ]
  },
  {
-  "id": "p371",
-  "name": "55% Dark Chocolate - Signature Blend Multi-Origin",
+  "id": "p364",
+  "name": "55% Dark Chocolate",
   "brand": "Ambriona",
   "category": "chocolates",
   "sub_category": "dark_chocolate",
@@ -6342,8 +6224,8 @@
   ]
  },
  {
-  "id": "p372",
-  "name": "64% Mild Dark Chocolate With Amazon Pink Pepper",
+  "id": "p365",
+  "name": "64% Mild Dark Chocolate With Amazon Pink",
   "brand": "Paul And Mike",
   "category": "chocolates",
   "sub_category": "dark_chocolate",
@@ -6360,7 +6242,7 @@
   ]
  },
  {
-  "id": "p373",
+  "id": "p366",
   "name": "Bitter Chocolate 75% Cocoa",
   "brand": "Amul",
   "category": "chocolates",
@@ -6378,7 +6260,7 @@
   ]
  },
  {
-  "id": "p374",
+  "id": "p367",
   "name": "Bournville Rich Cocoa 50% Cocoa",
   "brand": "Cadbury",
   "category": "chocolates",
@@ -6396,7 +6278,7 @@
   ]
  },
  {
-  "id": "p375",
+  "id": "p368",
   "name": "Dark Chocolate - Single Origin",
   "brand": "Amul",
   "category": "chocolates",
@@ -6414,7 +6296,7 @@
   ]
  },
  {
-  "id": "p376",
+  "id": "p369",
   "name": "Dark Chocolate 70% Cocoa",
   "brand": "Mason & Co",
   "category": "chocolates",
@@ -6432,7 +6314,7 @@
   ]
  },
  {
-  "id": "p377",
+  "id": "p370",
   "name": "Dark Chocolate 72% Cocoa",
   "brand": "Paul And Mike",
   "category": "chocolates",
@@ -6450,7 +6332,7 @@
   ]
  },
  {
-  "id": "p378",
+  "id": "p371",
   "name": "Dark Chocolate 99% Cocoa",
   "brand": "Amul",
   "category": "chocolates",
@@ -6468,7 +6350,7 @@
   ]
  },
  {
-  "id": "p379",
+  "id": "p372",
   "name": "Excellence Dark 70% Cocoa",
   "brand": "Lindt",
   "category": "chocolates",
@@ -6486,7 +6368,7 @@
   ]
  },
  {
-  "id": "p380",
+  "id": "p373",
   "name": "Excellence Dark 85% Cocoa",
   "brand": "Lindt",
   "category": "chocolates",
@@ -6504,7 +6386,7 @@
   ]
  },
  {
-  "id": "p381",
+  "id": "p374",
   "name": "Excellence Dark 90% Cocoa",
   "brand": "Lindt",
   "category": "chocolates",
@@ -6522,7 +6404,7 @@
   ]
  },
  {
-  "id": "p382",
+  "id": "p375",
   "name": "Pineapple Dark Chocolate Crispies",
   "brand": "Lindberg",
   "category": "chocolates",
@@ -6540,7 +6422,7 @@
   ]
  },
  {
-  "id": "p383",
+  "id": "p376",
   "name": "White Chocolate Buttons - 28% Cocoa",
   "brand": "HappyChef",
   "category": "chocolates",
@@ -6559,8 +6441,8 @@
   ]
  },
  {
-  "id": "p384",
-  "name": "Candy With Goodness Of Desi Ghee - Premium Quality",
+  "id": "p377",
+  "name": "Candy - Premium Quality",
   "brand": "Solano",
   "category": "chocolates",
   "sub_category": "ghee",
@@ -6576,7 +6458,7 @@
   ]
  },
  {
-  "id": "p385",
+  "id": "p378",
   "name": "Assorted Crispy Treats",
   "brand": "Lindberg",
   "category": "chocolates",
@@ -6593,7 +6475,7 @@
   ]
  },
  {
-  "id": "p386",
+  "id": "p379",
   "name": "Eggless Mithai Macarons",
   "brand": "Lindberg",
   "category": "chocolates",
@@ -6610,7 +6492,7 @@
   ]
  },
  {
-  "id": "p387",
+  "id": "p380",
   "name": "Turkish Baklava",
   "brand": "Fresho Signature",
   "category": "chocolates",
@@ -6627,7 +6509,7 @@
   ]
  },
  {
-  "id": "p388",
+  "id": "p381",
   "name": "Turkish Baklava",
   "brand": "Fresho Signature",
   "category": "chocolates",
@@ -6644,8 +6526,8 @@
   ]
  },
  {
-  "id": "p389",
-  "name": "Premium Assorted Candy - Provides Freshness",
+  "id": "p382",
+  "name": "Premium Assorted Candy",
   "brand": "Delight Nuts",
   "category": "chocolates",
   "sub_category": "marshmallow_candy_jelly",
@@ -6661,8 +6543,8 @@
   ]
  },
  {
-  "id": "p390",
-  "name": "Premium Kacha Aam Candy - Provides Freshness",
+  "id": "p383",
+  "name": "Premium Kacha Aam Candy",
   "brand": "Delight Nuts",
   "category": "chocolates",
   "sub_category": "marshmallow_candy_jelly",
@@ -6678,8 +6560,8 @@
   ]
  },
  {
-  "id": "p391",
-  "name": "Premium Paan Candy - Provides Freshness",
+  "id": "p384",
+  "name": "Premium Paan Candy",
   "brand": "Delight Nuts",
   "category": "chocolates",
   "sub_category": "marshmallow_candy_jelly",
@@ -6695,7 +6577,7 @@
   ]
  },
  {
-  "id": "p392",
+  "id": "p385",
   "name": "Peanut Brittle - With Jaggery",
   "brand": "Lindberg",
   "category": "chocolates",
@@ -6713,7 +6595,7 @@
   ]
  },
  {
-  "id": "p393",
+  "id": "p386",
   "name": "Dairy Rich Chocolate Bar - Fruit & Nut",
   "brand": "LuvIt",
   "category": "chocolates",
@@ -6730,25 +6612,8 @@
   ]
  },
  {
-  "id": "p394",
-  "name": "Dark Baking Bar",
-  "brand": "HappyChef",
-  "category": "chocolates",
-  "sub_category": "snack_bar",
-  "pack_size": 200,
-  "unit": "g",
-  "price": 229,
-  "mrp": 295,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "jain",
-   "gift_friendly"
-  ]
- },
- {
-  "id": "p395",
-  "name": "Luscious Chocolate Bar - Rich with Roasted Almond",
+  "id": "p387",
+  "name": "Luscious Chocolate Bar",
   "brand": "LuvIt",
   "category": "chocolates",
   "sub_category": "snack_bar",
@@ -6765,8 +6630,8 @@
   ]
  },
  {
-  "id": "p396",
-  "name": "Multigrain Strawberry Fills Breakfast Cereal - High Protein",
+  "id": "p388",
+  "name": "Multigrain Strawberry Fills Breakfast Cereal",
   "brand": "Swad",
   "category": "chocolates",
   "sub_category": "toffee_candy_lollypop",
@@ -6783,7 +6648,7 @@
   ]
  },
  {
-  "id": "p397",
+  "id": "p389",
   "name": "Almond Drink - Unsweetened",
   "brand": "Epigamia",
   "category": "dairy",
@@ -6801,8 +6666,8 @@
   ]
  },
  {
-  "id": "p398",
-  "name": "Natura Rice & Almond Drink, Vegan",
+  "id": "p390",
+  "name": "Natura Rice & Almond Drink",
   "brand": "BORGES",
   "category": "dairy",
   "sub_category": "almonds",
@@ -6818,7 +6683,7 @@
   ]
  },
  {
-  "id": "p399",
+  "id": "p391",
   "name": "Butter - Pasteurised",
   "brand": "Fresho",
   "category": "dairy",
@@ -6834,7 +6699,7 @@
   ]
  },
  {
-  "id": "p400",
+  "id": "p392",
   "name": "Butter - Pasteurised",
   "brand": "Fresho",
   "category": "dairy",
@@ -6850,7 +6715,7 @@
   ]
  },
  {
-  "id": "p401",
+  "id": "p393",
   "name": "Pasteurised Butter",
   "brand": "Amul",
   "category": "dairy",
@@ -6866,7 +6731,7 @@
   ]
  },
  {
-  "id": "p402",
+  "id": "p394",
   "name": "Pasteurised Butter",
   "brand": "Amul",
   "category": "dairy",
@@ -6882,7 +6747,7 @@
   ]
  },
  {
-  "id": "p403",
+  "id": "p395",
   "name": "Salted Butter",
   "brand": "Fresho Organic",
   "category": "dairy",
@@ -6898,7 +6763,7 @@
   ]
  },
  {
-  "id": "p404",
+  "id": "p396",
   "name": "Kaju Butterscotch Milkshake - With Zinc",
   "brand": "Cavins",
   "category": "dairy",
@@ -6914,7 +6779,7 @@
   ]
  },
  {
-  "id": "p405",
+  "id": "p397",
   "name": "Cheese Slice",
   "brand": "Go",
   "category": "dairy",
@@ -6930,8 +6795,8 @@
   ]
  },
  {
-  "id": "p406",
-  "name": "Processed Cheese Cubes - Made from Cow's Milk",
+  "id": "p398",
+  "name": "Processed Cheese Cubes - Made from Cow's",
   "brand": "D'Lecta",
   "category": "dairy",
   "sub_category": "cheese",
@@ -6946,7 +6811,7 @@
   ]
  },
  {
-  "id": "p407",
+  "id": "p399",
   "name": "Processed Cheese Slices - Made From Cow Milk",
   "brand": "D'Lecta",
   "category": "dairy",
@@ -6962,7 +6827,7 @@
   ]
  },
  {
-  "id": "p408",
+  "id": "p400",
   "name": "Chocolate Milkshake - With Zinc",
   "brand": "Cavins",
   "category": "dairy",
@@ -6978,7 +6843,7 @@
   ]
  },
  {
-  "id": "p409",
+  "id": "p401",
   "name": "Chocolate Milkshake - With Zinc",
   "brand": "Cavins",
   "category": "dairy",
@@ -6994,8 +6859,8 @@
   ]
  },
  {
-  "id": "p410",
-  "name": "Dark Fantasy Chocolate Milkshake - With Real Belgian Chocolate",
+  "id": "p402",
+  "name": "Dark Fantasy Chocolate Milkshake",
   "brand": "Sunfeast",
   "category": "dairy",
   "sub_category": "chocolate",
@@ -7010,7 +6875,7 @@
   ]
  },
  {
-  "id": "p411",
+  "id": "p403",
   "name": "Soya Drink Chocolate",
   "brand": "Sofit",
   "category": "dairy",
@@ -7027,8 +6892,8 @@
   ]
  },
  {
-  "id": "p412",
-  "name": "Ready To Drink Protein Milkshake - Cold Coffee",
+  "id": "p404",
+  "name": "Ready To Drink Protein Milkshake - Cold",
   "brand": "Raw Pressery",
   "category": "dairy",
   "sub_category": "coffee",
@@ -7044,7 +6909,7 @@
   ]
  },
  {
-  "id": "p413",
+  "id": "p405",
   "name": "Fresh Cream",
   "brand": "Amul",
   "category": "dairy",
@@ -7059,7 +6924,7 @@
   ]
  },
  {
-  "id": "p414",
+  "id": "p406",
   "name": "Curd - Premium",
   "brand": "Heritage",
   "category": "dairy",
@@ -7075,7 +6940,7 @@
   ]
  },
  {
-  "id": "p415",
+  "id": "p407",
   "name": "Farm Fresh Curd - Premium",
   "brand": "Milky Mist",
   "category": "dairy",
@@ -7092,7 +6957,7 @@
   ]
  },
  {
-  "id": "p416",
+  "id": "p408",
   "name": "Masti Dahi",
   "brand": "Amul",
   "category": "dairy",
@@ -7108,7 +6973,7 @@
   ]
  },
  {
-  "id": "p417",
+  "id": "p409",
   "name": "Organic Curd",
   "brand": "AKSHAYAKALPA",
   "category": "dairy",
@@ -7125,8 +6990,8 @@
   ]
  },
  {
-  "id": "p418",
-  "name": "Organic Probiotic Curd - Good For Digestion",
+  "id": "p410",
+  "name": "Organic Probiotic Curd",
   "brand": "AKSHAYAKALPA",
   "category": "dairy",
   "sub_category": "curd",
@@ -7142,8 +7007,8 @@
   ]
  },
  {
-  "id": "p419",
-  "name": "Premium Curd - Natural Source Of Calcium",
+  "id": "p411",
+  "name": "Premium Curd - Natural",
   "brand": "Heritage",
   "category": "dairy",
   "sub_category": "curd",
@@ -7159,7 +7024,7 @@
   ]
  },
  {
-  "id": "p420",
+  "id": "p412",
   "name": "Natural Soy Drink (Tetra Pak)",
   "brand": "Sofit",
   "category": "dairy",
@@ -7175,7 +7040,7 @@
   ]
  },
  {
-  "id": "p421",
+  "id": "p413",
   "name": "Soya Drink Kesar Pista",
   "brand": "Sofit",
   "category": "dairy",
@@ -7191,7 +7056,7 @@
   ]
  },
  {
-  "id": "p422",
+  "id": "p414",
   "name": "Soya Drink Kesar Pista",
   "brand": "Sofit",
   "category": "dairy",
@@ -7208,7 +7073,7 @@
   ]
  },
  {
-  "id": "p423",
+  "id": "p415",
   "name": "Soya Drink Vanilla",
   "brand": "Sofit",
   "category": "dairy",
@@ -7225,7 +7090,7 @@
   ]
  },
  {
-  "id": "p424",
+  "id": "p416",
   "name": "Vanilla Soy Drink (Tetra Pak)",
   "brand": "Sofit",
   "category": "dairy",
@@ -7241,8 +7106,8 @@
   ]
  },
  {
-  "id": "p425",
-  "name": "Strawberry Milkshake - With Real Strawberry Pulp",
+  "id": "p417",
+  "name": "Strawberry Milkshake",
   "brand": "Sunfeast",
   "category": "dairy",
   "sub_category": "flavoured_soya_milk",
@@ -7257,7 +7122,7 @@
   ]
  },
  {
-  "id": "p426",
+  "id": "p418",
   "name": "Strawberry Milkshake - With Zinc",
   "brand": "Cavins",
   "category": "dairy",
@@ -7273,7 +7138,7 @@
   ]
  },
  {
-  "id": "p427",
+  "id": "p419",
   "name": "Strawberry Milkshake - With Zinc",
   "brand": "Cavins",
   "category": "dairy",
@@ -7289,8 +7154,8 @@
   ]
  },
  {
-  "id": "p428",
-  "name": "Vanilla Milkshake - With Real Vanilla Extracts",
+  "id": "p420",
+  "name": "Vanilla Milkshake",
   "brand": "Sunfeast",
   "category": "dairy",
   "sub_category": "flavoured_soya_milk",
@@ -7305,7 +7170,7 @@
   ]
  },
  {
-  "id": "p429",
+  "id": "p421",
   "name": "Vanilla Milkshake - With Zinc",
   "brand": "Cavins",
   "category": "dairy",
@@ -7321,7 +7186,7 @@
   ]
  },
  {
-  "id": "p430",
+  "id": "p422",
   "name": "Vanilla Milkshake - With Zinc",
   "brand": "Cavins",
   "category": "dairy",
@@ -7337,7 +7202,7 @@
   ]
  },
  {
-  "id": "p431",
+  "id": "p423",
   "name": "Rajbhog Ice Cream",
   "brand": "Amul",
   "category": "dairy",
@@ -7353,7 +7218,7 @@
   ]
  },
  {
-  "id": "p432",
+  "id": "p424",
   "name": "Oreo & Crème Frozen Dessert",
   "brand": "kwality walls",
   "category": "dairy",
@@ -7369,7 +7234,7 @@
   ]
  },
  {
-  "id": "p433",
+  "id": "p425",
   "name": "Gold Full Cream Milk",
   "brand": "Amul",
   "category": "dairy",
@@ -7384,7 +7249,7 @@
   ]
  },
  {
-  "id": "p434",
+  "id": "p426",
   "name": "GoodLife UHT Treated Toned Milk",
   "brand": "Nandini",
   "category": "dairy",
@@ -7399,7 +7264,7 @@
   ]
  },
  {
-  "id": "p435",
+  "id": "p427",
   "name": "GoodLife UHT Treated Toned Milk",
   "brand": "Nandini",
   "category": "dairy",
@@ -7414,7 +7279,7 @@
   ]
  },
  {
-  "id": "p436",
+  "id": "p428",
   "name": "Taaza Toned Milk",
   "brand": "Amul",
   "category": "dairy",
@@ -7429,7 +7294,7 @@
   ]
  },
  {
-  "id": "p437",
+  "id": "p429",
   "name": "Toned Milk",
   "brand": "Mother Dairy",
   "category": "dairy",
@@ -7444,7 +7309,7 @@
   ]
  },
  {
-  "id": "p438",
+  "id": "p430",
   "name": "Malai Fresh Paneer",
   "brand": "Fresho Organic",
   "category": "dairy",
@@ -7461,7 +7326,7 @@
   ]
  },
  {
-  "id": "p439",
+  "id": "p431",
   "name": "Paneer - Premium Fresh",
   "brand": "Milky Mist",
   "category": "dairy",
@@ -7477,7 +7342,7 @@
   ]
  },
  {
-  "id": "p440",
+  "id": "p432",
   "name": "Paneer - Premium Fresh",
   "brand": "Milky Mist",
   "category": "dairy",
@@ -7494,8 +7359,8 @@
   ]
  },
  {
-  "id": "p441",
-  "name": "Chettinad Soyabean Tempeh Cubes - Rich In Protein",
+  "id": "p433",
+  "name": "Chettinad Soyabean Tempeh Cubes",
   "brand": "Hello Tempayy",
   "category": "dairy",
   "sub_category": "paneer_tofu_cream",
@@ -7511,8 +7376,8 @@
   ]
  },
  {
-  "id": "p442",
-  "name": "Peppery Szechuan Chilli Soyabean Tempeh Cubes - Vegan",
+  "id": "p434",
+  "name": "Peppery Szechuan Chilli Soyabean Tempeh",
   "brand": "Hello Tempayy",
   "category": "dairy",
   "sub_category": "paneer_tofu_cream",
@@ -7528,8 +7393,8 @@
   ]
  },
  {
-  "id": "p443",
-  "name": "Soyabean Tempeh Cubes - Rich In Protein & Fibre",
+  "id": "p435",
+  "name": "Soyabean Tempeh Cubes",
   "brand": "Hello Tempayy",
   "category": "dairy",
   "sub_category": "paneer_tofu_cream",
@@ -7545,8 +7410,8 @@
   ]
  },
  {
-  "id": "p444",
-  "name": "Spicy Peri Peri Soyabean Tempeh Cubes - Rich In Protein",
+  "id": "p436",
+  "name": "Spicy Peri Peri Soyabean Tempeh Cubes",
   "brand": "Hello Tempayy",
   "category": "dairy",
   "sub_category": "paneer_tofu_cream",
@@ -7562,7 +7427,7 @@
   ]
  },
  {
-  "id": "p445",
+  "id": "p437",
   "name": "Soya Drink Sugar Free",
   "brand": "Sofit",
   "category": "dairy",
@@ -7580,7 +7445,7 @@
   ]
  },
  {
-  "id": "p446",
+  "id": "p438",
   "name": "Deliciously French Yogurt - Natural",
   "brand": "Mamie Yova",
   "category": "dairy",
@@ -7596,7 +7461,7 @@
   ]
  },
  {
-  "id": "p447",
+  "id": "p439",
   "name": "French Yogurt - Mango",
   "brand": "Mamie Yova",
   "category": "dairy",
@@ -7612,7 +7477,7 @@
   ]
  },
  {
-  "id": "p448",
+  "id": "p440",
   "name": "Yo Pop Flavoured Yoghurt Drink - Banana",
   "brand": "Mamie Yova",
   "category": "dairy",
@@ -7628,7 +7493,7 @@
   ]
  },
  {
-  "id": "p449",
+  "id": "p441",
   "name": "Yo Pop Flavoured Yogurt Drink - Mango",
   "brand": "Mamie Yova",
   "category": "dairy",
@@ -7644,7 +7509,7 @@
   ]
  },
  {
-  "id": "p450",
+  "id": "p442",
   "name": "Yo Pop Flavoured Yogurt Drink - Pinna Colada",
   "brand": "Mamie Yova",
   "category": "dairy",
@@ -7660,7 +7525,7 @@
   ]
  },
  {
-  "id": "p451",
+  "id": "p443",
   "name": "Yo Pop Flavoured Yogurt Drink - Vanilla",
   "brand": "Mamie Yova",
   "category": "dairy",
@@ -7676,7 +7541,7 @@
   ]
  },
  {
-  "id": "p452",
+  "id": "p444",
   "name": "100% Natural Premium Californian Almonds",
   "brand": "Happilo",
   "category": "dry_fruits",
@@ -7695,7 +7560,7 @@
   ]
  },
  {
-  "id": "p453",
+  "id": "p445",
   "name": "Almond - Californian",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -7714,7 +7579,7 @@
   ]
  },
  {
-  "id": "p454",
+  "id": "p446",
   "name": "Almond - Californian",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -7733,7 +7598,7 @@
   ]
  },
  {
-  "id": "p455",
+  "id": "p447",
   "name": "California Almonds",
   "brand": "Happilo",
   "category": "dry_fruits",
@@ -7752,7 +7617,7 @@
   ]
  },
  {
-  "id": "p456",
+  "id": "p448",
   "name": "Organic - Almond",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -7771,7 +7636,7 @@
   ]
  },
  {
-  "id": "p457",
+  "id": "p449",
   "name": "Organic - Almond",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -7790,7 +7655,7 @@
   ]
  },
  {
-  "id": "p458",
+  "id": "p450",
   "name": "Cashew - Broken",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -7808,7 +7673,7 @@
   ]
  },
  {
-  "id": "p459",
+  "id": "p451",
   "name": "Cashew - Broken",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -7826,7 +7691,7 @@
   ]
  },
  {
-  "id": "p460",
+  "id": "p452",
   "name": "Cashew - Split",
   "brand": "BB Popular",
   "category": "dry_fruits",
@@ -7844,7 +7709,7 @@
   ]
  },
  {
-  "id": "p461",
+  "id": "p453",
   "name": "Cashew - Split",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -7862,7 +7727,7 @@
   ]
  },
  {
-  "id": "p462",
+  "id": "p454",
   "name": "Cashew - Split",
   "brand": "BB Popular",
   "category": "dry_fruits",
@@ -7880,7 +7745,7 @@
   ]
  },
  {
-  "id": "p463",
+  "id": "p455",
   "name": "Cashew - Split",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -7898,7 +7763,7 @@
   ]
  },
  {
-  "id": "p464",
+  "id": "p456",
   "name": "Cashew - Whole",
   "brand": "dhanalakshmi",
   "category": "dry_fruits",
@@ -7916,7 +7781,7 @@
   ]
  },
  {
-  "id": "p465",
+  "id": "p457",
   "name": "Honey Roasted Cashews",
   "brand": "Nourish Organics",
   "category": "dry_fruits",
@@ -7933,7 +7798,7 @@
   ]
  },
  {
-  "id": "p466",
+  "id": "p458",
   "name": "Premium Natural Whole Cashews",
   "brand": "Happilo",
   "category": "dry_fruits",
@@ -7951,7 +7816,7 @@
   ]
  },
  {
-  "id": "p467",
+  "id": "p459",
   "name": "Spanish Corn - Roasted & Salted",
   "brand": "Nutraj",
   "category": "dry_fruits",
@@ -7969,7 +7834,7 @@
   ]
  },
  {
-  "id": "p468",
+  "id": "p460",
   "name": "Blueberry Mousse",
   "brand": "Fresho Signature",
   "category": "dry_fruits",
@@ -7987,7 +7852,7 @@
   ]
  },
  {
-  "id": "p469",
+  "id": "p461",
   "name": "Mango Mousse",
   "brand": "Fresho Signature",
   "category": "dry_fruits",
@@ -8005,8 +7870,8 @@
   ]
  },
  {
-  "id": "p470",
-  "name": "100% Natural Premium Californian Inshell Walnut",
+  "id": "p462",
+  "name": "100% Natural Premium Californian Inshell",
   "brand": "Happilo",
   "category": "dry_fruits",
   "sub_category": "dry_fruits_berries",
@@ -8023,8 +7888,8 @@
   ]
  },
  {
-  "id": "p471",
-  "name": "100% Natural Premium Californian Inshell Walnut",
+  "id": "p463",
+  "name": "100% Natural Premium Californian Inshell",
   "brand": "Happilo",
   "category": "dry_fruits",
   "sub_category": "dry_fruits_berries",
@@ -8041,8 +7906,8 @@
   ]
  },
  {
-  "id": "p472",
-  "name": "100% Natural Premium Kashmiri Walnuts Kernels",
+  "id": "p464",
+  "name": "100% Natural Premium Kashmiri Walnuts",
   "brand": "Happilo",
   "category": "dry_fruits",
   "sub_category": "dry_fruits_berries",
@@ -8059,7 +7924,7 @@
   ]
  },
  {
-  "id": "p473",
+  "id": "p465",
   "name": "Amla Candy",
   "brand": "Fresho Signature",
   "category": "dry_fruits",
@@ -8077,7 +7942,7 @@
   ]
  },
  {
-  "id": "p474",
+  "id": "p466",
   "name": "Amla Candy",
   "brand": "Fresho Signature",
   "category": "dry_fruits",
@@ -8095,7 +7960,7 @@
   ]
  },
  {
-  "id": "p475",
+  "id": "p467",
   "name": "Black Chia Seeds",
   "brand": "GoodDiet",
   "category": "dry_fruits",
@@ -8113,7 +7978,7 @@
   ]
  },
  {
-  "id": "p476",
+  "id": "p468",
   "name": "Black Currant - IQF",
   "brand": "FRUT",
   "category": "dry_fruits",
@@ -8131,7 +7996,7 @@
   ]
  },
  {
-  "id": "p477",
+  "id": "p469",
   "name": "Classic Sultan Dates",
   "brand": "Ziofit",
   "category": "dry_fruits",
@@ -8149,7 +8014,7 @@
   ]
  },
  {
-  "id": "p478",
+  "id": "p470",
   "name": "Classic Sultan Dates",
   "brand": "Ziofit",
   "category": "dry_fruits",
@@ -8167,7 +8032,7 @@
   ]
  },
  {
-  "id": "p479",
+  "id": "p471",
   "name": "Premium International Queen Kalmi Dates",
   "brand": "Happilo",
   "category": "dry_fruits",
@@ -8185,7 +8050,7 @@
   ]
  },
  {
-  "id": "p480",
+  "id": "p472",
   "name": "Black Grape",
   "brand": "Fresho Signature",
   "category": "dry_fruits",
@@ -8203,7 +8068,7 @@
   ]
  },
  {
-  "id": "p481",
+  "id": "p473",
   "name": "Premium Raw Melon Seeds",
   "brand": "Happilo",
   "category": "dry_fruits",
@@ -8221,7 +8086,7 @@
   ]
  },
  {
-  "id": "p482",
+  "id": "p474",
   "name": "Organic - Anjeer",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8239,7 +8104,7 @@
   ]
  },
  {
-  "id": "p483",
+  "id": "p475",
   "name": "Organic - Anjeer",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8257,7 +8122,7 @@
   ]
  },
  {
-  "id": "p484",
+  "id": "p476",
   "name": "Organic Walnut",
   "brand": "MeraKisan",
   "category": "dry_fruits",
@@ -8275,7 +8140,7 @@
   ]
  },
  {
-  "id": "p485",
+  "id": "p477",
   "name": "Organic Walnut - Broken",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8293,7 +8158,7 @@
   ]
  },
  {
-  "id": "p486",
+  "id": "p478",
   "name": "Organic Walnut Kernels",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8311,7 +8176,7 @@
   ]
  },
  {
-  "id": "p487",
+  "id": "p479",
   "name": "Organic Walnut Kernels",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8329,7 +8194,7 @@
   ]
  },
  {
-  "id": "p488",
+  "id": "p480",
   "name": "Anardana",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8347,7 +8212,7 @@
   ]
  },
  {
-  "id": "p489",
+  "id": "p481",
   "name": "Dates - Black",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8365,7 +8230,7 @@
   ]
  },
  {
-  "id": "p490",
+  "id": "p482",
   "name": "Dates - Black",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8383,7 +8248,7 @@
   ]
  },
  {
-  "id": "p491",
+  "id": "p483",
   "name": "Dates - Mazafati",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8401,7 +8266,7 @@
   ]
  },
  {
-  "id": "p492",
+  "id": "p484",
   "name": "Dates - Red",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8419,7 +8284,7 @@
   ]
  },
  {
-  "id": "p493",
+  "id": "p485",
   "name": "Dried Fruit - Cranberries",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8437,7 +8302,7 @@
   ]
  },
  {
-  "id": "p494",
+  "id": "p486",
   "name": "Dried Fruit - Cranberries",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8455,7 +8320,7 @@
   ]
  },
  {
-  "id": "p495",
+  "id": "p487",
   "name": "Dry Dates - Chuwara",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8473,7 +8338,7 @@
   ]
  },
  {
-  "id": "p496",
+  "id": "p488",
   "name": "Dry Dates - Chuwara",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8491,7 +8356,7 @@
   ]
  },
  {
-  "id": "p497",
+  "id": "p489",
   "name": "Macadamia Nuts",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8509,7 +8374,7 @@
   ]
  },
  {
-  "id": "p498",
+  "id": "p490",
   "name": "Pineapple",
   "brand": "Fresho Signature",
   "category": "dry_fruits",
@@ -8527,7 +8392,7 @@
   ]
  },
  {
-  "id": "p499",
+  "id": "p491",
   "name": "Gourmet Popcorn Kernels - Gluten Free",
   "brand": "5:15PM",
   "category": "dry_fruits",
@@ -8545,7 +8410,7 @@
   ]
  },
  {
-  "id": "p500",
+  "id": "p492",
   "name": "Indian Raisins",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8563,7 +8428,7 @@
   ]
  },
  {
-  "id": "p501",
+  "id": "p493",
   "name": "Munakka Raisins",
   "brand": "Nutty Yogi",
   "category": "dry_fruits",
@@ -8581,7 +8446,7 @@
   ]
  },
  {
-  "id": "p502",
+  "id": "p494",
   "name": "Raisins - 100% Natural",
   "brand": "Natureland Organics",
   "category": "dry_fruits",
@@ -8599,7 +8464,7 @@
   ]
  },
  {
-  "id": "p503",
+  "id": "p495",
   "name": "Raisins - Afghan",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8617,7 +8482,7 @@
   ]
  },
  {
-  "id": "p504",
+  "id": "p496",
   "name": "Raisins - Afghan",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8635,7 +8500,7 @@
   ]
  },
  {
-  "id": "p505",
+  "id": "p497",
   "name": "Raisins - Indian",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8653,7 +8518,7 @@
   ]
  },
  {
-  "id": "p506",
+  "id": "p498",
   "name": "Raisins - Indian",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8671,7 +8536,7 @@
   ]
  },
  {
-  "id": "p507",
+  "id": "p499",
   "name": "Raisins - Netal",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8689,7 +8554,7 @@
   ]
  },
  {
-  "id": "p508",
+  "id": "p500",
   "name": "Raisins - Netal",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8707,7 +8572,7 @@
   ]
  },
  {
-  "id": "p509",
+  "id": "p501",
   "name": "Seedless Black Raisins - Afghani",
   "brand": "Delight Nuts",
   "category": "dry_fruits",
@@ -8725,7 +8590,7 @@
   ]
  },
  {
-  "id": "p510",
+  "id": "p502",
   "name": "Fruit Seeds Nuts Snacks",
   "brand": "Fresho Signature",
   "category": "dry_fruits",
@@ -8743,7 +8608,7 @@
   ]
  },
  {
-  "id": "p511",
+  "id": "p503",
   "name": "Fruit Seeds Nuts Snacks",
   "brand": "Fresho Signature",
   "category": "dry_fruits",
@@ -8761,7 +8626,7 @@
   ]
  },
  {
-  "id": "p512",
+  "id": "p504",
   "name": "Halim Seeds - Plant-Based",
   "brand": "5:15PM",
   "category": "dry_fruits",
@@ -8780,7 +8645,7 @@
   ]
  },
  {
-  "id": "p513",
+  "id": "p505",
   "name": "Organic Chia Seeds - 100% Natural",
   "brand": "Jiwa",
   "category": "dry_fruits",
@@ -8798,7 +8663,7 @@
   ]
  },
  {
-  "id": "p514",
+  "id": "p506",
   "name": "Organic Chia Seeds - 100% Natural",
   "brand": "Jiwa",
   "category": "dry_fruits",
@@ -8816,7 +8681,7 @@
   ]
  },
  {
-  "id": "p515",
+  "id": "p507",
   "name": "Organic Chia Seeds - Raw",
   "brand": "5:15PM",
   "category": "dry_fruits",
@@ -8835,7 +8700,7 @@
   ]
  },
  {
-  "id": "p516",
+  "id": "p508",
   "name": "Organic Flax Seeds - 100% Natural",
   "brand": "Jiwa",
   "category": "dry_fruits",
@@ -8854,7 +8719,7 @@
   ]
  },
  {
-  "id": "p517",
+  "id": "p509",
   "name": "Organic Flaxseeds - Raw",
   "brand": "5:15PM",
   "category": "dry_fruits",
@@ -8872,7 +8737,7 @@
   ]
  },
  {
-  "id": "p518",
+  "id": "p510",
   "name": "Seeds - Chia",
   "brand": "Delight Nuts",
   "category": "dry_fruits",
@@ -8890,7 +8755,7 @@
   ]
  },
  {
-  "id": "p519",
+  "id": "p511",
   "name": "Seeds Mix",
   "brand": "Fresho Signature",
   "category": "dry_fruits",
@@ -8908,7 +8773,7 @@
   ]
  },
  {
-  "id": "p520",
+  "id": "p512",
   "name": "Pista - California",
   "brand": "BB Popular",
   "category": "dry_fruits",
@@ -8926,7 +8791,7 @@
   ]
  },
  {
-  "id": "p521",
+  "id": "p513",
   "name": "Pista - California",
   "brand": "BB Popular",
   "category": "dry_fruits",
@@ -8944,7 +8809,7 @@
   ]
  },
  {
-  "id": "p522",
+  "id": "p514",
   "name": "Pista - Irani",
   "brand": "BB Royal",
   "category": "dry_fruits",
@@ -8962,7 +8827,7 @@
   ]
  },
  {
-  "id": "p523",
+  "id": "p515",
   "name": "Pizarro - Pistachios",
   "brand": "BORGES",
   "category": "dry_fruits",
@@ -8980,8 +8845,8 @@
   ]
  },
  {
-  "id": "p524",
-  "name": "Premium Californian Roasted & Salted Pistachios - Value Pack",
+  "id": "p516",
+  "name": "Premium Californian Roasted & Salted",
   "brand": "Happilo",
   "category": "dry_fruits",
   "sub_category": "salt",
@@ -8998,7 +8863,7 @@
   ]
  },
  {
-  "id": "p525",
+  "id": "p517",
   "name": "Chicken Seekh Kabab Malai N Cheese",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9013,7 +8878,7 @@
   ]
  },
  {
-  "id": "p526",
+  "id": "p518",
   "name": "Chicken - Gizzard",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9028,7 +8893,7 @@
   ]
  },
  {
-  "id": "p527",
+  "id": "p519",
   "name": "Chicken - Gizzard",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9043,7 +8908,7 @@
   ]
  },
  {
-  "id": "p528",
+  "id": "p520",
   "name": "Chicken - Liver",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9058,7 +8923,7 @@
   ]
  },
  {
-  "id": "p529",
+  "id": "p521",
   "name": "Chicken - Soup Pieces",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9073,7 +8938,7 @@
   ]
  },
  {
-  "id": "p530",
+  "id": "p522",
   "name": "Chicken Burger Patty - Crunchy Outside",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9088,7 +8953,7 @@
   ]
  },
  {
-  "id": "p531",
+  "id": "p523",
   "name": "Chicken Burger Patty - Crunchy Outside",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9103,8 +8968,8 @@
   ]
  },
  {
-  "id": "p532",
-  "name": "Chicken Liver - Antibiotic Residue-Free",
+  "id": "p524",
+  "name": "Chicken Liver",
   "brand": "Fresho",
   "category": "eggs_meat",
   "sub_category": "chicken",
@@ -9118,7 +8983,7 @@
   ]
  },
  {
-  "id": "p533",
+  "id": "p525",
   "name": "Chicken Thigh",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9133,7 +8998,7 @@
   ]
  },
  {
-  "id": "p534",
+  "id": "p526",
   "name": "Lush Hariyali Chicken Tikka - Fresh & Juicy",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9148,7 +9013,7 @@
   ]
  },
  {
-  "id": "p535",
+  "id": "p527",
   "name": "Lush Hariyali Chicken Tikka - Fresh & Juicy",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9163,7 +9028,7 @@
   ]
  },
  {
-  "id": "p536",
+  "id": "p528",
   "name": "6 Brown Eggs",
   "brand": "HenFruit",
   "category": "eggs_meat",
@@ -9178,7 +9043,7 @@
   ]
  },
  {
-  "id": "p537",
+  "id": "p529",
   "name": "Farm Eggs - Brown",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9193,7 +9058,7 @@
   ]
  },
  {
-  "id": "p538",
+  "id": "p530",
   "name": "Farm Eggs - Regular",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9208,7 +9073,7 @@
   ]
  },
  {
-  "id": "p539",
+  "id": "p531",
   "name": "Farm Eggs - Table Tray",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9223,7 +9088,7 @@
   ]
  },
  {
-  "id": "p540",
+  "id": "p532",
   "name": "Farm Eggs - Table Tray",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9238,7 +9103,7 @@
   ]
  },
  {
-  "id": "p541",
+  "id": "p533",
   "name": "Atlantic Salmon Fish",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9253,7 +9118,7 @@
   ]
  },
  {
-  "id": "p542",
+  "id": "p534",
   "name": "Atlantic Salmon Fish",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9268,8 +9133,8 @@
   ]
  },
  {
-  "id": "p543",
-  "name": "Classic Hariyali Rohu Fish Steak - Fresh & Juicy",
+  "id": "p535",
+  "name": "Classic Hariyali Rohu Fish Steak",
   "brand": "Fresho",
   "category": "eggs_meat",
   "sub_category": "fish",
@@ -9283,8 +9148,8 @@
   ]
  },
  {
-  "id": "p544",
-  "name": "Classic Hariyali Rohu Fish Steak - Fresh & Juicy",
+  "id": "p536",
+  "name": "Classic Hariyali Rohu Fish Steak",
   "brand": "Fresho",
   "category": "eggs_meat",
   "sub_category": "fish",
@@ -9298,7 +9163,7 @@
   ]
  },
  {
-  "id": "p545",
+  "id": "p537",
   "name": "Fish - Katla",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9313,7 +9178,7 @@
   ]
  },
  {
-  "id": "p546",
+  "id": "p538",
   "name": "Tilapia Fish - Curry Cut",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9328,7 +9193,7 @@
   ]
  },
  {
-  "id": "p547",
+  "id": "p539",
   "name": "Tilapia Fish - Curry Cut",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9343,7 +9208,7 @@
   ]
  },
  {
-  "id": "p548",
+  "id": "p540",
   "name": "Tilapia Fish - Whole Cut",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9358,7 +9223,7 @@
   ]
  },
  {
-  "id": "p549",
+  "id": "p541",
   "name": "Tilapia Fish Fillet - Preservative Free",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9373,7 +9238,7 @@
   ]
  },
  {
-  "id": "p550",
+  "id": "p542",
   "name": "Catla Cut Pieces",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9386,7 +9251,7 @@
   "tags": []
  },
  {
-  "id": "p551",
+  "id": "p543",
   "name": "Kolkata - 5-6 pcs",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9399,7 +9264,7 @@
   "tags": []
  },
  {
-  "id": "p552",
+  "id": "p544",
   "name": "Kolkata - Whole Cleaned",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9412,7 +9277,7 @@
   "tags": []
  },
  {
-  "id": "p553",
+  "id": "p545",
   "name": "Kolkata - Whole Uncleaned",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9425,7 +9290,7 @@
   "tags": []
  },
  {
-  "id": "p554",
+  "id": "p546",
   "name": "Desi Catla Steak - Fresh & Juicy",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9438,7 +9303,7 @@
   "tags": []
  },
  {
-  "id": "p555",
+  "id": "p547",
   "name": "Desi Catla Steak - Fresh & Juicy",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9451,7 +9316,7 @@
   "tags": []
  },
  {
-  "id": "p556",
+  "id": "p548",
   "name": "Bombay Duck - Preservative Free",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9464,7 +9329,7 @@
   "tags": []
  },
  {
-  "id": "p557",
+  "id": "p549",
   "name": "Mutton Fat",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9479,7 +9344,7 @@
   ]
  },
  {
-  "id": "p558",
+  "id": "p550",
   "name": "Mutton Fat",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9494,7 +9359,7 @@
   ]
  },
  {
-  "id": "p559",
+  "id": "p551",
   "name": "Mutton Goat Kid - Curry Cut",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9509,7 +9374,7 @@
   ]
  },
  {
-  "id": "p560",
+  "id": "p552",
   "name": "Mutton Goat Kid Shanks - Fresh",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9524,7 +9389,7 @@
   ]
  },
  {
-  "id": "p561",
+  "id": "p553",
   "name": "Mutton Goat Kid Shanks - Fresh",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9539,7 +9404,7 @@
   ]
  },
  {
-  "id": "p562",
+  "id": "p554",
   "name": "Mutton Goatkid - Steak",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9554,7 +9419,7 @@
   ]
  },
  {
-  "id": "p563",
+  "id": "p555",
   "name": "Mutton Lamb - Biryani Pieces",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9569,7 +9434,7 @@
   ]
  },
  {
-  "id": "p564",
+  "id": "p556",
   "name": "Mutton Lamb - Biryani Pieces",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9584,8 +9449,8 @@
   ]
  },
  {
-  "id": "p565",
-  "name": "Mutton Paya - Antibiotic Residue-Free",
+  "id": "p557",
+  "name": "Mutton Paya",
   "brand": "Fresho",
   "category": "eggs_meat",
   "sub_category": "mutton",
@@ -9599,7 +9464,7 @@
   ]
  },
  {
-  "id": "p566",
+  "id": "p558",
   "name": "Mutton Shami Kabab",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9614,7 +9479,7 @@
   ]
  },
  {
-  "id": "p567",
+  "id": "p559",
   "name": "Crab - Red",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9627,7 +9492,7 @@
   "tags": []
  },
  {
-  "id": "p568",
+  "id": "p560",
   "name": "Squid",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9640,7 +9505,7 @@
   "tags": []
  },
  {
-  "id": "p569",
+  "id": "p561",
   "name": "Squid",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9653,7 +9518,7 @@
   "tags": []
  },
  {
-  "id": "p570",
+  "id": "p562",
   "name": "Squid - Medium",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9666,7 +9531,7 @@
   "tags": []
  },
  {
-  "id": "p571",
+  "id": "p563",
   "name": "Squid - Medium",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9679,7 +9544,7 @@
   "tags": []
  },
  {
-  "id": "p572",
+  "id": "p564",
   "name": "Breaded Torpedo Prawns - Crunchy Outside",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9694,7 +9559,7 @@
   ]
  },
  {
-  "id": "p573",
+  "id": "p565",
   "name": "Breaded Torpedo Prawns - Crunchy Outside",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9709,8 +9574,8 @@
   ]
  },
  {
-  "id": "p574",
-  "name": "Peri Peri Prawns – Fresh & Juicy, Marinated, Ready To Cook",
+  "id": "p566",
+  "name": "Peri Peri Prawns - Fresh & Juicy",
   "brand": "Fresho",
   "category": "eggs_meat",
   "sub_category": "prawns",
@@ -9724,8 +9589,8 @@
   ]
  },
  {
-  "id": "p575",
-  "name": "Peri Peri Prawns – Fresh & Juicy, Marinated, Ready To Cook",
+  "id": "p567",
+  "name": "Peri Peri Prawns - Fresh & Juicy",
   "brand": "Fresho",
   "category": "eggs_meat",
   "sub_category": "prawns",
@@ -9739,7 +9604,7 @@
   ]
  },
  {
-  "id": "p576",
+  "id": "p568",
   "name": "Prawns DVC - Small",
   "brand": "Cambay Tiger",
   "category": "eggs_meat",
@@ -9754,7 +9619,7 @@
   ]
  },
  {
-  "id": "p577",
+  "id": "p569",
   "name": "White Prawns - Fresh",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9769,7 +9634,7 @@
   ]
  },
  {
-  "id": "p578",
+  "id": "p570",
   "name": "White Prawns - Fresh",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9784,7 +9649,7 @@
   ]
  },
  {
-  "id": "p579",
+  "id": "p571",
   "name": "White Prawns - Medium",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9799,7 +9664,7 @@
   ]
  },
  {
-  "id": "p580",
+  "id": "p572",
   "name": "White Prawns - Medium",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9814,7 +9679,7 @@
   ]
  },
  {
-  "id": "p581",
+  "id": "p573",
   "name": "White Prawns With Shell - Jumbo Whole",
   "brand": "Fresho",
   "category": "eggs_meat",
@@ -9829,7 +9694,7 @@
   ]
  },
  {
-  "id": "p582",
+  "id": "p574",
   "name": "Apple - Royal Gala",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9845,7 +9710,7 @@
   ]
  },
  {
-  "id": "p583",
+  "id": "p575",
   "name": "Apple - Shimla",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9861,7 +9726,7 @@
   ]
  },
  {
-  "id": "p584",
+  "id": "p576",
   "name": "Banana - Robusta",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9877,7 +9742,7 @@
   ]
  },
  {
-  "id": "p585",
+  "id": "p577",
   "name": "Banana - Yelakki",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9893,7 +9758,7 @@
   ]
  },
  {
-  "id": "p586",
+  "id": "p578",
   "name": "Beans - Broad",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9910,7 +9775,7 @@
   ]
  },
  {
-  "id": "p587",
+  "id": "p579",
   "name": "Beans - Broad",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9927,7 +9792,7 @@
   ]
  },
  {
-  "id": "p588",
+  "id": "p580",
   "name": "Beans - Cluster",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9944,7 +9809,7 @@
   ]
  },
  {
-  "id": "p589",
+  "id": "p581",
   "name": "Beans - Cluster",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9961,7 +9826,7 @@
   ]
  },
  {
-  "id": "p590",
+  "id": "p582",
   "name": "Beetroot - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9977,7 +9842,7 @@
   ]
  },
  {
-  "id": "p591",
+  "id": "p583",
   "name": "Beetroot - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -9993,7 +9858,7 @@
   ]
  },
  {
-  "id": "p592",
+  "id": "p584",
   "name": "Brinjal - Bottle Shape",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10010,7 +9875,7 @@
   ]
  },
  {
-  "id": "p593",
+  "id": "p585",
   "name": "Brinjal - Bottle Shape",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10027,7 +9892,7 @@
   ]
  },
  {
-  "id": "p594",
+  "id": "p586",
   "name": "Brinjal - Varikatri",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10044,7 +9909,7 @@
   ]
  },
  {
-  "id": "p595",
+  "id": "p587",
   "name": "Brinjal - Varikatri",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10061,7 +9926,7 @@
   ]
  },
  {
-  "id": "p596",
+  "id": "p588",
   "name": "Broccoli",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10077,7 +9942,7 @@
   ]
  },
  {
-  "id": "p597",
+  "id": "p589",
   "name": "Cabbage",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10093,7 +9958,7 @@
   ]
  },
  {
-  "id": "p598",
+  "id": "p590",
   "name": "Capsicum - Green",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10109,7 +9974,7 @@
   ]
  },
  {
-  "id": "p599",
+  "id": "p591",
   "name": "Capsicum - Red & Yellow",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10125,7 +9990,7 @@
   ]
  },
  {
-  "id": "p600",
+  "id": "p592",
   "name": "Carrot - Ooty",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10141,7 +10006,7 @@
   ]
  },
  {
-  "id": "p601",
+  "id": "p593",
   "name": "Carrot - Ooty",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10157,7 +10022,7 @@
   ]
  },
  {
-  "id": "p602",
+  "id": "p594",
   "name": "Carrot - Orange",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10173,7 +10038,7 @@
   ]
  },
  {
-  "id": "p603",
+  "id": "p595",
   "name": "Carrot - Orange",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10189,7 +10054,7 @@
   ]
  },
  {
-  "id": "p604",
+  "id": "p596",
   "name": "Cauliflower",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10205,7 +10070,7 @@
   ]
  },
  {
-  "id": "p605",
+  "id": "p597",
   "name": "Orange - Nagpur",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10221,7 +10086,7 @@
   ]
  },
  {
-  "id": "p606",
+  "id": "p598",
   "name": "Sweet Lime (Mosambi)",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10237,7 +10102,7 @@
   ]
  },
  {
-  "id": "p607",
+  "id": "p599",
   "name": "Coriander Leaves",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10253,7 +10118,7 @@
   ]
  },
  {
-  "id": "p608",
+  "id": "p600",
   "name": "Baby Corn - Peeled",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10270,7 +10135,7 @@
   ]
  },
  {
-  "id": "p609",
+  "id": "p601",
   "name": "Frozen Sweet Corn",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10287,7 +10152,7 @@
   ]
  },
  {
-  "id": "p610",
+  "id": "p602",
   "name": "Frozen Sweet Corn - Preservative Free",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10304,7 +10169,7 @@
   ]
  },
  {
-  "id": "p611",
+  "id": "p603",
   "name": "Sweet Corn",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10320,7 +10185,7 @@
   ]
  },
  {
-  "id": "p612",
+  "id": "p604",
   "name": "Sweet Corn - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10337,7 +10202,7 @@
   ]
  },
  {
-  "id": "p613",
+  "id": "p605",
   "name": "Cucumber",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10353,7 +10218,7 @@
   ]
  },
  {
-  "id": "p614",
+  "id": "p606",
   "name": "Coccinia",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10370,7 +10235,7 @@
   ]
  },
  {
-  "id": "p615",
+  "id": "p607",
   "name": "Coccinia",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10387,7 +10252,7 @@
   ]
  },
  {
-  "id": "p616",
+  "id": "p608",
   "name": "Curry Leaves",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10404,7 +10269,7 @@
   ]
  },
  {
-  "id": "p617",
+  "id": "p609",
   "name": "Curry Leaves",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10421,7 +10286,7 @@
   ]
  },
  {
-  "id": "p618",
+  "id": "p610",
   "name": "Garlic",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10437,7 +10302,7 @@
   ]
  },
  {
-  "id": "p619",
+  "id": "p611",
   "name": "Garlic",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10453,7 +10318,7 @@
   ]
  },
  {
-  "id": "p620",
+  "id": "p612",
   "name": "Garlic - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10469,7 +10334,7 @@
   ]
  },
  {
-  "id": "p621",
+  "id": "p613",
   "name": "Garlic - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10485,7 +10350,7 @@
   ]
  },
  {
-  "id": "p622",
+  "id": "p614",
   "name": "Garlic - Peeled",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10501,7 +10366,7 @@
   ]
  },
  {
-  "id": "p623",
+  "id": "p615",
   "name": "Garlic - Peeled",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10517,7 +10382,7 @@
   ]
  },
  {
-  "id": "p624",
+  "id": "p616",
   "name": "Ginger",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10533,7 +10398,7 @@
   ]
  },
  {
-  "id": "p625",
+  "id": "p617",
   "name": "Ginger",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10549,7 +10414,7 @@
   ]
  },
  {
-  "id": "p626",
+  "id": "p618",
   "name": "Bitter Gourd",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10566,7 +10431,7 @@
   ]
  },
  {
-  "id": "p627",
+  "id": "p619",
   "name": "Bitter Gourd",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10583,7 +10448,7 @@
   ]
  },
  {
-  "id": "p628",
+  "id": "p620",
   "name": "Drumstick",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10600,7 +10465,7 @@
   ]
  },
  {
-  "id": "p629",
+  "id": "p621",
   "name": "Drumstick",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10617,7 +10482,7 @@
   ]
  },
  {
-  "id": "p630",
+  "id": "p622",
   "name": "Pumpkin - Disco",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10634,7 +10499,7 @@
   ]
  },
  {
-  "id": "p631",
+  "id": "p623",
   "name": "Ridge Gourd",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10651,7 +10516,7 @@
   ]
  },
  {
-  "id": "p632",
+  "id": "p624",
   "name": "Ridge Gourd",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10668,7 +10533,7 @@
   ]
  },
  {
-  "id": "p633",
+  "id": "p625",
   "name": "Snake Gourd",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10685,7 +10550,7 @@
   ]
  },
  {
-  "id": "p634",
+  "id": "p626",
   "name": "Snake Gourd",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10702,7 +10567,7 @@
   ]
  },
  {
-  "id": "p635",
+  "id": "p627",
   "name": "Grapes - Green Seedless",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10718,7 +10583,7 @@
   ]
  },
  {
-  "id": "p636",
+  "id": "p628",
   "name": "Chilli - Green Long",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10735,7 +10600,7 @@
   ]
  },
  {
-  "id": "p637",
+  "id": "p629",
   "name": "Chilli - Green Long",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10752,7 +10617,7 @@
   ]
  },
  {
-  "id": "p638",
+  "id": "p630",
   "name": "Guava",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10768,7 +10633,7 @@
   ]
  },
  {
-  "id": "p639",
+  "id": "p631",
   "name": "Dill Leaves",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10785,7 +10650,7 @@
   ]
  },
  {
-  "id": "p640",
+  "id": "p632",
   "name": "Dill Leaves",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10802,7 +10667,7 @@
   ]
  },
  {
-  "id": "p641",
+  "id": "p633",
   "name": "Lemon Grass",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10819,7 +10684,7 @@
   ]
  },
  {
-  "id": "p642",
+  "id": "p634",
   "name": "Kiwi - Green",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10835,7 +10700,7 @@
   ]
  },
  {
-  "id": "p643",
+  "id": "p635",
   "name": "Amaranthus - Green Cleaned",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10852,7 +10717,7 @@
   ]
  },
  {
-  "id": "p644",
+  "id": "p636",
   "name": "Amaranthus - Green Cleaned",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10869,7 +10734,7 @@
   ]
  },
  {
-  "id": "p645",
+  "id": "p637",
   "name": "Amaranthus - Red Cleaned",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10886,7 +10751,7 @@
   ]
  },
  {
-  "id": "p646",
+  "id": "p638",
   "name": "Amaranthus - Red Cleaned",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10903,7 +10768,7 @@
   ]
  },
  {
-  "id": "p647",
+  "id": "p639",
   "name": "Dill Leaves",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10920,7 +10785,7 @@
   ]
  },
  {
-  "id": "p648",
+  "id": "p640",
   "name": "Methi - Cleaned",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10937,7 +10802,7 @@
   ]
  },
  {
-  "id": "p649",
+  "id": "p641",
   "name": "Methi - Cleaned",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10954,7 +10819,7 @@
   ]
  },
  {
-  "id": "p650",
+  "id": "p642",
   "name": "Methi - With roots",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10971,7 +10836,7 @@
   ]
  },
  {
-  "id": "p651",
+  "id": "p643",
   "name": "Mint Leaves - Cleaned",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -10988,7 +10853,7 @@
   ]
  },
  {
-  "id": "p652",
+  "id": "p644",
   "name": "Mint Leaves - Cleaned",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11005,7 +10870,7 @@
   ]
  },
  {
-  "id": "p653",
+  "id": "p645",
   "name": "Lemon",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11021,7 +10886,7 @@
   ]
  },
  {
-  "id": "p654",
+  "id": "p646",
   "name": "Chilli - Bajji",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11037,7 +10902,7 @@
   ]
  },
  {
-  "id": "p655",
+  "id": "p647",
   "name": "Chilli - Bajji",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11053,7 +10918,7 @@
   ]
  },
  {
-  "id": "p656",
+  "id": "p648",
   "name": "Lettuce - Iceberg",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11070,7 +10935,7 @@
   ]
  },
  {
-  "id": "p657",
+  "id": "p649",
   "name": "Button Mushroom",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11086,7 +10951,7 @@
   ]
  },
  {
-  "id": "p658",
+  "id": "p650",
   "name": "Ladies Finger",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11103,7 +10968,7 @@
   ]
  },
  {
-  "id": "p659",
+  "id": "p651",
   "name": "Ladies Finger",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11120,7 +10985,7 @@
   ]
  },
  {
-  "id": "p660",
+  "id": "p652",
   "name": "Onion",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11136,7 +11001,7 @@
   ]
  },
  {
-  "id": "p661",
+  "id": "p653",
   "name": "Onion",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11152,7 +11017,7 @@
   ]
  },
  {
-  "id": "p662",
+  "id": "p654",
   "name": "Sambar Onion - Peeled (Small Onion)",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11168,7 +11033,7 @@
   ]
  },
  {
-  "id": "p663",
+  "id": "p655",
   "name": "Coconut - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11185,7 +11050,7 @@
   ]
  },
  {
-  "id": "p664",
+  "id": "p656",
   "name": "Amla",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11202,7 +11067,7 @@
   ]
  },
  {
-  "id": "p665",
+  "id": "p657",
   "name": "Amla",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11219,7 +11084,7 @@
   ]
  },
  {
-  "id": "p666",
+  "id": "p658",
   "name": "Bitter Gourd - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11236,7 +11101,7 @@
   ]
  },
  {
-  "id": "p667",
+  "id": "p659",
   "name": "Bitter Gourd - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11253,7 +11118,7 @@
   ]
  },
  {
-  "id": "p668",
+  "id": "p660",
   "name": "Mint - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11270,7 +11135,7 @@
   ]
  },
  {
-  "id": "p669",
+  "id": "p661",
   "name": "Mint - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11287,7 +11152,7 @@
   ]
  },
  {
-  "id": "p670",
+  "id": "p662",
   "name": "Pumpkin - Organically Grown",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11304,7 +11169,7 @@
   ]
  },
  {
-  "id": "p671",
+  "id": "p663",
   "name": "Papaya - Medium",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11320,7 +11185,7 @@
   ]
  },
  {
-  "id": "p672",
+  "id": "p664",
   "name": "Green Peas - Fresh",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11336,7 +11201,7 @@
   ]
  },
  {
-  "id": "p673",
+  "id": "p665",
   "name": "Green Peas - Peeled",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11353,7 +11218,7 @@
   ]
  },
  {
-  "id": "p674",
+  "id": "p666",
   "name": "Pineapple",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11370,7 +11235,7 @@
   ]
  },
  {
-  "id": "p675",
+  "id": "p667",
   "name": "Pomegranate - Bhagwa",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11386,7 +11251,7 @@
   ]
  },
  {
-  "id": "p676",
+  "id": "p668",
   "name": "Pomegranate - Peeled",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11403,7 +11268,7 @@
   ]
  },
  {
-  "id": "p677",
+  "id": "p669",
   "name": "Pomegranate - Peeled",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11420,7 +11285,7 @@
   ]
  },
  {
-  "id": "p678",
+  "id": "p670",
   "name": "Potato",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11436,7 +11301,7 @@
   ]
  },
  {
-  "id": "p679",
+  "id": "p671",
   "name": "Potato",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11452,7 +11317,7 @@
   ]
  },
  {
-  "id": "p680",
+  "id": "p672",
   "name": "Colocasia",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11469,7 +11334,7 @@
   ]
  },
  {
-  "id": "p681",
+  "id": "p673",
   "name": "Colocasia",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11486,7 +11351,7 @@
   ]
  },
  {
-  "id": "p682",
+  "id": "p674",
   "name": "Radish - White",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11502,7 +11367,7 @@
   ]
  },
  {
-  "id": "p683",
+  "id": "p675",
   "name": "Radish - White",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11518,7 +11383,7 @@
   ]
  },
  {
-  "id": "p684",
+  "id": "p676",
   "name": "Coconut - Large",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11535,7 +11400,7 @@
   ]
  },
  {
-  "id": "p685",
+  "id": "p677",
   "name": "Amla",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11552,7 +11417,7 @@
   ]
  },
  {
-  "id": "p686",
+  "id": "p678",
   "name": "Spinach (Palak)",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11568,7 +11433,7 @@
   ]
  },
  {
-  "id": "p687",
+  "id": "p679",
   "name": "Spring Onion - With roots",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11584,7 +11449,7 @@
   ]
  },
  {
-  "id": "p688",
+  "id": "p680",
   "name": "Tomato - Hybrid",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11601,7 +11466,7 @@
   ]
  },
  {
-  "id": "p689",
+  "id": "p681",
   "name": "Tomato - Hybrid",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11618,7 +11483,7 @@
   ]
  },
  {
-  "id": "p690",
+  "id": "p682",
   "name": "Tomato - Local",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11635,7 +11500,7 @@
   ]
  },
  {
-  "id": "p691",
+  "id": "p683",
   "name": "Tomato - Local",
   "brand": "Fresho",
   "category": "fruits_vegetables",
@@ -11652,7 +11517,7 @@
   ]
  },
  {
-  "id": "p692",
+  "id": "p684",
   "name": "Biriyani masala",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -11669,7 +11534,7 @@
   ]
  },
  {
-  "id": "p693",
+  "id": "p685",
   "name": "Masala - Biryani",
   "brand": "Eastern",
   "category": "masalas_spices",
@@ -11686,7 +11551,7 @@
   ]
  },
  {
-  "id": "p694",
+  "id": "p686",
   "name": "Dry Mango Powder",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -11703,7 +11568,7 @@
   ]
  },
  {
-  "id": "p695",
+  "id": "p687",
   "name": "Red Chilli Flakes",
   "brand": "HappyChef",
   "category": "masalas_spices",
@@ -11720,7 +11585,7 @@
   ]
  },
  {
-  "id": "p696",
+  "id": "p688",
   "name": "Chat Masala",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -11737,8 +11602,8 @@
   ]
  },
  {
-  "id": "p697",
-  "name": "Chatpata Chat Masala Powder - Spices & Herbs Blend",
+  "id": "p689",
+  "name": "Chatpata Chat Masala Powder",
   "brand": "Catch",
   "category": "masalas_spices",
   "sub_category": "chaat_masala",
@@ -11754,7 +11619,7 @@
   ]
  },
  {
-  "id": "p698",
+  "id": "p690",
   "name": "OrganicJaljiraMasala",
   "brand": "MeraKisan",
   "category": "masalas_spices",
@@ -11771,7 +11636,7 @@
   ]
  },
  {
-  "id": "p699",
+  "id": "p691",
   "name": "Pani Puri Masala",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -11788,7 +11653,7 @@
   ]
  },
  {
-  "id": "p700",
+  "id": "p692",
   "name": "Awadhi Kadhai Chicken Masala",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -11804,7 +11669,7 @@
   ]
  },
  {
-  "id": "p701",
+  "id": "p693",
   "name": "Awadhi Kadhai Chicken Masala",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -11820,7 +11685,7 @@
   ]
  },
  {
-  "id": "p702",
+  "id": "p694",
   "name": "Chicken Masala",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -11836,7 +11701,7 @@
   ]
  },
  {
-  "id": "p703",
+  "id": "p695",
   "name": "Chicken Masala Powder - Exotic",
   "brand": "Catch",
   "category": "masalas_spices",
@@ -11852,7 +11717,7 @@
   ]
  },
  {
-  "id": "p704",
+  "id": "p696",
   "name": "Chicken Masala Powder - Exotic",
   "brand": "Catch",
   "category": "masalas_spices",
@@ -11868,7 +11733,7 @@
   ]
  },
  {
-  "id": "p705",
+  "id": "p697",
   "name": "Chicken Tandoori Masala",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -11884,7 +11749,7 @@
   ]
  },
  {
-  "id": "p706",
+  "id": "p698",
   "name": "Shahi Chicken Masala",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -11900,7 +11765,7 @@
   ]
  },
  {
-  "id": "p707",
+  "id": "p699",
   "name": "Taco Seasoning Chicken",
   "brand": "Old El Paso",
   "category": "masalas_spices",
@@ -11915,7 +11780,7 @@
   ]
  },
  {
-  "id": "p708",
+  "id": "p700",
   "name": "Deggi Mirch",
   "brand": "MDH",
   "category": "masalas_spices",
@@ -11930,7 +11795,7 @@
   ]
  },
  {
-  "id": "p709",
+  "id": "p701",
   "name": "Kashmiri Chilly Powder",
   "brand": "Eastern",
   "category": "masalas_spices",
@@ -11946,7 +11811,7 @@
   ]
  },
  {
-  "id": "p710",
+  "id": "p702",
   "name": "Kashmiri Chilly Powder",
   "brand": "Eastern",
   "category": "masalas_spices",
@@ -11963,7 +11828,7 @@
   ]
  },
  {
-  "id": "p711",
+  "id": "p703",
   "name": "Kashmirilal Chilli Powder",
   "brand": "Everest",
   "category": "masalas_spices",
@@ -11979,7 +11844,7 @@
   ]
  },
  {
-  "id": "p712",
+  "id": "p704",
   "name": "Amritsari Chhole Masala",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -11996,7 +11861,7 @@
   ]
  },
  {
-  "id": "p713",
+  "id": "p705",
   "name": "Amritsari Chhole Masala",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -12013,7 +11878,7 @@
   ]
  },
  {
-  "id": "p714",
+  "id": "p706",
   "name": "Chana Masala",
   "brand": "Catch",
   "category": "masalas_spices",
@@ -12030,8 +11895,8 @@
   ]
  },
  {
-  "id": "p715",
-  "name": "Chhole Masala With No Garlic & Onion - Adds Flavour & Aroma",
+  "id": "p707",
+  "name": "Chhole Masala With No Garlic & Onion",
   "brand": "Catch",
   "category": "masalas_spices",
   "sub_category": "chole_masala",
@@ -12046,7 +11911,7 @@
   ]
  },
  {
-  "id": "p716",
+  "id": "p708",
   "name": "Coriander",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12063,7 +11928,7 @@
   ]
  },
  {
-  "id": "p717",
+  "id": "p709",
   "name": "Coriander",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12080,7 +11945,7 @@
   ]
  },
  {
-  "id": "p718",
+  "id": "p710",
   "name": "Coriander Seeds",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -12097,7 +11962,7 @@
   ]
  },
  {
-  "id": "p719",
+  "id": "p711",
   "name": "Coriander Seeds",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12114,7 +11979,7 @@
   ]
  },
  {
-  "id": "p720",
+  "id": "p712",
   "name": "Coriander Seeds",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -12131,7 +11996,7 @@
   ]
  },
  {
-  "id": "p721",
+  "id": "p713",
   "name": "Coriander Seeds",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12148,7 +12013,7 @@
   ]
  },
  {
-  "id": "p722",
+  "id": "p714",
   "name": "Cumin - Whole",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12165,7 +12030,7 @@
   ]
  },
  {
-  "id": "p723",
+  "id": "p715",
   "name": "Cumin - Whole",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12182,7 +12047,7 @@
   ]
  },
  {
-  "id": "p724",
+  "id": "p716",
   "name": "Cumin Whole Jeera Sabut - 100% Natural",
   "brand": "Natureland Organics",
   "category": "masalas_spices",
@@ -12199,7 +12064,7 @@
   ]
  },
  {
-  "id": "p725",
+  "id": "p717",
   "name": "Jeera - Powder",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12216,7 +12081,7 @@
   ]
  },
  {
-  "id": "p726",
+  "id": "p718",
   "name": "Jeera Kadu",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12233,8 +12098,8 @@
   ]
  },
  {
-  "id": "p727",
-  "name": "Dal Makhani Masala - Enhances Flavour",
+  "id": "p719",
+  "name": "Dal Makhani Masala",
   "brand": "Catch",
   "category": "masalas_spices",
   "sub_category": "dal_masala",
@@ -12250,7 +12115,7 @@
   ]
  },
  {
-  "id": "p728",
+  "id": "p720",
   "name": "Garam Masala",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12267,7 +12132,7 @@
   ]
  },
  {
-  "id": "p729",
+  "id": "p721",
   "name": "Shahi Garam Masala - With Exotic Spices",
   "brand": "Aashirvaad",
   "category": "masalas_spices",
@@ -12284,7 +12149,7 @@
   ]
  },
  {
-  "id": "p730",
+  "id": "p722",
   "name": "Shahi Garam Masala MC",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -12301,8 +12166,8 @@
   ]
  },
  {
-  "id": "p731",
-  "name": "Garlic Paste - No Added Colours",
+  "id": "p723",
+  "name": "Garlic Paste",
   "brand": "Catch",
   "category": "masalas_spices",
   "sub_category": "garlic",
@@ -12317,7 +12182,7 @@
   ]
  },
  {
-  "id": "p732",
+  "id": "p724",
   "name": "Dry Ginger",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12333,7 +12198,7 @@
   ]
  },
  {
-  "id": "p733",
+  "id": "p725",
   "name": "Dry Ginger",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12349,7 +12214,7 @@
   ]
  },
  {
-  "id": "p734",
+  "id": "p726",
   "name": "Ginger Paste - Thick & Grainy Texture",
   "brand": "Catch",
   "category": "masalas_spices",
@@ -12365,7 +12230,7 @@
   ]
  },
  {
-  "id": "p735",
+  "id": "p727",
   "name": "Ginger Garlic - Thick & Grainy",
   "brand": "Catch",
   "category": "masalas_spices",
@@ -12381,7 +12246,7 @@
   ]
  },
  {
-  "id": "p736",
+  "id": "p728",
   "name": "Ginger Garlic Paste",
   "brand": "Mother's Recipe",
   "category": "masalas_spices",
@@ -12397,7 +12262,7 @@
   ]
  },
  {
-  "id": "p737",
+  "id": "p729",
   "name": "Basil",
   "brand": "HappyChef",
   "category": "masalas_spices",
@@ -12414,7 +12279,7 @@
   ]
  },
  {
-  "id": "p738",
+  "id": "p730",
   "name": "Italian Spice Mix",
   "brand": "HappyChef",
   "category": "masalas_spices",
@@ -12431,7 +12296,7 @@
   ]
  },
  {
-  "id": "p739",
+  "id": "p731",
   "name": "Multi-Purpose Seasoning",
   "brand": "HappyChef",
   "category": "masalas_spices",
@@ -12448,7 +12313,7 @@
   ]
  },
  {
-  "id": "p740",
+  "id": "p732",
   "name": "Peri Peri Seasoning",
   "brand": "HappyChef",
   "category": "masalas_spices",
@@ -12465,7 +12330,7 @@
   ]
  },
  {
-  "id": "p741",
+  "id": "p733",
   "name": "Pizza Oregano Spice Mix",
   "brand": "HappyChef",
   "category": "masalas_spices",
@@ -12482,8 +12347,8 @@
   ]
  },
  {
-  "id": "p742",
-  "name": "Jalapeno Lime Seasoning - Contains Organic Spices",
+  "id": "p734",
+  "name": "Jalapeno Lime Seasoning",
   "brand": "Flavour Drum",
   "category": "masalas_spices",
   "sub_category": "herbs_seasonings_rubs",
@@ -12499,7 +12364,7 @@
   ]
  },
  {
-  "id": "p743",
+  "id": "p735",
   "name": "Kasuri Methi",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -12516,7 +12381,24 @@
   ]
  },
  {
-  "id": "p744",
+  "id": "p736",
+  "name": "Kasuri Methi",
+  "brand": "Catch",
+  "category": "masalas_spices",
+  "sub_category": "kasuri_methi",
+  "pack_size": 25,
+  "unit": "g",
+  "price": 18,
+  "mrp": 26,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p737",
   "name": "Kasuri Methi",
   "brand": "Natureland Organics",
   "category": "masalas_spices",
@@ -12533,25 +12415,8 @@
   ]
  },
  {
-  "id": "p745",
-  "name": "Kasuri Methi - Enhances Flavour",
-  "brand": "Catch",
-  "category": "masalas_spices",
-  "sub_category": "kasuri_methi",
-  "pack_size": 25,
-  "unit": "g",
-  "price": 18,
-  "mrp": 26,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p746",
-  "name": "Kasuri Methi - Enhances Flavour",
+  "id": "p738",
+  "name": "Kasuri Methi",
   "brand": "Catch",
   "category": "masalas_spices",
   "sub_category": "kasuri_methi",
@@ -12567,8 +12432,8 @@
   ]
  },
  {
-  "id": "p747",
-  "name": "Kasuri Methi Whole - Enhances Flavour",
+  "id": "p739",
+  "name": "Kasuri Methi Whole",
   "brand": "Catch",
   "category": "masalas_spices",
   "sub_category": "kasuri_methi",
@@ -12584,7 +12449,7 @@
   ]
  },
  {
-  "id": "p748",
+  "id": "p740",
   "name": "Secret Schezwan Fried Rice Masala",
   "brand": "Ching'S Secret",
   "category": "masalas_spices",
@@ -12601,7 +12466,7 @@
   ]
  },
  {
-  "id": "p749",
+  "id": "p741",
   "name": "Shahi Paneer Masala",
   "brand": "MDH",
   "category": "masalas_spices",
@@ -12616,7 +12481,7 @@
   ]
  },
  {
-  "id": "p750",
+  "id": "p742",
   "name": "Turmeric Milk Masala - Cardamom",
   "brand": "Valley Spice",
   "category": "masalas_spices",
@@ -12631,7 +12496,7 @@
   ]
  },
  {
-  "id": "p751",
+  "id": "p743",
   "name": "Meat",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12648,7 +12513,7 @@
   ]
  },
  {
-  "id": "p752",
+  "id": "p744",
   "name": "Meat Masala Powder - Exotic",
   "brand": "Catch",
   "category": "masalas_spices",
@@ -12665,7 +12530,7 @@
   ]
  },
  {
-  "id": "p753",
+  "id": "p745",
   "name": "Mustard - Big",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -12682,7 +12547,7 @@
   ]
  },
  {
-  "id": "p754",
+  "id": "p746",
   "name": "Mustard - Big",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12699,7 +12564,7 @@
   ]
  },
  {
-  "id": "p755",
+  "id": "p747",
   "name": "Mustard - Big",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12716,7 +12581,7 @@
   ]
  },
  {
-  "id": "p756",
+  "id": "p748",
   "name": "Mustard - Big",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -12733,7 +12598,7 @@
   ]
  },
  {
-  "id": "p757",
+  "id": "p749",
   "name": "Mustard - Small",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -12750,7 +12615,7 @@
   ]
  },
  {
-  "id": "p758",
+  "id": "p750",
   "name": "Mustard - Small",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12767,7 +12632,7 @@
   ]
  },
  {
-  "id": "p759",
+  "id": "p751",
   "name": "Mustard - Small",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -12784,7 +12649,7 @@
   ]
  },
  {
-  "id": "p760",
+  "id": "p752",
   "name": "Mustard - Small",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12801,7 +12666,7 @@
   ]
  },
  {
-  "id": "p761",
+  "id": "p753",
   "name": "Mustard Seeds - Black",
   "brand": "Natureland Organics",
   "category": "masalas_spices",
@@ -12818,7 +12683,7 @@
   ]
  },
  {
-  "id": "p762",
+  "id": "p754",
   "name": "Organic - Mustard",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12835,7 +12700,7 @@
   ]
  },
  {
-  "id": "p763",
+  "id": "p755",
   "name": "Bay Leaves",
   "brand": "Natureland Organics",
   "category": "masalas_spices",
@@ -12852,7 +12717,7 @@
   ]
  },
  {
-  "id": "p764",
+  "id": "p756",
   "name": "Organic - Black Pepper Powder",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12869,7 +12734,7 @@
   ]
  },
  {
-  "id": "p765",
+  "id": "p757",
   "name": "Organic - Black Pepper Powder",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12886,7 +12751,7 @@
   ]
  },
  {
-  "id": "p766",
+  "id": "p758",
   "name": "Organic - Cardamom Green",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12903,7 +12768,7 @@
   ]
  },
  {
-  "id": "p767",
+  "id": "p759",
   "name": "Organic - Cardamom Green",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12920,7 +12785,7 @@
   ]
  },
  {
-  "id": "p768",
+  "id": "p760",
   "name": "Organic Red Chilli - Whole",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12937,7 +12802,7 @@
   ]
  },
  {
-  "id": "p769",
+  "id": "p761",
   "name": "Organic Red Chilli - Whole",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12954,7 +12819,7 @@
   ]
  },
  {
-  "id": "p770",
+  "id": "p762",
   "name": "Organic Tamarind",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12971,7 +12836,7 @@
   ]
  },
  {
-  "id": "p771",
+  "id": "p763",
   "name": "Organic Tamarind",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -12988,7 +12853,7 @@
   ]
  },
  {
-  "id": "p772",
+  "id": "p764",
   "name": "Organic-FennelSeeds",
   "brand": "Phalada Pure & Sure",
   "category": "masalas_spices",
@@ -13005,7 +12870,7 @@
   ]
  },
  {
-  "id": "p773",
+  "id": "p765",
   "name": "Paneer Masala",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13021,7 +12886,7 @@
   ]
  },
  {
-  "id": "p774",
+  "id": "p766",
   "name": "Pav Bhaji Masala",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13038,8 +12903,8 @@
   ]
  },
  {
-  "id": "p775",
-  "name": "Pav Bhaji Masala - Adds Flavour & Aroma",
+  "id": "p767",
+  "name": "Pav Bhaji Masala",
   "brand": "Catch",
   "category": "masalas_spices",
   "sub_category": "pav_bhaji_masala",
@@ -13055,7 +12920,7 @@
   ]
  },
  {
-  "id": "p776",
+  "id": "p768",
   "name": "Snappers - Potato Crackers",
   "brand": "UNIBIC FOODS",
   "category": "masalas_spices",
@@ -13071,7 +12936,7 @@
   ]
  },
  {
-  "id": "p777",
+  "id": "p769",
   "name": "Coconut Powder - Desiccated",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -13088,7 +12953,7 @@
   ]
  },
  {
-  "id": "p778",
+  "id": "p770",
   "name": "Coconut Powder - Desiccated",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -13105,7 +12970,7 @@
   ]
  },
  {
-  "id": "p779",
+  "id": "p771",
   "name": "Kashmiri Mirch Powder",
   "brand": "Aashirvaad",
   "category": "masalas_spices",
@@ -13122,7 +12987,7 @@
   ]
  },
  {
-  "id": "p780",
+  "id": "p772",
   "name": "Malabar Black Pepper Powder",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -13139,7 +13004,7 @@
   ]
  },
  {
-  "id": "p781",
+  "id": "p773",
   "name": "Kashmiri Rajma Masala",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -13156,7 +13021,7 @@
   ]
  },
  {
-  "id": "p782",
+  "id": "p774",
   "name": "Awadhi Kadhai Veg Masala",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -13173,7 +13038,7 @@
   ]
  },
  {
-  "id": "p783",
+  "id": "p775",
   "name": "Awadhi Kadhai Veg Masala",
   "brand": "Keya",
   "category": "masalas_spices",
@@ -13190,7 +13055,7 @@
   ]
  },
  {
-  "id": "p784",
+  "id": "p776",
   "name": "Kitchen King Masala",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13207,7 +13072,7 @@
   ]
  },
  {
-  "id": "p785",
+  "id": "p777",
   "name": "Sabzi Masala Powder - Exotic",
   "brand": "Catch",
   "category": "masalas_spices",
@@ -13224,7 +13089,7 @@
   ]
  },
  {
-  "id": "p786",
+  "id": "p778",
   "name": "Himalayan Pink Rock Salt - For Daily Use",
   "brand": "Natureland Organics",
   "category": "masalas_spices",
@@ -13241,7 +13106,7 @@
   ]
  },
  {
-  "id": "p787",
+  "id": "p779",
   "name": "Iodized Crystal Salt",
   "brand": "Aashirvaad",
   "category": "masalas_spices",
@@ -13258,7 +13123,7 @@
   ]
  },
  {
-  "id": "p788",
+  "id": "p780",
   "name": "Pink Salt Grinder",
   "brand": "On1y",
   "category": "masalas_spices",
@@ -13275,7 +13140,7 @@
   ]
  },
  {
-  "id": "p789",
+  "id": "p781",
   "name": "Salt - Crystal",
   "brand": "AKAR",
   "category": "masalas_spices",
@@ -13292,7 +13157,7 @@
   ]
  },
  {
-  "id": "p790",
+  "id": "p782",
   "name": "Sambhar Masala Powder - Exotic",
   "brand": "Catch",
   "category": "masalas_spices",
@@ -13309,7 +13174,7 @@
   ]
  },
  {
-  "id": "p791",
+  "id": "p783",
   "name": "Spice Rack - All in One",
   "brand": "Wingreens Farms",
   "category": "masalas_spices",
@@ -13326,7 +13191,7 @@
   ]
  },
  {
-  "id": "p792",
+  "id": "p784",
   "name": "Organic - Turmeric Powder",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13343,7 +13208,7 @@
   ]
  },
  {
-  "id": "p793",
+  "id": "p785",
   "name": "Organic - Turmeric Powder",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13360,7 +13225,7 @@
   ]
  },
  {
-  "id": "p794",
+  "id": "p786",
   "name": "Turmeric Powder",
   "brand": "Natureland Organics",
   "category": "masalas_spices",
@@ -13377,7 +13242,7 @@
   ]
  },
  {
-  "id": "p795",
+  "id": "p787",
   "name": "Cardamom Green",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13394,7 +13259,7 @@
   ]
  },
  {
-  "id": "p796",
+  "id": "p788",
   "name": "Cardamom Green",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13411,7 +13276,7 @@
   ]
  },
  {
-  "id": "p797",
+  "id": "p789",
   "name": "Kalonji",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13428,7 +13293,7 @@
   ]
  },
  {
-  "id": "p798",
+  "id": "p790",
   "name": "Kalonji",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13445,7 +13310,7 @@
   ]
  },
  {
-  "id": "p799",
+  "id": "p791",
   "name": "Tamarind - Deseeded",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13462,7 +13327,7 @@
   ]
  },
  {
-  "id": "p800",
+  "id": "p792",
   "name": "Tamarind - Deseeded",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -13479,7 +13344,7 @@
   ]
  },
  {
-  "id": "p801",
+  "id": "p793",
   "name": "Tamarind - Deseeded",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13496,7 +13361,7 @@
   ]
  },
  {
-  "id": "p802",
+  "id": "p794",
   "name": "Tamarind - Deseeded",
   "brand": "BB Popular",
   "category": "masalas_spices",
@@ -13513,7 +13378,7 @@
   ]
  },
  {
-  "id": "p803",
+  "id": "p795",
   "name": "Til - White",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13530,7 +13395,7 @@
   ]
  },
  {
-  "id": "p804",
+  "id": "p796",
   "name": "Til - White",
   "brand": "BB Royal",
   "category": "masalas_spices",
@@ -13547,7 +13412,7 @@
   ]
  },
  {
-  "id": "p805",
+  "id": "p797",
   "name": "Coconut Oil",
   "brand": "Mr. Gold",
   "category": "oils_ghee",
@@ -13564,8 +13429,8 @@
   ]
  },
  {
-  "id": "p806",
-  "name": "Figaro Olive Oil- Pure Olive Oil-Ideal for Indian Dishes- Imported fro",
+  "id": "p798",
+  "name": "Figaro Olive Oil - Pure Olive Oil",
   "brand": "Figaro",
   "category": "oils_ghee",
   "sub_category": "cooking_oil",
@@ -13581,8 +13446,25 @@
   ]
  },
  {
-  "id": "p807",
-  "name": "Gold Refined Cooking oil | Blended Rice Bran & Sunflower oil | Helps K",
+  "id": "p799",
+  "name": "Figaro Olive Oil - Pure Olive Oil",
+  "brand": "Figaro",
+  "category": "oils_ghee",
+  "sub_category": "cooking_oil",
+  "pack_size": 500,
+  "unit": "ml",
+  "price": 575,
+  "mrp": 599,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p800",
+  "name": "Gold Refined Cooking oil",
   "brand": "Saffola",
   "category": "oils_ghee",
   "sub_category": "cooking_oil",
@@ -13598,8 +13480,8 @@
   ]
  },
  {
-  "id": "p808",
-  "name": "Olive Oil For Indian Cooking - Frying & Baking",
+  "id": "p801",
+  "name": "Olive Oil For Indian Cooking - Frying",
   "brand": "BORGES",
   "category": "oils_ghee",
   "sub_category": "cooking_oil",
@@ -13615,8 +13497,8 @@
   ]
  },
  {
-  "id": "p809",
-  "name": "Olive Oil For Indian Cooking - Frying & Baking",
+  "id": "p802",
+  "name": "Olive Oil For Indian Cooking - Frying",
   "brand": "BORGES",
   "category": "oils_ghee",
   "sub_category": "cooking_oil",
@@ -13632,8 +13514,8 @@
   ]
  },
  {
-  "id": "p810",
-  "name": "Refined Sunflower Oil - Trans Fat Free",
+  "id": "p803",
+  "name": "Refined Sunflower Oil",
   "brand": "Fiona",
   "category": "oils_ghee",
   "sub_category": "cooking_oil",
@@ -13649,8 +13531,8 @@
   ]
  },
  {
-  "id": "p811",
-  "name": "Refined Sunflower Oil - Trans Fat Free",
+  "id": "p804",
+  "name": "Refined Sunflower Oil",
   "brand": "Fiona",
   "category": "oils_ghee",
   "sub_category": "cooking_oil",
@@ -13666,7 +13548,7 @@
   ]
  },
  {
-  "id": "p812",
+  "id": "p805",
   "name": "Sun Lite - Sunflower Refined Oil",
   "brand": "Fortune",
   "category": "oils_ghee",
@@ -13683,8 +13565,8 @@
   ]
  },
  {
-  "id": "p813",
-  "name": "Tasty Refined Cooking oil | Blended Rice bran & Corn oil | Pro Fitness",
+  "id": "p806",
+  "name": "Tasty Refined Cooking oil",
   "brand": "Saffola",
   "category": "oils_ghee",
   "sub_category": "cooking_oil",
@@ -13700,8 +13582,8 @@
   ]
  },
  {
-  "id": "p814",
-  "name": "Figaro Extra Virgin Olive Oil- 100% Natural and Cold Extracted- Perfec",
+  "id": "p807",
+  "name": "Figaro Extra Virgin Olive Oil",
   "brand": "Figaro",
   "category": "oils_ghee",
   "sub_category": "frozen_bread",
@@ -13717,7 +13599,7 @@
   ]
  },
  {
-  "id": "p815",
+  "id": "p808",
   "name": "A2 Ghee - Desi Gir Cow",
   "brand": "5:15PM",
   "category": "oils_ghee",
@@ -13733,7 +13615,7 @@
   ]
  },
  {
-  "id": "p816",
+  "id": "p809",
   "name": "Cow Desi Ghee",
   "brand": "Fresho Organic",
   "category": "oils_ghee",
@@ -13749,7 +13631,7 @@
   ]
  },
  {
-  "id": "p817",
+  "id": "p810",
   "name": "Cow Ghee",
   "brand": "Fresho Organic",
   "category": "oils_ghee",
@@ -13765,7 +13647,7 @@
   ]
  },
  {
-  "id": "p818",
+  "id": "p811",
   "name": "Cow Ghee - Organic Bilona",
   "brand": "Himalayan Natives",
   "category": "oils_ghee",
@@ -13781,7 +13663,7 @@
   ]
  },
  {
-  "id": "p819",
+  "id": "p812",
   "name": "Cow Ghee - Organic Bilona",
   "brand": "Himalayan Natives",
   "category": "oils_ghee",
@@ -13797,7 +13679,7 @@
   ]
  },
  {
-  "id": "p820",
+  "id": "p813",
   "name": "Premium Cow Ghee",
   "brand": "Natureland Organics",
   "category": "oils_ghee",
@@ -13813,7 +13695,7 @@
   ]
  },
  {
-  "id": "p821",
+  "id": "p814",
   "name": "Apple Cider Vinegar",
   "brand": "Habit",
   "category": "sauces_spreads",
@@ -13830,7 +13712,7 @@
   ]
  },
  {
-  "id": "p822",
+  "id": "p815",
   "name": "Apple Cider Vinegar with Mother",
   "brand": "GoodDiet",
   "category": "sauces_spreads",
@@ -13847,7 +13729,7 @@
   ]
  },
  {
-  "id": "p823",
+  "id": "p816",
   "name": "Apple Cider Vinegar with Mother & Honey",
   "brand": "GoodDiet",
   "category": "sauces_spreads",
@@ -13863,7 +13745,7 @@
   ]
  },
  {
-  "id": "p824",
+  "id": "p817",
   "name": "Filtered Apple Cider Vinegar",
   "brand": "GoodDiet",
   "category": "sauces_spreads",
@@ -13880,7 +13762,7 @@
   ]
  },
  {
-  "id": "p825",
+  "id": "p818",
   "name": "Himalayan Raw Apple Cider Vinegar",
   "brand": "Dabur",
   "category": "sauces_spreads",
@@ -13896,8 +13778,8 @@
   ]
  },
  {
-  "id": "p826",
-  "name": "Organic Apple Cider Vinegar With Amla, Turmeric, Cinnamon & Black Pepp",
+  "id": "p819",
+  "name": "Organic Apple Cider Vinegar With Amla",
   "brand": "Wellbeing Nutrition",
   "category": "sauces_spreads",
   "sub_category": "apple",
@@ -13912,24 +13794,8 @@
   ]
  },
  {
-  "id": "p827",
-  "name": "Original Recipe Premium Veg Mayo - With Sunflower Oil",
-  "brand": "Wingreens Farms",
-  "category": "sauces_spreads",
-  "sub_category": "cooking_oil",
-  "pack_size": 800,
-  "unit": "g",
-  "price": 149,
-  "mrp": 199,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "jain"
-  ]
- },
- {
-  "id": "p828",
-  "name": "Organic Homestyle Ginger Pickle - North Style",
+  "id": "p820",
+  "name": "Organic Homestyle Ginger Pickle - North",
   "brand": "IndiSecrets",
   "category": "sauces_spreads",
   "sub_category": "ginger",
@@ -13937,14 +13803,14 @@
   "unit": "g",
   "price": 99,
   "mrp": 149,
-  "in_stock": true,
+  "in_stock": false,
   "tags": [
    "veg",
    "vegan"
   ]
  },
  {
-  "id": "p829",
+  "id": "p821",
   "name": "Red Grape Drink",
   "brand": "Quencha",
   "category": "sauces_spreads",
@@ -13961,7 +13827,7 @@
   ]
  },
  {
-  "id": "p830",
+  "id": "p822",
   "name": "100% Pure Honey",
   "brand": "BB Royal",
   "category": "sauces_spreads",
@@ -13977,7 +13843,7 @@
   ]
  },
  {
-  "id": "p831",
+  "id": "p823",
   "name": "100% Pure Honey",
   "brand": "BB Royal",
   "category": "sauces_spreads",
@@ -13993,7 +13859,7 @@
   ]
  },
  {
-  "id": "p832",
+  "id": "p824",
   "name": "Honey",
   "brand": "Gaia",
   "category": "sauces_spreads",
@@ -14009,7 +13875,7 @@
   ]
  },
  {
-  "id": "p833",
+  "id": "p825",
   "name": "Honey",
   "brand": "Gaia",
   "category": "sauces_spreads",
@@ -14025,8 +13891,8 @@
   ]
  },
  {
-  "id": "p834",
-  "name": "Honey 100% Pure & Natural, Super Value Pack - 2 x 300g",
+  "id": "p826",
+  "name": "Honey 100% Pure & Natural - 2 x 300g",
   "brand": "Saffola",
   "category": "sauces_spreads",
   "sub_category": "honey",
@@ -14041,7 +13907,7 @@
   ]
  },
  {
-  "id": "p835",
+  "id": "p827",
   "name": "Organic Himalayan Kashmir Honey",
   "brand": "BB Royal",
   "category": "sauces_spreads",
@@ -14057,7 +13923,7 @@
   ]
  },
  {
-  "id": "p836",
+  "id": "p828",
   "name": "Organic Honey",
   "brand": "Phalada Pure & Sure",
   "category": "sauces_spreads",
@@ -14073,7 +13939,7 @@
   ]
  },
  {
-  "id": "p837",
+  "id": "p829",
   "name": "Pure Honey",
   "brand": "Saffola",
   "category": "sauces_spreads",
@@ -14089,7 +13955,7 @@
   ]
  },
  {
-  "id": "p838",
+  "id": "p830",
   "name": "Pure Honey",
   "brand": "Saffola",
   "category": "sauces_spreads",
@@ -14105,7 +13971,7 @@
   ]
  },
  {
-  "id": "p839",
+  "id": "p831",
   "name": "Basil Pesto",
   "brand": "Wingreens Farms",
   "category": "sauces_spreads",
@@ -14122,7 +13988,7 @@
   ]
  },
  {
-  "id": "p840",
+  "id": "p832",
   "name": "Classic Gulkand - Promotes Healthy Skin",
   "brand": "Food Circle",
   "category": "sauces_spreads",
@@ -14139,7 +14005,7 @@
   ]
  },
  {
-  "id": "p841",
+  "id": "p833",
   "name": "Strawberry Conserve",
   "brand": "HappyChef",
   "category": "sauces_spreads",
@@ -14156,7 +14022,7 @@
   ]
  },
  {
-  "id": "p842",
+  "id": "p834",
   "name": "Multifloral Nectar Honey - Forest Flowers",
   "brand": "Eatopia",
   "category": "sauces_spreads",
@@ -14171,7 +14037,7 @@
   ]
  },
  {
-  "id": "p843",
+  "id": "p835",
   "name": "Funfoods Veg Mayonnaise - De'lite",
   "brand": "DR.OETKER",
   "category": "sauces_spreads",
@@ -14187,7 +14053,7 @@
   ]
  },
  {
-  "id": "p844",
+  "id": "p836",
   "name": "Milk - Coconut",
   "brand": "Pantai",
   "category": "sauces_spreads",
@@ -14203,7 +14069,7 @@
   ]
  },
  {
-  "id": "p845",
+  "id": "p837",
   "name": "Baby Gherkins",
   "brand": "HappyChef",
   "category": "sauces_spreads",
@@ -14220,7 +14086,7 @@
   ]
  },
  {
-  "id": "p846",
+  "id": "p838",
   "name": "Pitted Black Olives",
   "brand": "HappyChef",
   "category": "sauces_spreads",
@@ -14237,7 +14103,7 @@
   ]
  },
  {
-  "id": "p847",
+  "id": "p839",
   "name": "Pizza Topping",
   "brand": "HappyChef",
   "category": "sauces_spreads",
@@ -14254,7 +14120,7 @@
   ]
  },
  {
-  "id": "p848",
+  "id": "p840",
   "name": "Sliced Jalapenos",
   "brand": "HappyChef",
   "category": "sauces_spreads",
@@ -14271,7 +14137,7 @@
   ]
  },
  {
-  "id": "p849",
+  "id": "p841",
   "name": "Sliced Red Paprika",
   "brand": "HappyChef",
   "category": "sauces_spreads",
@@ -14288,8 +14154,8 @@
   ]
  },
  {
-  "id": "p850",
-  "name": "Organic Homestyle Mixed Veg Pickle - North Style",
+  "id": "p842",
+  "name": "Organic Homestyle Mixed Veg Pickle",
   "brand": "IndiSecrets",
   "category": "sauces_spreads",
   "sub_category": "other_veg_pickle",
@@ -14305,7 +14171,7 @@
   ]
  },
  {
-  "id": "p851",
+  "id": "p843",
   "name": "Alfredo Pasta Sauce",
   "brand": "Spice Story",
   "category": "sauces_spreads",
@@ -14322,7 +14188,7 @@
   ]
  },
  {
-  "id": "p852",
+  "id": "p844",
   "name": "Original Recipe - Pizza & Pasta Sauce",
   "brand": "Wingreens Farms",
   "category": "sauces_spreads",
@@ -14339,7 +14205,7 @@
   ]
  },
  {
-  "id": "p853",
+  "id": "p845",
   "name": "Tikka Mayonnaise Dip",
   "brand": "HappyChef",
   "category": "sauces_spreads",
@@ -14355,7 +14221,7 @@
   ]
  },
  {
-  "id": "p854",
+  "id": "p846",
   "name": "Green Chilli Sauce",
   "brand": "Tasties",
   "category": "sauces_spreads",
@@ -14372,7 +14238,7 @@
   ]
  },
  {
-  "id": "p855",
+  "id": "p847",
   "name": "Red Chilli Sauce",
   "brand": "Tasties",
   "category": "sauces_spreads",
@@ -14389,7 +14255,7 @@
   ]
  },
  {
-  "id": "p856",
+  "id": "p848",
   "name": "Schezwan Stir Fry Sauce",
   "brand": "Inchi",
   "category": "sauces_spreads",
@@ -14406,7 +14272,7 @@
   ]
  },
  {
-  "id": "p857",
+  "id": "p849",
   "name": "Schezwan Stir Fry Sauce",
   "brand": "Inchi",
   "category": "sauces_spreads",
@@ -14423,7 +14289,7 @@
   ]
  },
  {
-  "id": "p858",
+  "id": "p850",
   "name": "Tomato Ketchup",
   "brand": "Morton",
   "category": "sauces_spreads",
@@ -14440,7 +14306,7 @@
   ]
  },
  {
-  "id": "p859",
+  "id": "p851",
   "name": "Tomato Ketchup",
   "brand": "Morton",
   "category": "sauces_spreads",
@@ -14456,7 +14322,7 @@
   ]
  },
  {
-  "id": "p860",
+  "id": "p852",
   "name": "Tomato Ketchup - Classic Blend",
   "brand": "Del Monte",
   "category": "sauces_spreads",
@@ -14472,7 +14338,7 @@
   ]
  },
  {
-  "id": "p861",
+  "id": "p853",
   "name": "Tomato Ketchup - Classic Blend",
   "brand": "Del Monte",
   "category": "sauces_spreads",
@@ -14489,7 +14355,7 @@
   ]
  },
  {
-  "id": "p862",
+  "id": "p854",
   "name": "Tomato Ketchup - Tangy Flavour",
   "brand": "Mrs.Food Rite",
   "category": "sauces_spreads",
@@ -14506,8 +14372,8 @@
   ]
  },
  {
-  "id": "p863",
-  "name": "Choco Spread Crunchy Quinoa, Hazelnut Spread, Uses Premium Chocolate",
+  "id": "p855",
+  "name": "Choco Spread Crunchy Quinoa",
   "brand": "Nutralite",
   "category": "sauces_spreads",
   "sub_category": "spread",
@@ -14522,8 +14388,8 @@
   ]
  },
  {
-  "id": "p864",
-  "name": "Choco Spread Crunchy Quinoa, Hazelnut Spread, Uses Premium Chocolate",
+  "id": "p856",
+  "name": "Choco Spread Crunchy Quinoa",
   "brand": "Nutralite",
   "category": "sauces_spreads",
   "sub_category": "spread",
@@ -14539,7 +14405,7 @@
   ]
  },
  {
-  "id": "p865",
+  "id": "p857",
   "name": "Creamy Peanut Butter",
   "brand": "Delight Nuts",
   "category": "sauces_spreads",
@@ -14556,8 +14422,8 @@
   ]
  },
  {
-  "id": "p866",
-  "name": "Crunchy Dark Chocolate Peanut Butter - Sweet & Salty",
+  "id": "p858",
+  "name": "Crunchy Dark Chocolate Peanut Butter",
   "brand": "Yoga Bar",
   "category": "sauces_spreads",
   "sub_category": "spread",
@@ -14573,8 +14439,8 @@
   ]
  },
  {
-  "id": "p867",
-  "name": "Crunchy Dark Chocolate Peanut Butter - Sweet & Salty",
+  "id": "p859",
+  "name": "Crunchy Dark Chocolate Peanut Butter",
   "brand": "Yoga Bar",
   "category": "sauces_spreads",
   "sub_category": "spread",
@@ -14589,7 +14455,7 @@
   ]
  },
  {
-  "id": "p868",
+  "id": "p860",
   "name": "Natural Peanut Butter - Unsweetened",
   "brand": "Delight Nuts",
   "category": "sauces_spreads",
@@ -14607,8 +14473,8 @@
   ]
  },
  {
-  "id": "p869",
-  "name": "Natural Peanut Butter Crunchy - No Cholesterol",
+  "id": "p861",
+  "name": "Natural Peanut Butter Crunchy - No",
   "brand": "Omnisun",
   "category": "sauces_spreads",
   "sub_category": "spread",
@@ -14624,8 +14490,8 @@
   ]
  },
  {
-  "id": "p870",
-  "name": "Original Recipe Italian Herb Mayo Dip & Spread",
+  "id": "p862",
+  "name": "Original Recipe Italian Herb Mayo Dip",
   "brand": "Wingreens Farms",
   "category": "sauces_spreads",
   "sub_category": "spread",
@@ -14640,7 +14506,7 @@
   ]
  },
  {
-  "id": "p871",
+  "id": "p863",
   "name": "Peanut Butter - Crunchy",
   "brand": "HappyChef",
   "category": "sauces_spreads",
@@ -14658,8 +14524,8 @@
   ]
  },
  {
-  "id": "p872",
-  "name": "Peanut Butter Smooth - Rich In Protein",
+  "id": "p864",
+  "name": "Peanut Butter Smooth",
   "brand": "Omnisun",
   "category": "sauces_spreads",
   "sub_category": "spread",
@@ -14675,7 +14541,7 @@
   ]
  },
  {
-  "id": "p873",
+  "id": "p865",
   "name": "Burger Mayo - Light & Creamy",
   "brand": "Wingreens Farms",
   "category": "sauces_spreads",
@@ -14691,7 +14557,7 @@
   ]
  },
  {
-  "id": "p874",
+  "id": "p866",
   "name": "Chipotle Mayo - Light & Creamy",
   "brand": "Wingreens Farms",
   "category": "sauces_spreads",
@@ -14707,7 +14573,7 @@
   ]
  },
  {
-  "id": "p875",
+  "id": "p867",
   "name": "Bourbon",
   "brand": "Cremica",
   "category": "snacks",
@@ -14723,7 +14589,7 @@
   ]
  },
  {
-  "id": "p876",
+  "id": "p868",
   "name": "Chocobakes Choc Filled Cookies",
   "brand": "Cadbury",
   "category": "snacks",
@@ -14739,7 +14605,7 @@
   ]
  },
  {
-  "id": "p877",
+  "id": "p869",
   "name": "Cookies - Assorted Flavours",
   "brand": "Unibic",
   "category": "snacks",
@@ -14755,7 +14621,7 @@
   ]
  },
  {
-  "id": "p878",
+  "id": "p870",
   "name": "Cookies - Orange Splash",
   "brand": "UNIBIC FOODS",
   "category": "snacks",
@@ -14771,7 +14637,7 @@
   ]
  },
  {
-  "id": "p879",
+  "id": "p871",
   "name": "Milk Cookies",
   "brand": "Unibic",
   "category": "snacks",
@@ -14787,7 +14653,7 @@
   ]
  },
  {
-  "id": "p880",
+  "id": "p872",
   "name": "Oatmeal Digestive Cookies",
   "brand": "Unibic",
   "category": "snacks",
@@ -14803,7 +14669,7 @@
   ]
  },
  {
-  "id": "p881",
+  "id": "p873",
   "name": "Tiger Krunch - Chocochip Biscuits",
   "brand": "Britannia",
   "category": "snacks",
@@ -14818,7 +14684,7 @@
   ]
  },
  {
-  "id": "p882",
+  "id": "p874",
   "name": "Tiger Krunch Biscuits",
   "brand": "Britannia",
   "category": "snacks",
@@ -14834,7 +14700,7 @@
   ]
  },
  {
-  "id": "p883",
+  "id": "p875",
   "name": "Baguette - Garlic Bread",
   "brand": "Unroll",
   "category": "snacks",
@@ -14850,7 +14716,7 @@
   ]
  },
  {
-  "id": "p884",
+  "id": "p876",
   "name": "Roasted Chana Whole - Lime",
   "brand": "GoodDiet",
   "category": "snacks",
@@ -14868,7 +14734,7 @@
   ]
  },
  {
-  "id": "p885",
+  "id": "p877",
   "name": "Beetroot & Cheese Tikki",
   "brand": "GOELD",
   "category": "snacks",
@@ -14883,7 +14749,7 @@
   ]
  },
  {
-  "id": "p886",
+  "id": "p878",
   "name": "Cheeseful Naan",
   "brand": "GOELD",
   "category": "snacks",
@@ -14899,7 +14765,7 @@
   ]
  },
  {
-  "id": "p887",
+  "id": "p879",
   "name": "Mac & Cheese Pops",
   "brand": "GOELD",
   "category": "snacks",
@@ -14915,7 +14781,7 @@
   ]
  },
  {
-  "id": "p888",
+  "id": "p880",
   "name": "Spinach Cheese Pockets",
   "brand": "GOELD",
   "category": "snacks",
@@ -14931,8 +14797,8 @@
   ]
  },
  {
-  "id": "p889",
-  "name": "Indian Masala Potato Chips - 40% Less Saturated Fat",
+  "id": "p881",
+  "name": "Indian Masala Potato Chips",
   "brand": "Too Yumm!",
   "category": "snacks",
   "sub_category": "chips",
@@ -14947,25 +14813,8 @@
   ]
  },
  {
-  "id": "p890",
-  "name": "Mad Angles – Achaari Masti, Crunchy Triangle Chips, Perfect For Snacki",
-  "brand": "Bingo",
-  "category": "snacks",
-  "sub_category": "chips",
-  "pack_size": 130,
-  "unit": "g",
-  "price": 40,
-  "mrp": 50,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "jain"
-  ]
- },
- {
-  "id": "p891",
-  "name": "Mad Angles – Achaari Masti,Crunchy Triangle Chips Perfect for Snacking",
+  "id": "p882",
+  "name": "Mad Angles - Achaari Masti",
   "brand": "Bingo",
   "category": "snacks",
   "sub_category": "chips",
@@ -14980,8 +14829,8 @@
   ]
  },
  {
-  "id": "p892",
-  "name": "Mad Angles – Achaari Masti,Crunchy Triangle Chips, Perfect For Snackin",
+  "id": "p883",
+  "name": "Mad Angles - Achaari Masti",
   "brand": "Bingo",
   "category": "snacks",
   "sub_category": "chips",
@@ -14997,7 +14846,24 @@
   ]
  },
  {
-  "id": "p893",
+  "id": "p884",
+  "name": "Mini Quinoa Puffs - Cheese 'N' Herbs",
+  "brand": "GoodDiet",
+  "category": "snacks",
+  "sub_category": "chips",
+  "pack_size": 30,
+  "unit": "g",
+  "price": 17,
+  "mrp": 19,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "jain",
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p885",
   "name": "Potato Chips - Classic Salted",
   "brand": "Too Yumm!",
   "category": "snacks",
@@ -15013,7 +14879,23 @@
   ]
  },
  {
-  "id": "p894",
+  "id": "p886",
+  "name": "Potato Chips - Classic Salted",
+  "brand": "Too Yumm!",
+  "category": "snacks",
+  "sub_category": "chips",
+  "pack_size": 70,
+  "unit": "g",
+  "price": 26,
+  "mrp": 30,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan"
+  ]
+ },
+ {
+  "id": "p887",
   "name": "Potato Chips - Cream & Onion",
   "brand": "Bingo",
   "category": "snacks",
@@ -15028,7 +14910,7 @@
   ]
  },
  {
-  "id": "p895",
+  "id": "p888",
   "name": "Potato Chips - Indian Masala",
   "brand": "Too Yumm!",
   "category": "snacks",
@@ -15044,7 +14926,7 @@
   ]
  },
  {
-  "id": "p896",
+  "id": "p889",
   "name": "Potato Chips - Indian Masala",
   "brand": "Too Yumm!",
   "category": "snacks",
@@ -15060,7 +14942,7 @@
   ]
  },
  {
-  "id": "p897",
+  "id": "p890",
   "name": "Potato Chips - Simple Snack",
   "brand": "Pringles",
   "category": "snacks",
@@ -15076,24 +14958,7 @@
   ]
  },
  {
-  "id": "p898",
-  "name": "Quinoa Puffs - Spicy Garlic",
-  "brand": "GoodDiet",
-  "category": "snacks",
-  "sub_category": "chips",
-  "pack_size": 30,
-  "unit": "g",
-  "price": 17,
-  "mrp": 19,
-  "in_stock": true,
-  "tags": [
-   "veg",
-   "vegan",
-   "high_protein"
-  ]
- },
- {
-  "id": "p899",
+  "id": "p891",
   "name": "Snacks - Spice mania",
   "brand": "Kari Kari",
   "category": "snacks",
@@ -15110,7 +14975,7 @@
   ]
  },
  {
-  "id": "p900",
+  "id": "p892",
   "name": "Snacks - Spice Mania",
   "brand": "Kari Kari",
   "category": "snacks",
@@ -15127,7 +14992,7 @@
   ]
  },
  {
-  "id": "p901",
+  "id": "p893",
   "name": "Chocolate Essence",
   "brand": "HappyChef",
   "category": "snacks",
@@ -15143,7 +15008,7 @@
   ]
  },
  {
-  "id": "p902",
+  "id": "p894",
   "name": "Dark Fantasy - Choco Creme",
   "brand": "Sunfeast",
   "category": "snacks",
@@ -15159,7 +15024,7 @@
   ]
  },
  {
-  "id": "p903",
+  "id": "p895",
   "name": "Eggless Premium Chocolate Cake Mix",
   "brand": "HappyChef",
   "category": "snacks",
@@ -15175,7 +15040,7 @@
   ]
  },
  {
-  "id": "p904",
+  "id": "p896",
   "name": "Desi Szechwan Chutney",
   "brand": "Mother's Recipe",
   "category": "snacks",
@@ -15192,7 +15057,7 @@
   ]
  },
  {
-  "id": "p905",
+  "id": "p897",
   "name": "Desi Szechwan Chutney",
   "brand": "Mother's Recipe",
   "category": "snacks",
@@ -15209,7 +15074,7 @@
   ]
  },
  {
-  "id": "p906",
+  "id": "p898",
   "name": "Dilliwali Spicy Mint Chutney - Tangy",
   "brand": "Spice Story",
   "category": "snacks",
@@ -15226,8 +15091,8 @@
   ]
  },
  {
-  "id": "p907",
-  "name": "Mumbai Schezwan Mayhem - Pungent & Spicy Flavour",
+  "id": "p899",
+  "name": "Mumbai Schezwan Mayhem",
   "brand": "Spice Story",
   "category": "snacks",
   "sub_category": "chutney_powder",
@@ -15243,8 +15108,8 @@
   ]
  },
  {
-  "id": "p908",
-  "name": "Superstar Bombay Sandwich Chutney - Tangy & Spicy",
+  "id": "p900",
+  "name": "Superstar Bombay Sandwich Chutney",
   "brand": "Spice Story",
   "category": "snacks",
   "sub_category": "chutney_powder",
@@ -15260,7 +15125,7 @@
   ]
  },
  {
-  "id": "p909",
+  "id": "p901",
   "name": "Oozy Cheesy - Corn Bite",
   "brand": "GOELD",
   "category": "snacks",
@@ -15277,7 +15142,7 @@
   ]
  },
  {
-  "id": "p910",
+  "id": "p902",
   "name": "Oreo - Vanilla",
   "brand": "Cadbury",
   "category": "snacks",
@@ -15294,7 +15159,7 @@
   ]
  },
  {
-  "id": "p911",
+  "id": "p903",
   "name": "Waffy Strawberry Flavoured Rolls - Creamy",
   "brand": "Dukes",
   "category": "snacks",
@@ -15310,7 +15175,7 @@
   ]
  },
  {
-  "id": "p912",
+  "id": "p904",
   "name": "Indian Wheat Cracker - Jeera Bhakhri",
   "brand": "Daadis",
   "category": "snacks",
@@ -15327,7 +15192,7 @@
   ]
  },
  {
-  "id": "p913",
+  "id": "p905",
   "name": "Gulab Jamun Mix",
   "brand": "Blue Bird",
   "category": "snacks",
@@ -15344,7 +15209,7 @@
   ]
  },
  {
-  "id": "p914",
+  "id": "p906",
   "name": "Rose Milkshake - Rich",
   "brand": "Epigamia",
   "category": "snacks",
@@ -15361,7 +15226,7 @@
   ]
  },
  {
-  "id": "p915",
+  "id": "p907",
   "name": "Aloo Paratha",
   "brand": "GOELD",
   "category": "snacks",
@@ -15377,7 +15242,7 @@
   ]
  },
  {
-  "id": "p916",
+  "id": "p908",
   "name": "Premium Malabar Paratha",
   "brand": "GOELD",
   "category": "snacks",
@@ -15394,7 +15259,7 @@
   ]
  },
  {
-  "id": "p917",
+  "id": "p909",
   "name": "Cinnamon Swirls",
   "brand": "Unroll",
   "category": "snacks",
@@ -15411,7 +15276,7 @@
   ]
  },
  {
-  "id": "p918",
+  "id": "p910",
   "name": "Dilliwali Dal Aloo Tikki",
   "brand": "GOELD",
   "category": "snacks",
@@ -15428,7 +15293,7 @@
   ]
  },
  {
-  "id": "p919",
+  "id": "p911",
   "name": "Puff - Pastry Sheet",
   "brand": "Unroll",
   "category": "snacks",
@@ -15445,7 +15310,7 @@
   ]
  },
  {
-  "id": "p920",
+  "id": "p912",
   "name": "Puff Sheet Squares",
   "brand": "Unroll",
   "category": "snacks",
@@ -15462,7 +15327,7 @@
   ]
  },
  {
-  "id": "p921",
+  "id": "p913",
   "name": "Quinoa Patty",
   "brand": "GOELD",
   "category": "snacks",
@@ -15480,7 +15345,7 @@
   ]
  },
  {
-  "id": "p922",
+  "id": "p914",
   "name": "Samosa Dough Sheet",
   "brand": "Unroll",
   "category": "snacks",
@@ -15497,7 +15362,7 @@
   ]
  },
  {
-  "id": "p923",
+  "id": "p915",
   "name": "Shortcrust Pastry Sheet",
   "brand": "Unroll",
   "category": "snacks",
@@ -15514,7 +15379,7 @@
   ]
  },
  {
-  "id": "p924",
+  "id": "p916",
   "name": "Soya Shami Kebab",
   "brand": "GOELD",
   "category": "snacks",
@@ -15532,7 +15397,7 @@
   ]
  },
  {
-  "id": "p925",
+  "id": "p917",
   "name": "Veg Seekh Kebab",
   "brand": "GOELD",
   "category": "snacks",
@@ -15549,7 +15414,7 @@
   ]
  },
  {
-  "id": "p926",
+  "id": "p918",
   "name": "Garlic Treat - Fried",
   "brand": "FruitTreat",
   "category": "snacks",
@@ -15565,7 +15430,7 @@
   ]
  },
  {
-  "id": "p927",
+  "id": "p919",
   "name": "Masala French Fries - Chilli Garlic",
   "brand": "sumeru",
   "category": "snacks",
@@ -15581,7 +15446,7 @@
   ]
  },
  {
-  "id": "p928",
+  "id": "p920",
   "name": "Masala French Fries - Chilli Garlic",
   "brand": "sumeru",
   "category": "snacks",
@@ -15596,7 +15461,7 @@
   ]
  },
  {
-  "id": "p929",
+  "id": "p921",
   "name": "Besan Laddoo",
   "brand": "Daadis",
   "category": "snacks",
@@ -15611,7 +15476,7 @@
   ]
  },
  {
-  "id": "p930",
+  "id": "p922",
   "name": "Moong Dal Pista Laddoo - Made In Pure Ghee",
   "brand": "Daadis",
   "category": "snacks",
@@ -15627,8 +15492,8 @@
   ]
  },
  {
-  "id": "p931",
-  "name": "Whole Wheat Khakhra Rich in Ghee Chutney",
+  "id": "p923",
+  "name": "Whole Wheat Khakhra",
   "brand": "Tasties",
   "category": "snacks",
   "sub_category": "ghee",
@@ -15643,7 +15508,7 @@
   ]
  },
  {
-  "id": "p932",
+  "id": "p924",
   "name": "Multigrain Balls - Chilli Chataka",
   "brand": "GoodDiet",
   "category": "snacks",
@@ -15660,8 +15525,8 @@
   ]
  },
  {
-  "id": "p933",
-  "name": "NutriOne Baked Nuts & Dried Fruits - Berry Mix",
+  "id": "p925",
+  "name": "NutriOne Baked Nuts & Dried Fruits - Berry",
   "brand": "Tong Garden",
   "category": "snacks",
   "sub_category": "healthy_baked_snacks",
@@ -15677,7 +15542,7 @@
   ]
  },
  {
-  "id": "p934",
+  "id": "p926",
   "name": "Ragi Sticks - Achari Masala",
   "brand": "GoodDiet",
   "category": "snacks",
@@ -15694,7 +15559,7 @@
   ]
  },
  {
-  "id": "p935",
+  "id": "p927",
   "name": "Roasted Diet Snack - Chilli Lime",
   "brand": "GoodDiet",
   "category": "snacks",
@@ -15711,7 +15576,7 @@
   ]
  },
  {
-  "id": "p936",
+  "id": "p928",
   "name": "Roasted Multigrain - Minty",
   "brand": "GoodDiet",
   "category": "snacks",
@@ -15728,7 +15593,7 @@
   ]
  },
  {
-  "id": "p937",
+  "id": "p929",
   "name": "Roasted Quinoa Puff - Jalapeno",
   "brand": "GoodDiet",
   "category": "snacks",
@@ -15746,7 +15611,7 @@
   ]
  },
  {
-  "id": "p938",
+  "id": "p930",
   "name": "Roasted Quinoa Puff Plain",
   "brand": "GoodDiet",
   "category": "snacks",
@@ -15764,7 +15629,7 @@
   ]
  },
  {
-  "id": "p939",
+  "id": "p931",
   "name": "Chef Chilli Chinese Gravy",
   "brand": "Veeba",
   "category": "snacks",
@@ -15780,7 +15645,7 @@
   ]
  },
  {
-  "id": "p940",
+  "id": "p932",
   "name": "Cooking Paste - Hyderabadi Biryani",
   "brand": "ITC Master Chef",
   "category": "snacks",
@@ -15796,7 +15661,7 @@
   ]
  },
  {
-  "id": "p941",
+  "id": "p933",
   "name": "Eggless Premium Vanilla Cake Mix",
   "brand": "HappyChef",
   "category": "snacks",
@@ -15812,7 +15677,7 @@
   ]
  },
  {
-  "id": "p942",
+  "id": "p934",
   "name": "Strawberry Essence",
   "brand": "HappyChef",
   "category": "snacks",
@@ -15829,7 +15694,7 @@
   ]
  },
  {
-  "id": "p943",
+  "id": "p935",
   "name": "Vanilla Essence",
   "brand": "HappyChef",
   "category": "snacks",
@@ -15846,7 +15711,7 @@
   ]
  },
  {
-  "id": "p944",
+  "id": "p936",
   "name": "Waffy Kulfi Flavoured Wafer Roll - Creamy",
   "brand": "Dukes",
   "category": "snacks",
@@ -15862,8 +15727,8 @@
   ]
  },
  {
-  "id": "p945",
-  "name": "Snacks - Roasted Melon n Flaxseeds",
+  "id": "p937",
+  "name": "Snacks",
   "brand": "GoodDiet",
   "category": "snacks",
   "sub_category": "melon",
@@ -15879,7 +15744,7 @@
   ]
  },
  {
-  "id": "p946",
+  "id": "p938",
   "name": "Nacho Chips - Cheese",
   "brand": "Tasties",
   "category": "snacks",
@@ -15895,7 +15760,7 @@
   ]
  },
  {
-  "id": "p947",
+  "id": "p939",
   "name": "Nacho Chips - Cheese",
   "brand": "Makino",
   "category": "snacks",
@@ -15911,7 +15776,7 @@
   ]
  },
  {
-  "id": "p948",
+  "id": "p940",
   "name": "Nacho Chips - Cheese",
   "brand": "Makino",
   "category": "snacks",
@@ -15927,7 +15792,7 @@
   ]
  },
  {
-  "id": "p949",
+  "id": "p941",
   "name": "Nacho Chips - Cheese",
   "brand": "Tasties",
   "category": "snacks",
@@ -15943,7 +15808,7 @@
   ]
  },
  {
-  "id": "p950",
+  "id": "p942",
   "name": "Nacho Chips - Jalapeno",
   "brand": "Tasties",
   "category": "snacks",
@@ -15960,7 +15825,7 @@
   ]
  },
  {
-  "id": "p951",
+  "id": "p943",
   "name": "Nacho Chips - Jalapeno",
   "brand": "Tasties",
   "category": "snacks",
@@ -15977,7 +15842,7 @@
   ]
  },
  {
-  "id": "p952",
+  "id": "p944",
   "name": "Nacho Chips - Peri-Peri",
   "brand": "Tasties",
   "category": "snacks",
@@ -15994,7 +15859,7 @@
   ]
  },
  {
-  "id": "p953",
+  "id": "p945",
   "name": "Nacho Chips - Sweet Chilli",
   "brand": "Tasties",
   "category": "snacks",
@@ -16011,7 +15876,7 @@
   ]
  },
  {
-  "id": "p954",
+  "id": "p946",
   "name": "Flour Tortillas",
   "brand": "Old El Paso",
   "category": "snacks",
@@ -16028,7 +15893,7 @@
   ]
  },
  {
-  "id": "p955",
+  "id": "p947",
   "name": "All in One Mixture",
   "brand": "Tasties",
   "category": "snacks",
@@ -16045,7 +15910,7 @@
   ]
  },
  {
-  "id": "p956",
+  "id": "p948",
   "name": "Aloo Bhujia",
   "brand": "Tasties",
   "category": "snacks",
@@ -16061,7 +15926,7 @@
   ]
  },
  {
-  "id": "p957",
+  "id": "p949",
   "name": "Aloo Bhujia Namkeen",
   "brand": "Tasties",
   "category": "snacks",
@@ -16076,7 +15941,41 @@
   ]
  },
  {
-  "id": "p958",
+  "id": "p950",
+  "name": "Kerala Rice Namkeen Murukku - Crispy",
+  "brand": "Tasties Origins",
+  "category": "snacks",
+  "sub_category": "namkeen",
+  "pack_size": 150,
+  "unit": "g",
+  "price": 69,
+  "mrp": 125,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p951",
+  "name": "Maharashtra Masala Corn Chivda - Crispy",
+  "brand": "Tasties Origins",
+  "category": "snacks",
+  "sub_category": "namkeen",
+  "pack_size": 150,
+  "unit": "g",
+  "price": 69,
+  "mrp": 109,
+  "in_stock": false,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p952",
   "name": "Namkeen - Indori Mixture",
   "brand": "Tasties Origins",
   "category": "snacks",
@@ -16093,25 +15992,75 @@
   ]
  },
  {
-  "id": "p959",
-  "name": "Roasted High Protein Mixture",
-  "brand": "GoodDiet",
+  "id": "p953",
+  "name": "Namkeen - Ratlami Sev",
+  "brand": "Tasties Origins",
   "category": "snacks",
   "sub_category": "namkeen",
   "pack_size": 150,
   "unit": "g",
-  "price": 79,
+  "price": 59,
   "mrp": 109,
   "in_stock": true,
   "tags": [
    "veg",
    "vegan",
-   "jain",
-   "high_protein"
+   "jain"
   ]
  },
  {
-  "id": "p960",
+  "id": "p954",
+  "name": "Namkeen - Ujjaini Sev",
+  "brand": "Tasties Origins",
+  "category": "snacks",
+  "sub_category": "namkeen",
+  "pack_size": 150,
+  "unit": "g",
+  "price": 59,
+  "mrp": 109,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p955",
+  "name": "Raagi Bhujia - Heeng Jeera",
+  "brand": "Evolve",
+  "category": "snacks",
+  "sub_category": "namkeen",
+  "pack_size": 90,
+  "unit": "g",
+  "price": 49,
+  "mrp": 65,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p956",
+  "name": "Snack Namkeen Roasted - Seeds Trail Mix",
+  "brand": "GoodDiet",
+  "category": "snacks",
+  "sub_category": "namkeen",
+  "pack_size": 125,
+  "unit": "g",
+  "price": 149,
+  "mrp": 219,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p957",
   "name": "Dry fruit Kachori",
   "brand": "Tasties",
   "category": "snacks",
@@ -16128,7 +16077,7 @@
   ]
  },
  {
-  "id": "p961",
+  "id": "p958",
   "name": "Indian Wheat Cracker - Ajwain Bhakhri",
   "brand": "Daadis",
   "category": "snacks",
@@ -16145,7 +16094,7 @@
   ]
  },
  {
-  "id": "p962",
+  "id": "p959",
   "name": "Indian Wheat Cracker - Masala Bhakhri",
   "brand": "Daadis",
   "category": "snacks",
@@ -16162,7 +16111,7 @@
   ]
  },
  {
-  "id": "p963",
+  "id": "p960",
   "name": "Indian Wheat Cracker - Methi Bhakhri",
   "brand": "Daadis",
   "category": "snacks",
@@ -16179,7 +16128,7 @@
   ]
  },
  {
-  "id": "p964",
+  "id": "p961",
   "name": "Khara Boondi",
   "brand": "Tasties",
   "category": "snacks",
@@ -16196,7 +16145,7 @@
   ]
  },
  {
-  "id": "p965",
+  "id": "p962",
   "name": "Khatta Meetha",
   "brand": "Tasties",
   "category": "snacks",
@@ -16213,7 +16162,7 @@
   ]
  },
  {
-  "id": "p966",
+  "id": "p963",
   "name": "Mini Samosa",
   "brand": "Tasties",
   "category": "snacks",
@@ -16230,8 +16179,8 @@
   ]
  },
  {
-  "id": "p967",
-  "name": "2-Minute Instant Masala Noodles - Made With Quality Spices",
+  "id": "p964",
+  "name": "2-Minute Instant Masala Noodles",
   "brand": "MAGGI",
   "category": "snacks",
   "sub_category": "noodles",
@@ -16247,8 +16196,8 @@
   ]
  },
  {
-  "id": "p968",
-  "name": "2-Minute Instant Masala Noodles - Made With Quality Spices",
+  "id": "p965",
+  "name": "2-Minute Instant Masala Noodles",
   "brand": "MAGGI",
   "category": "snacks",
   "sub_category": "noodles",
@@ -16263,7 +16212,7 @@
   ]
  },
  {
-  "id": "p969",
+  "id": "p966",
   "name": "2-Minute Instant Noodles - Masala",
   "brand": "MAGGI",
   "category": "snacks",
@@ -16280,8 +16229,8 @@
   ]
  },
  {
-  "id": "p970",
-  "name": "2-Minute Noodles Masala - Made With Quality Spices",
+  "id": "p967",
+  "name": "2-Minute Noodles Masala",
   "brand": "MAGGI",
   "category": "snacks",
   "sub_category": "noodles",
@@ -16297,7 +16246,7 @@
   ]
  },
  {
-  "id": "p971",
+  "id": "p968",
   "name": "Masala 2 Minute Instant Noodles",
   "brand": "MAGGI",
   "category": "snacks",
@@ -16313,7 +16262,7 @@
   ]
  },
  {
-  "id": "p972",
+  "id": "p969",
   "name": "Masala Instant Noodles Vegetarian",
   "brand": "MAGGI",
   "category": "snacks",
@@ -16329,7 +16278,7 @@
   ]
  },
  {
-  "id": "p973",
+  "id": "p970",
   "name": "Noodles - Curry Veg",
   "brand": "Top Ramen",
   "category": "snacks",
@@ -16345,7 +16294,7 @@
   ]
  },
  {
-  "id": "p974",
+  "id": "p971",
   "name": "Noodles - Curry Veg",
   "brand": "Top Ramen",
   "category": "snacks",
@@ -16362,7 +16311,7 @@
   ]
  },
  {
-  "id": "p975",
+  "id": "p972",
   "name": "Veg Hakka Noodles - Authentic Chinese",
   "brand": "HAPPY PANDA",
   "category": "snacks",
@@ -16378,7 +16327,7 @@
   ]
  },
  {
-  "id": "p976",
+  "id": "p973",
   "name": "Veg Hakka Noodles - Authentic Chinese",
   "brand": "HAPPY PANDA",
   "category": "snacks",
@@ -16394,7 +16343,7 @@
   ]
  },
  {
-  "id": "p977",
+  "id": "p974",
   "name": "Green Chilly Sabudana Papad",
   "brand": "DNV",
   "category": "snacks",
@@ -16411,7 +16360,7 @@
   ]
  },
  {
-  "id": "p978",
+  "id": "p975",
   "name": "Jeera Papad - Big",
   "brand": "BALASA",
   "category": "snacks",
@@ -16428,7 +16377,7 @@
   ]
  },
  {
-  "id": "p979",
+  "id": "p976",
   "name": "Kasuri Methi Sabudana Papad",
   "brand": "DNV",
   "category": "snacks",
@@ -16445,7 +16394,7 @@
   ]
  },
  {
-  "id": "p980",
+  "id": "p977",
   "name": "Mint Sabudana Papad",
   "brand": "DNV",
   "category": "snacks",
@@ -16462,7 +16411,7 @@
   ]
  },
  {
-  "id": "p981",
+  "id": "p978",
   "name": "Onion Sabudana Papad",
   "brand": "DNV",
   "category": "snacks",
@@ -16478,7 +16427,7 @@
   ]
  },
  {
-  "id": "p982",
+  "id": "p979",
   "name": "Papad - Jeera Masala",
   "brand": "Ganesh Papad",
   "category": "snacks",
@@ -16495,7 +16444,7 @@
   ]
  },
  {
-  "id": "p983",
+  "id": "p980",
   "name": "Papad - Punjabi Masala Special",
   "brand": "Ganesh Papad",
   "category": "snacks",
@@ -16512,7 +16461,7 @@
   ]
  },
  {
-  "id": "p984",
+  "id": "p981",
   "name": "Red Chilly Sabudana Papad",
   "brand": "DNV",
   "category": "snacks",
@@ -16529,7 +16478,7 @@
   ]
  },
  {
-  "id": "p985",
+  "id": "p982",
   "name": "100% Durum Wheat Pasta - Spaghetti",
   "brand": "HappyChef",
   "category": "snacks",
@@ -16546,7 +16495,7 @@
   ]
  },
  {
-  "id": "p986",
+  "id": "p983",
   "name": "Durum Wheat Pasta - Chifferi Rigati",
   "brand": "Habit",
   "category": "snacks",
@@ -16563,7 +16512,7 @@
   ]
  },
  {
-  "id": "p987",
+  "id": "p984",
   "name": "Durum Wheat Pasta - Farfalle",
   "brand": "HappyChef",
   "category": "snacks",
@@ -16580,8 +16529,8 @@
   ]
  },
  {
-  "id": "p988",
-  "name": "Durum Wheat Penne Rigate, N.69",
+  "id": "p985",
+  "name": "Durum Wheat Penne Rigate",
   "brand": "San Vito",
   "category": "snacks",
   "sub_category": "pasta",
@@ -16597,7 +16546,7 @@
   ]
  },
  {
-  "id": "p989",
+  "id": "p986",
   "name": "Elbow Pasta",
   "brand": "Keya",
   "category": "snacks",
@@ -16614,7 +16563,7 @@
   ]
  },
  {
-  "id": "p990",
+  "id": "p987",
   "name": "Pasta - Elbow Macaroni",
   "brand": "Blue Bird",
   "category": "snacks",
@@ -16631,7 +16580,7 @@
   ]
  },
  {
-  "id": "p991",
+  "id": "p988",
   "name": "Pasta - Penne",
   "brand": "Blue Bird",
   "category": "snacks",
@@ -16648,7 +16597,7 @@
   ]
  },
  {
-  "id": "p992",
+  "id": "p989",
   "name": "Penne Pasta",
   "brand": "Keya",
   "category": "snacks",
@@ -16665,7 +16614,7 @@
   ]
  },
  {
-  "id": "p993",
+  "id": "p990",
   "name": "Classic Peanut Chikkis",
   "brand": "IndiSecrets",
   "category": "snacks",
@@ -16683,7 +16632,7 @@
   ]
  },
  {
-  "id": "p994",
+  "id": "p991",
   "name": "Crushed Peanut Chikkis",
   "brand": "IndiSecrets",
   "category": "snacks",
@@ -16701,7 +16650,7 @@
   ]
  },
  {
-  "id": "p995",
+  "id": "p992",
   "name": "High Protein Peanuts - Sweet Chilli Masala",
   "brand": "Befikar",
   "category": "snacks",
@@ -16719,7 +16668,7 @@
   ]
  },
  {
-  "id": "p996",
+  "id": "p993",
   "name": "Tasty Peanuts - Spice Coated",
   "brand": "Tasties",
   "category": "snacks",
@@ -16736,7 +16685,7 @@
   ]
  },
  {
-  "id": "p997",
+  "id": "p994",
   "name": "Tasty Peanuts - Spice Coated",
   "brand": "Tasties",
   "category": "snacks",
@@ -16754,7 +16703,7 @@
   ]
  },
  {
-  "id": "p998",
+  "id": "p995",
   "name": "Pineapple Essence",
   "brand": "HappyChef",
   "category": "snacks",
@@ -16771,7 +16720,24 @@
   ]
  },
  {
-  "id": "p999",
+  "id": "p996",
+  "name": "Namkeen - Indori Poha Mixture",
+  "brand": "Tasties Origins",
+  "category": "snacks",
+  "sub_category": "poha",
+  "pack_size": 150,
+  "unit": "g",
+  "price": 59,
+  "mrp": 109,
+  "in_stock": true,
+  "tags": [
+   "veg",
+   "vegan",
+   "jain"
+  ]
+ },
+ {
+  "id": "p997",
   "name": "Instant Popcorn - Butter",
   "brand": "Act II",
   "category": "snacks",
@@ -16786,7 +16752,7 @@
   ]
  },
  {
-  "id": "p1000",
+  "id": "p998",
   "name": "Potato Finger Salt",
   "brand": "A-1 Chips",
   "category": "snacks",
@@ -16801,7 +16767,7 @@
   ]
  },
  {
-  "id": "p1001",
+  "id": "p999",
   "name": "Potato Stix - Aloo Chat",
   "brand": "Too Yumm!",
   "category": "snacks",
@@ -16817,7 +16783,7 @@
   ]
  },
  {
-  "id": "p1002",
+  "id": "p1000",
   "name": "Mughlai Paneer - Ready To Eat Indian Dish",
   "brand": "Kitchens Of India",
   "category": "snacks",
@@ -16833,7 +16799,7 @@
   ]
  },
  {
-  "id": "p1003",
+  "id": "p1001",
   "name": "Paneer Butter Masala - Ready to Eat",
   "brand": "MTR",
   "category": "snacks",
@@ -16849,7 +16815,7 @@
   ]
  },
  {
-  "id": "p1004",
+  "id": "p1002",
   "name": "Roasted Flaxseed - Black Salt",
   "brand": "GoodDiet",
   "category": "snacks",
@@ -16866,7 +16832,7 @@
   ]
  },
  {
-  "id": "p1005",
+  "id": "p1003",
   "name": "Angoori Petha",
   "brand": "Rafael",
   "category": "snacks",
@@ -16883,7 +16849,7 @@
   ]
  },
  {
-  "id": "p1006",
+  "id": "p1004",
   "name": "Angoori Petha",
   "brand": "Rafael",
   "category": "snacks",
@@ -16900,7 +16866,7 @@
   ]
  },
  {
-  "id": "p1007",
+  "id": "p1005",
   "name": "Kesar Angoori Petha",
   "brand": "Rafael",
   "category": "snacks",
@@ -16917,7 +16883,7 @@
   ]
  },
  {
-  "id": "p1008",
+  "id": "p1006",
   "name": "Caperberries in Brine",
   "brand": "Abbies",
   "category": "snacks",

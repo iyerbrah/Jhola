@@ -40,12 +40,29 @@ describe("pack counts from need", () => {
     expect(packs(420)).toBe(3);
     expect(packs(205)).toBe(1);
     expect(packs(0, 4)).toBe(4); // need 0 -> use the model's qty
-    expect(packs(5000)).toBe(10); // capped
+    expect(packs(2000)).toBe(10); // 10 packs is fine
+    expect(packs(5000, 2)).toBe(2); // 25 packs means a unit mix-up: keep the model's qty
   });
 
   it("re-counts packs when an out-of-stock item is swapped", () => {
     // Out-of-stock p009 (200 g) -> Malai p010 (200 g): 600 g -> 3 packs
     const out = tidyCart(cart([item("p009", 1, false, 600)]), index, products);
     expect(out.items[0]).toMatchObject({ product_id: "p010", qty: 3 });
+  });
+});
+
+describe("best pack size", () => {
+  it("picks the cheapest size of the same product that covers the need", () => {
+    const pick = (id: string, need: number) => tidyCart(cart([item(id, 1, false, need)]), index, products).items[0];
+    // 400 g: one 1 kg bag (₹84), not the 5 kg bag (₹429) the model chose
+    expect(pick("p021", 400)).toMatchObject({ product_id: "p020", qty: 1 });
+    // 4.5 kg: five 1 kg bags (₹420) cost less than one 5 kg bag (₹429)
+    expect(pick("p021", 4500)).toMatchObject({ product_id: "p020", qty: 5 });
+    // 9 kg: nine 1 kg bags (₹756) cost less than two 5 kg bags (₹858)
+    expect(pick("p020", 9000)).toMatchObject({ product_id: "p020", qty: 9 });
+  });
+
+  it("leaves items without a need alone", () => {
+    expect(tidyCart(cart([item("p021", 1)]), index, products).items[0].product_id).toBe("p021");
   });
 });
