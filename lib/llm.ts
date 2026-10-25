@@ -20,15 +20,35 @@ export type LlmClient = {
   repairCart: (args: RepairArgs) => Promise<LlmResult<Cart>>;
 };
 
+/** Why a call failed. Safe to show: it never contains the key or the prompt. */
+export type LlmErrorKind = "missing_key" | "bad_key" | "quota" | "timeout" | "bad_output" | "provider";
+
 /** Thrown when the provider fails or returns output we can't parse. The API maps it to 502. */
-export class LlmError extends Error {}
+export class LlmError extends Error {
+  constructor(
+    message: string,
+    readonly kind: LlmErrorKind = "provider",
+  ) {
+    super(message);
+  }
+}
+
+/** Sort a provider error into a kind, from its HTTP status and message. */
+export function classifyError(err: unknown): LlmErrorKind {
+  const status = (err as { status?: number })?.status;
+  const msg = err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
+  if (status === 401 || status === 403 || msg.includes("api key")) return "bad_key";
+  if (status === 429 || msg.includes("quota")) return "quota";
+  if (msg.includes("timed out") || msg.includes("timeout")) return "timeout";
+  return "provider";
+}
 
 type Effort = "none" | "low" | "medium" | "high";
 
 let client: OpenAI | null = null;
 
 function getClient(): OpenAI {
-  if (!process.env.OPENAI_API_KEY) throw new LlmError("OPENAI_API_KEY is not set");
+  if (!process.env.OPENAI_API_KEY) throw new LlmError("OPENAI_API_KEY is not set", "missing_key");
   // A normal call takes 1-5 s. buildCarts retries once itself, so the SDK doesn't.
   client ??= new OpenAI({ timeout: 12_000, maxRetries: 0 });
   return client;
@@ -63,7 +83,7 @@ async function structuredCall<S extends z.ZodType>(
       ...(isReasoningModel(model) ? { reasoning: { effort } } : {}),
     });
     const output = response.output_parsed;
-    if (!output) throw new LlmError(`No parsable ${name} output (status: ${response.status})`);
+    if (!output) throw new LlmError(`No parsable ${name} output (status: ${response.status})`, "bad_output");
     return {
       output: output as z.infer<S>,
       model: response.model,
@@ -75,7 +95,7 @@ async function structuredCall<S extends z.ZodType>(
     };
   } catch (err) {
     if (err instanceof LlmError) throw err;
-    throw new LlmError(err instanceof Error ? err.message : String(err));
+    throw new LlmError(err instanceof Error ? err.message : String(err), classifyError(err));
   }
 }
 

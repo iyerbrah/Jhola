@@ -50,7 +50,7 @@ const json = (body: unknown, status: number, headers: Record<string, string> = {
 
 function withDeadline<T>(p: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new LlmError(`Timed out after ${ms} ms`)), ms);
+    const timer = setTimeout(() => reject(new LlmError(`Timed out after ${ms} ms`, "timeout")), ms);
     p.then(resolve, reject).finally(() => clearTimeout(timer));
   });
 }
@@ -105,8 +105,9 @@ export async function handleBuildCarts(req: Request, deps: ApiDeps = defaultDeps
     return json(res, 200);
   } catch (err) {
     if (err instanceof LlmError) {
-      console.error("[build-carts] LLM failed:", err.message);
-      return json({ error: "The cart builder had trouble answering. Please try again." }, 502);
+      console.error(`[build-carts] LLM failed (${err.kind}):`, err.message);
+      // `reason` says what kind of failure it was (never the key or the message), to make deploy problems easy to spot.
+      return json({ error: "The cart builder had trouble answering. Please try again.", reason: err.kind }, 502);
     }
     console.error("[build-carts] unexpected error:", err);
     return json({ error: "Something went wrong. Please try again." }, 500);
