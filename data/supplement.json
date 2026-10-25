@@ -1,0 +1,479 @@
+[
+{
+"name": "Fresh Cream",
+"brand": "Amul",
+"category": "dairy",
+"sub_category": "cream",
+"pack_size": 250,
+"unit": "ml",
+"price": 67
+},
+{
+"name": "Taaza Toned Milk",
+"brand": "Amul",
+"category": "dairy",
+"sub_category": "milk",
+"pack_size": 500,
+"unit": "ml",
+"price": 28
+},
+{
+"name": "Coriander Leaves",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "coriander_leaves",
+"pack_size": 100,
+"unit": "g",
+"price": 15
+},
+{
+"name": "Unpolished Toor Dal",
+"brand": "Tata Sampann",
+"category": "atta_rice_dal",
+"sub_category": "toor_dal",
+"pack_size": 500,
+"unit": "g",
+"price": 95
+},
+{
+"name": "Unpolished Toor Dal",
+"brand": "Tata Sampann",
+"category": "atta_rice_dal",
+"sub_category": "toor_dal",
+"pack_size": 1000,
+"unit": "g",
+"price": 180
+},
+{
+"name": "Lemon",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "lemon",
+"pack_size": 250,
+"unit": "g",
+"price": 40
+},
+{
+"name": "Capsicum - Green",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "capsicum",
+"pack_size": 250,
+"unit": "g",
+"price": 30
+},
+{
+"name": "Sandwich Bread",
+"brand": "Britannia",
+"category": "bakery",
+"sub_category": "bread",
+"pack_size": 400,
+"unit": "g",
+"price": 50
+},
+{
+"name": "Whole Wheat Bread",
+"brand": "Modern",
+"category": "bakery",
+"sub_category": "bread",
+"pack_size": 400,
+"unit": "g",
+"price": 55
+},
+{
+"name": "Kashmirilal Chilli Powder",
+"brand": "Everest",
+"category": "masalas_spices",
+"sub_category": "chilli_powder",
+"pack_size": 100,
+"unit": "g",
+"price": 68
+},
+{
+"name": "Deggi Mirch",
+"brand": "MDH",
+"category": "masalas_spices",
+"sub_category": "chilli_powder",
+"pack_size": 100,
+"unit": "g",
+"price": 82
+},
+{
+"name": "Shahi Paneer Masala",
+"brand": "MDH",
+"category": "masalas_spices",
+"sub_category": "masala_mix",
+"pack_size": 100,
+"unit": "g",
+"price": 85
+},
+{
+"name": "Paneer Butter Masala - Ready to Eat",
+"brand": "MTR",
+"category": "snacks",
+"sub_category": "ready_meal",
+"pack_size": 300,
+"unit": "g",
+"price": 125
+},
+{
+"name": "Coca-Cola",
+"brand": "Coca-Cola",
+"category": "beverages",
+"sub_category": "soft_drink",
+"pack_size": 750,
+"unit": "ml",
+"price": 40
+},
+{
+"name": "Instant Popcorn - Butter",
+"brand": "Act II",
+"category": "snacks",
+"sub_category": "popcorn",
+"pack_size": 70,
+"unit": "g",
+"price": 35
+},
+{
+"name": "Bournville Rich Cocoa 50% Cocoa",
+"brand": "Cadbury",
+"category": "chocolates",
+"sub_category": "dark_chocolate",
+"pack_size": 80,
+"unit": "g",
+"price": 100
+},
+{
+"name": "Bitter Chocolate 75% Cocoa",
+"brand": "Amul",
+"category": "chocolates",
+"sub_category": "dark_chocolate",
+"pack_size": 150,
+"unit": "g",
+"price": 200
+},
+{
+"name": "Dark Chocolate 99% Cocoa",
+"brand": "Amul",
+"category": "chocolates",
+"sub_category": "dark_chocolate",
+"pack_size": 125,
+"unit": "g",
+"price": 210
+},
+{
+"name": "Dark Chocolate 72% Cocoa",
+"brand": "Paul And Mike",
+"category": "chocolates",
+"sub_category": "dark_chocolate",
+"pack_size": 68,
+"unit": "g",
+"price": 199
+},
+{
+"name": "Excellence Dark 70% Cocoa",
+"brand": "Lindt",
+"category": "chocolates",
+"sub_category": "dark_chocolate",
+"pack_size": 100,
+"unit": "g",
+"price": 375
+},
+{
+"name": "Excellence Dark 85% Cocoa",
+"brand": "Lindt",
+"category": "chocolates",
+"sub_category": "dark_chocolate",
+"pack_size": 100,
+"unit": "g",
+"price": 375
+},
+{
+"name": "Excellence Dark 90% Cocoa",
+"brand": "Lindt",
+"category": "chocolates",
+"sub_category": "dark_chocolate",
+"pack_size": 100,
+"unit": "g",
+"price": 395
+},
+{
+"name": "Dark Chocolate 70% Cocoa",
+"brand": "Mason & Co",
+"category": "chocolates",
+"sub_category": "dark_chocolate",
+"pack_size": 55,
+"unit": "g",
+"price": 325
+},
+{
+"name": "Banana - Robusta",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "banana",
+"pack_size": 6,
+"unit": "pcs",
+"price": 42
+},
+{
+"name": "Banana - Yelakki",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "banana",
+"pack_size": 500,
+"unit": "g",
+"price": 45
+},
+{
+"name": "Apple - Shimla",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "apple",
+"pack_size": 1000,
+"unit": "g",
+"price": 180
+},
+{
+"name": "Apple - Royal Gala",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "apple",
+"pack_size": 4,
+"unit": "pcs",
+"price": 220
+},
+{
+"name": "Orange - Nagpur",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "citrus",
+"pack_size": 1000,
+"unit": "g",
+"price": 90
+},
+{
+"name": "Sweet Lime (Mosambi)",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "citrus",
+"pack_size": 1000,
+"unit": "g",
+"price": 80
+},
+{
+"name": "Papaya - Medium",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "papaya",
+"pack_size": 1,
+"unit": "pcs",
+"price": 50
+},
+{
+"name": "Pomegranate - Bhagwa",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "pomegranate",
+"pack_size": 500,
+"unit": "g",
+"price": 110
+},
+{
+"name": "Grapes - Green Seedless",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "grapes",
+"pack_size": 500,
+"unit": "g",
+"price": 80
+},
+{
+"name": "Guava",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "guava",
+"pack_size": 500,
+"unit": "g",
+"price": 55
+},
+{
+"name": "Kiwi - Green",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "kiwi",
+"pack_size": 3,
+"unit": "pcs",
+"price": 99
+},
+{
+"name": "Cauliflower",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "cauliflower",
+"pack_size": 1,
+"unit": "pcs",
+"price": 40
+},
+{
+"name": "Cabbage",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "cabbage",
+"pack_size": 1,
+"unit": "pcs",
+"price": 35
+},
+{
+"name": "Cucumber",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "cucumber",
+"pack_size": 500,
+"unit": "g",
+"price": 30
+},
+{
+"name": "Spinach (Palak)",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "spinach",
+"pack_size": 250,
+"unit": "g",
+"price": 25
+},
+{
+"name": "Capsicum - Red & Yellow",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "capsicum",
+"pack_size": 250,
+"unit": "g",
+"price": 90
+},
+{
+"name": "Button Mushroom",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "mushroom",
+"pack_size": 200,
+"unit": "g",
+"price": 55
+},
+{
+"name": "Broccoli",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "broccoli",
+"pack_size": 250,
+"unit": "g",
+"price": 70
+},
+{
+"name": "Green Peas - Fresh",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "peas",
+"pack_size": 500,
+"unit": "g",
+"price": 60
+},
+{
+"name": "Sweet Corn",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "corn",
+"pack_size": 2,
+"unit": "pcs",
+"price": 40
+},
+{
+"name": "Lettuce - Iceberg",
+"brand": "Fresho",
+"category": "fruits_vegetables",
+"sub_category": "lettuce",
+"pack_size": 1,
+"unit": "pcs",
+"price": 60
+},
+{
+"name": "Gold Full Cream Milk",
+"brand": "Amul",
+"category": "dairy",
+"sub_category": "milk",
+"pack_size": 500,
+"unit": "ml",
+"price": 34
+},
+{
+"name": "Toned Milk",
+"brand": "Mother Dairy",
+"category": "dairy",
+"sub_category": "milk",
+"pack_size": 500,
+"unit": "ml",
+"price": 28
+},
+{
+"name": "Masti Dahi",
+"brand": "Amul",
+"category": "dairy",
+"sub_category": "curd",
+"pack_size": 400,
+"unit": "g",
+"price": 35
+},
+{
+"name": "Cheese Slices",
+"brand": "Amul",
+"category": "dairy",
+"sub_category": "cheese",
+"pack_size": 200,
+"unit": "g",
+"price": 130
+},
+{
+"name": "Ladi Pav",
+"brand": "Modern",
+"category": "bakery",
+"sub_category": "bread",
+"pack_size": 6,
+"unit": "pcs",
+"price": 35
+},
+{
+"name": "Brown Bread",
+"brand": "Britannia",
+"category": "bakery",
+"sub_category": "bread",
+"pack_size": 400,
+"unit": "g",
+"price": 55
+},
+{
+"name": "Packaged Drinking Water",
+"brand": "Bisleri",
+"category": "beverages",
+"sub_category": "water",
+"pack_size": 1000,
+"unit": "ml",
+"price": 20
+},
+{
+"name": "Thums Up",
+"brand": "Thums Up",
+"category": "beverages",
+"sub_category": "soft_drink",
+"pack_size": 750,
+"unit": "ml",
+"price": 40
+},
+{
+"name": "Sprite",
+"brand": "Sprite",
+"category": "beverages",
+"sub_category": "soft_drink",
+"pack_size": 750,
+"unit": "ml",
+"price": 40
+}
+]
