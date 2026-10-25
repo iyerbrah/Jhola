@@ -117,6 +117,13 @@ npm run catalog:check             # check the catalog covers the promised dishes
 npm run check:contrast            # check every UI colour pair against WCAG AA
 ```
 
+## Deploy your own
+
+1. Push the repo to GitHub and import it at [vercel.com/new](https://vercel.com/new) (Next.js is detected automatically).
+2. In **Settings → Environment Variables**, add the values from `.env.example`: `OPENAI_API_KEY`, `LLM_MODEL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_HOUR`, `DAILY_REQUEST_CAP`, and optionally `HISTORY_KEY`. Paste bare values, without quote marks. `.env` never leaves your machine, so the live site only has what you add here.
+3. Redeploy so the variables take effect, and set a monthly spending limit in your OpenAI account before sharing the link.
+4. Check **Settings → Git** shows your repo with `main` as the production branch, so every push redeploys.
+
 ## Data
 
 Product data comes from the Kaggle "BigBasket Entire Product List" dataset (CC BY-NC-SA 4.0), plus about 50 hand-added staples (fresh fruit and vegetables, a few dark chocolates and everyday items the dataset lacks) whose prices are illustrative. It is used for non-commercial purposes, and prices are a past snapshot. This project is not affiliated with any retailer.
