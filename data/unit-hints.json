@@ -1,0 +1,36 @@
+{
+ "note": "Rough conversions for turning recipe amounts into pack counts. Rich ingredients (butter, ghee, cream, oil) are small amounts per person.",
+ "per_item": {
+  "1 onion": "150 g",
+  "1 tomato": "100 g",
+  "1 potato": "150 g",
+  "1 lemon": "50 g",
+  "1 green chilli": "5 g",
+  "1 inch ginger": "10 g",
+  "1 garlic clove": "5 g",
+  "1 bunch coriander": "100 g",
+  "1 sprig curry leaves": "2 g",
+  "1 egg": "1 pcs",
+  "1 dozen eggs": "12 pcs",
+  "1 cup rice (uncooked)": "200 g",
+  "1 cup atta": "120 g",
+  "1 cup milk": "240 ml",
+  "1 tbsp oil or ghee": "15 ml",
+  "1 tsp spice powder": "3 g",
+  "1 slice bread": "25 g"
+ },
+ "per_person_per_meal": {
+  "paneer": "100 g",
+  "chicken": "150 g",
+  "dal (uncooked)": "50 g",
+  "rice (uncooked)": "80 g",
+  "atta for rotis": "80 g",
+  "poha": "60 g",
+  "dosa batter": "200 g",
+  "vegetables": "150 g",
+  "butter or ghee in a curry": "15 g",
+  "cream in a curry": "25 ml",
+  "cooking oil": "10 ml",
+  "spices and masalas": "a few grams (one small pack covers it)"
+ }
+}
