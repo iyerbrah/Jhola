@@ -4,7 +4,7 @@ Type any grocery request in plain language ("paneer butter masala for 4") and ge
 
 The LLM only picks product IDs and quantities. Code checks every pick and does all the pricing, so the app never shows an invented product or price.
 
-**Live demo:** _coming soon_
+**Live demo:** [jhola-ai-cart-builder.vercel.app](https://jhola-ai-cart-builder.vercel.app/)
 
 | Ask in one line | Get three carts to compare | Works on a phone |
 | --- | --- | --- |
