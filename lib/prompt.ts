@@ -16,6 +16,7 @@ const RULES = `You build grocery carts for an Indian quick-commerce app. The sho
 The work happens in two steps. Each message says which step to do and the JSON schema to return.
 
 General rules:
+- If the shopper names a dish or a main ingredient ("chicken biryani", "paneer"), every cart is that dish or contains that ingredient; tiers change brands and extras, never the main ingredient.
 - Work out amounts for the number of people first (grams, ml or pieces), using the UNIT HINTS, then convert to whole packs. Pick the smallest pack, or pack combination, that covers the amount: 400 g paneer = 2 × 200 g, not 2 × 500 g; a recipe needing 20 g garlic gets the smallest garlic pack, never 1 kg.
 - Basic pantry staples the shopper probably has are optional: salt, cooking oil, sugar, turmeric, chilli powder, cumin, mustard seeds, garam masala, ghee. Everything the request itself needs is required.
 - Vague requests that name no dish ("food", "groceries", "something healthy") are fine: pick a sensible reading, build it, and say what you assumed. They are "ok", not "partial". This does not apply to a named dish whose key ingredients are missing (e.g. sushi without nori or rice vinegar): that is "partial" or "cannot_fulfil".
@@ -45,6 +46,7 @@ export function planMessage(query: string): string {
 STEP 1 (plan). Decide what to build; no product IDs yet.
 - status: "ok" if the catalog serves the request well; "partial" only if a key ingredient or item is missing and nothing in the catalog can stand in for it (packaging, gift boxes or a specific brand are not key items) (still plan 3 carts with what exists, and in message name what's missing plus the closest alternative); "cannot_fulfil" if it isn't a grocery request or the catalog can't sensibly serve it (then no variants, a short friendly message, and 2-3 suggestions: short example requests the app can do, like "Paneer butter masala for 4").
 - message: empty for "ok" unless something important needs saying. Never repeat assumptions here; they go in assumptions. suggestions: empty unless cannot_fulfil.
+- must_include: the catalog sub_categories of any main ingredient the shopper explicitly named, which every cart must contain (e.g. "chicken biryani" -> ["chicken"], "paneer tikka" -> ["paneer"]). Empty for open requests like "dinner ideas".
 - constraints: budget_inr and item_count only if the shopper gave them (a count of distinct products, like "3 different green teas" -> 3); item_kind = the matching catalog sub_category (e.g. "dark_chocolate") or null.
 - variants: exactly 3 genuinely different carts, listed cheapest to most expensive. Differ by price tier (Budget / Classic / Premium), by style (from scratch vs. a shortcut with a ready mix), or, for open requests like "breakfast ideas" or "snacks", by a different dish or theme in each cart. Never the same dish twice.
   - Keep each cart focused: at most 12 required lines and 4 optional lines. For big requests ("groceries for a week"), choose bigger packs rather than more lines.
@@ -52,6 +54,13 @@ STEP 1 (plan). Decide what to build; no product IDs yet.
   - name: 2-3 words. reason: one short line.
   - shopping_list: what this cart needs with amounts, using things the CATALOG has, separated by semicolons, and "(optional)" after pantry staples. Example: "paneer 400 g; tomato 500 g; onion 300 g; fresh cream 200 ml; butter 50 g; ginger-garlic paste; kasuri methi; salt (optional); turmeric (optional)".`;
 }
+
+/** What each cart's price position means, cheapest first. */
+const TIER_HINTS = [
+  "pick the cheapest products that still suit the dish (e.g. curry-cut chicken for a curry, not burger patties) and plain brands.",
+  "pick mid-priced, familiar brands.",
+  "pick the best-quality products and nicer brands (never drop the main ingredient to save money).",
+];
 
 /** Share of the budget each cart aims for, cheapest tier first. The budget itself is the hard cap. */
 export const BUDGET_TARGETS = [0.6, 0.8, 0.92];
@@ -67,11 +76,13 @@ Spend limit for this cart: aim for about ₹${target} for the required items, an
   return `${queryTag(query)}
 
 STEP 2 (one cart). Build the cart "${variant.name}" (${variant.reason}).
+This is cart ${tierIndex + 1} of 3, ordered cheapest to most expensive: ${TIER_HINTS[tierIndex] ?? TIER_HINTS[2]}${plan.must_include.length ? `
+Every cart must contain: ${plan.must_include.join(", ")}.` : ""}
 Shopping list: ${variant.shopping_list}
 Constraints: ${JSON.stringify(plan.constraints)}${spend}
 
 - Map each shopping-list line to the best CATALOG product ID that fits this cart's price tier. Never list the same product twice.
-- need: how much of that product the cart needs, in the product's own unit: grams for g/kg packs, ml for ml/L packs, pieces for pcs packs (e.g. 400 for "paneer 400 g", 1000 for "tomato 1 kg", 12 for "12 eggs"). For things bought by the pack (a chocolate bar, a spice jar, a gift item), use 0. Code turns need into whole packs.
+- need: the amount from the shopping list, never the pack size (if the list says "rice 600 g", need is 600 even when the pack is 1 kg). It is how much of that product the cart needs, in the product's own unit: grams for g/kg packs, ml for ml/L packs, pieces for pcs packs (e.g. 400 for "paneer 400 g", 1000 for "tomato 1 kg", 12 for "12 eggs"). For things bought by the pack (a chocolate bar, a spice jar, a gift item), use 0. Code turns need into whole packs.
 - qty: whole packs (1-10) you'd buy; it's only used when need is 0.
 - The other two carts are built separately for different tiers or styles, so stay true to this one: a budget cart picks the cheapest fitting products, a premium cart picks better brands or nicer variants (not more quantity than the list asks for), and a themed cart follows its own list. Don't default to the same popular products every cart would pick.
 - optional: true for lines marked (optional), otherwise false.

@@ -1,3 +1,4 @@
+import { dropRedundantAssumptions } from "./assumptions";
 import { fitToBudget } from "./budget";
 import { diversify } from "./diversify";
 import { tidyCart } from "./tidy";
@@ -7,7 +8,7 @@ import { markPantryOptional } from "./pantry";
 import { priceVariants } from "./price";
 import { buildInstructions, cartMessage, cartRepairMessage, planMessage } from "./prompt";
 import type { BuildCartsResponse, Cart, LlmOutput, LlmVariant, Product } from "./schema";
-import { checkOutput, salvage } from "./validate";
+import { checkOutput, matchesKind, salvage } from "./validate";
 
 export type BuildCartsDeps = { llm?: LlmClient; products?: Product[]; instructions?: string };
 
@@ -53,7 +54,7 @@ export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Prom
   const respond = (out: Omit<BuildCartsResponse, "meta" | "variants"> & { variants: LlmVariant[] }, repaired: boolean): BuildCartsResponse => ({
     status: out.status,
     message: out.message,
-    assumptions: out.assumptions,
+    assumptions: dropRedundantAssumptions(out.assumptions, query),
     suggestions: out.status === "cannot_fulfil" ? out.suggestions.slice(0, 3) : [],
     // Cheapest cart first, so the cards read Budget -> Premium.
     variants: priceVariants(out.variants, index).sort((a, b) => a.total - b.total),
@@ -66,6 +67,8 @@ export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Prom
   if (plan.status === "cannot_fulfil" || plan.variants.length === 0) {
     return respond({ ...plan, status: "cannot_fulfil", message: plan.message || NO_CARTS_MESSAGE, variants: [] }, false);
   }
+  // Only enforce named ingredients the catalog actually stocks (e.g. not "nori" for sushi).
+  plan.must_include = (plan.must_include ?? []).filter((kind) => products.some((p) => p.in_stock && matchesKind(p, kind)));
   const planned = plan.variants.slice(0, 3);
 
   // 2. Carts, in parallel. A cart whose call fails twice is dropped.

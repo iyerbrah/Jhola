@@ -15,6 +15,9 @@ export const products: Product[] = [
   { ...base, id: "p009", name: "Old Paneer", brand: "Nobody", sub_category: "paneer", pack_size: 200, price: 80, in_stock: false },
   { ...base, id: "p010", name: "Malai Paneer", brand: "Fresho", sub_category: "paneer", pack_size: 200, price: 72 },
   { ...base, id: "p011", name: "Paneer Tiny", brand: "Fresho", sub_category: "paneer", pack_size: 50, price: 20 },
+  // One rice in two sizes: the big bag is cheaper per kg but far too much for a small need.
+  { ...base, id: "p020", name: "Basmati Rice", brand: "Daawat", category: "atta_rice_dal", sub_category: "basmati_rice", pack_size: 1000, price: 84 },
+  { ...base, id: "p021", name: "Basmati Rice", brand: "Daawat", category: "atta_rice_dal", sub_category: "basmati_rice", pack_size: 5000, price: 429 },
   // dark chocolates for count/budget tests
   { ...base, id: "p101", name: "Dark 70% Cocoa", brand: "Lindt", category: "chocolates", sub_category: "dark_chocolate", pack_size: 100, price: 375, tags: ["dark_chocolate", "cocoa_70"] },
   { ...base, id: "p102", name: "Dark 85% Cocoa", brand: "Lindt", category: "chocolates", sub_category: "dark_chocolate", pack_size: 100, price: 375, tags: ["dark_chocolate", "cocoa_85"] },
@@ -54,6 +57,7 @@ export function output(overrides: Partial<LlmOutput> = {}): LlmOutput {
     assumptions: ["Assumed 4 people"],
     suggestions: [],
     constraints: { budget_inr: null, item_count: null, item_kind: null },
+    must_include: [],
     variants: [classic, budget, shortcut],
     ...overrides,
   };

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { catalog } from "@/lib/catalog";
 import { cartTotal, swapItem, swapOptions, toEditable, type CartItem, type EditableCart } from "@/lib/cartState";
@@ -7,6 +8,7 @@ import type { BuildCartsResponse } from "@/lib/schema";
 import { CartCard } from "./CartCard";
 import { rupees } from "./format";
 import { QueryInput } from "./QueryInput";
+import { SiteFooter } from "./SiteFooter";
 import { Summary } from "./Summary";
 import { SwapSheet } from "./SwapSheet";
 
@@ -111,14 +113,17 @@ export function CartBuilder() {
             <button type="button" onClick={startOver} className="font-display text-3xl leading-none text-on-ink">
               Jhola
             </button>
-            {process.env.NODE_ENV === "production" ? (
-              <p className="hidden text-sm text-on-ink-soft sm:block">Three ready carts from one sentence</p>
-            ) : (
-              // Only on your machine: the generation log with costs.
-              <a href="/history" className="text-sm font-semibold text-on-ink underline decoration-marigold decoration-2 underline-offset-4">
-                History and costs
-              </a>
-            )}
+            <nav aria-label="Site" className="flex items-center gap-5 text-sm font-semibold">
+              {process.env.NODE_ENV !== "production" && (
+                // Only on your machine: the generation log with costs.
+                <a href="/history" className="text-on-ink-soft underline decoration-on-ink-soft/40 underline-offset-4 hover:text-on-ink">
+                  History
+                </a>
+              )}
+              <Link href="/how-it-works" className="text-on-ink underline decoration-marigold decoration-2 underline-offset-4">
+                How it works
+              </Link>
+            </nav>
           </header>
 
           {idle ? (
@@ -237,12 +242,7 @@ export function CartBuilder() {
         )}
         </main>
 
-        <footer className="mt-16 border-t border-line py-6 text-sm text-ink-soft">
-          <p>
-            Product data from the Kaggle &quot;BigBasket Entire Product List&quot; dataset (CC BY-NC-SA 4.0), plus a few hand-added staples. Prices are an illustrative snapshot, not live prices.
-          </p>
-          <p className="mt-1">Jhola is a portfolio demo. It is not affiliated with any retailer, and no orders are placed.</p>
-        </footer>
+        <SiteFooter />
       </div>
 
       <SwapSheet

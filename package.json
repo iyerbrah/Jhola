@@ -12,7 +12,8 @@
     "catalog:check": "tsx scripts/check-coverage.ts",
     "try": "tsx scripts/try.ts",
     "check:contrast": "tsx scripts/check-contrast.ts",
-    "eval": "tsx scripts/eval.ts"
+    "eval": "tsx scripts/eval.ts",
+    "warm": "tsx scripts/warm-cache.ts"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.2.0",

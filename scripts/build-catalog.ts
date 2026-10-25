@@ -68,11 +68,11 @@ const SUB_KEYWORDS: [RegExp, string][] = [
   [/cookie|biscuit|wafer|rusk/i, "biscuits"],
   [/nachos?/i, "nachos"],
   [/chips|crisps|rings|puffs|kurkure/i, "chips"],
-  [/bhujia|namkeen|mixture|\bsev\b|chakli|chivda/i, "namkeen"],
   [/coffee/i, "coffee"],
+  [/poha|avalakki/i, "poha"],
+  [/bhujia|namkeen|mixture|\bsev\b|chakli|chivda/i, "namkeen"],
   [/juice|nectar/i, "juice"],
   [/coconut water/i, "coconut_water"],
-  [/poha|avalakki/i, "poha"],
   [/dosa|idly|idli batter/i, "dosa_batter"],
   [/upma/i, "upma_mix"],
   [/paratha|chapati|roti/i, "frozen_bread"],
@@ -249,15 +249,24 @@ export function parseSize(q: string): { pack_size: number; unit: Unit } | null {
 }
 
 /** Shorten long marketing names: "Poha /Avalakki/Aval - Thick, Makers..." -> "Poha - Thick" */
+// Marketing phrases that aren't part of a product's name ("Rich In Dietary Fibre", "Helps To Detox").
+const MARKETING =
+  /\b(rich in|high in|helps?|boosts?|perfect for|made with|enhances|adds? flavou?r|no added|source of|stays? softer|good for|ideal for|used (o|f)r|for longer|great for|with goodness|nutritious|healthy cooking|trans fat free|antibiotic residue|provides)\b.*$/i;
+
+/** Shorten long marketing names: "Poha /Avalakki/Aval - Thick, Makers..." -> "Poha - Thick" */
 export function cleanName(raw: string): string {
   let s = raw.replace(/�/g, "e").replace(/\s+/g, " ").trim();
   s = s.replace(/\s*\/\s*[A-Za-z][A-Za-z ]*?(?=\s*[-/,(]|$)/g, ""); // drop "/Godihittu" style aliases
   s = s.replace(/\s*\(loose\)/i, "");
-  const [head, ...rest] = s.split(/\s+-\s*/);
-  let name = head.trim();
-  const tail = rest.join(" - ").split(",")[0].trim();
-  if (tail && tail.length <= 28) name += ` - ${tail}`;
-  return name.slice(0, 70).trim();
+  // Split into "head - tail" on any dash or pipe, including "Cereal- Rich" with no space before the dash.
+  const [head, ...rest] = s.split(/\s*\|\s*|\s+[-–—]\s*|(?<=\w)-\s+/);
+  let name = head.split(",")[0].replace(MARKETING, "").trim();
+  const tail = rest.join(" - ").split(",")[0].replace(MARKETING, "").trim();
+  if (!name) name = tail; // e.g. "Aval/Avalakki - Flattened & Beaten Rice" once the aliases are gone
+  else if (tail && tail.length <= 24 && name.length + tail.length <= 44) name += ` - ${tail}`;
+  // Keep it short, cutting at a word boundary.
+  if (name.length > 44) name = name.slice(0, 44).replace(/\s+\S*$/, "");
+  return name.replace(/[\s,&-]+$/, "").trim();
 }
 
 // Spice-only groups: "Masala French Fries" is a snack, not a masala.

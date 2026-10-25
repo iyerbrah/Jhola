@@ -32,5 +32,15 @@
   "cream in a curry": "25 ml",
   "cooking oil": "10 ml",
   "spices and masalas": "a few grams (one small pack covers it)"
+ },
+ "per_person_per_week": {
+  "rice or atta": "1 kg",
+  "dal": "350 g",
+  "cooking oil": "250 ml",
+  "vegetables": "2.5 kg",
+  "fruit": "1.5 kg",
+  "milk": "1.5 L",
+  "paneer or tofu": "250 g",
+  "eggs": "6 pcs"
  }
 }

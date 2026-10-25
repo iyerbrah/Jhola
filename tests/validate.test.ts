@@ -100,3 +100,13 @@ describe("salvage", () => {
     expect(res.variants.map((v) => v.name)).toEqual(["Classic", "Shortcut"]);
   });
 });
+
+describe("named ingredients", () => {
+  it("flags a cart that leaves out an ingredient the shopper named", () => {
+    // Shortcut has paneer (p001) but no cream; Classic has both.
+    const errors = validate(output({ must_include: ["cream"] }), index);
+    expect(errors).toContain("Budget has no cream, which the shopper asked for");
+    expect(errors).toContain("Shortcut has no cream, which the shopper asked for");
+    expect(errors.some((e) => e.startsWith("Classic has no"))).toBe(false);
+  });
+});
