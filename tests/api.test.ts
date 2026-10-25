@@ -137,3 +137,20 @@ describe("clientIp", () => {
     expect(clientIp(new Request("http://x"))).toBe("local");
   });
 });
+
+describe("502 reasons", () => {
+  it("says what kind of LLM failure happened, without details", async () => {
+    const { deps } = setup({ build: async () => { throw new LlmError("OPENAI_API_KEY is not set", "missing_key"); } });
+    const res = await handleBuildCarts(post({ query: "poha" }), deps);
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: "The cart builder had trouble answering. Please try again.", reason: "missing_key" });
+  });
+
+  it("classifies provider errors by status", async () => {
+    const { classifyError } = await import("@/lib/llm");
+    expect(classifyError(Object.assign(new Error("Incorrect API key provided"), { status: 401 }))).toBe("bad_key");
+    expect(classifyError(Object.assign(new Error("You exceeded your current quota"), { status: 429 }))).toBe("quota");
+    expect(classifyError(new Error("Request timed out."))).toBe("timeout");
+    expect(classifyError(Object.assign(new Error("boom"), { status: 500 }))).toBe("provider");
+  });
+});
