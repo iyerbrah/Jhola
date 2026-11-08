@@ -1,0 +1,81 @@
+# The eval check: runs the 9-query CI subset of the eval against the real model
+# on PRs that can change answers, compares it with evals/baseline.json, comments
+# the scores on the PR and fails on a regression. About $0.15 per run.
+#
+# It only runs when matching files change, so it is not a required check
+# (a required check that never starts would block the PR).
+name: Eval
+
+on:
+  pull_request:
+    paths:
+      - "lib/**"
+      - "data/**"
+      - "evals/**"
+      - "scripts/eval*.ts"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/eval.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eval:
+    name: Eval check (9 queries, real model)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # PRs from forks don't get repo secrets, so the check can't run there.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run the eval check
+        id: eval
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set +e
+          npm run eval:ci
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Add the report to the run summary
+        if: always() && hashFiles('evals/ci-report.md') != ''
+        run: cat evals/ci-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      # One comment per PR, updated in place on every push (found by its first-line marker).
+      - name: Comment on the PR
+        if: always() && github.event_name == 'pull_request' && hashFiles('evals/ci-report.md') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          id=$(gh api "repos/$REPO/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.body | startswith("<!-- jhola-eval -->")) | .id' | tail -n 1)
+          if [ -n "$id" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$id" -F body=@evals/ci-report.md > /dev/null
+          else
+            gh pr comment "$PR" --repo "$REPO" --body-file evals/ci-report.md
+          fi
+
+      - name: Fail if the eval check failed
+        if: steps.eval.outputs.exit_code != '0'
+        run: |
+          echo "The eval check failed. See the PR comment or the run summary for which check broke."
+          exit 1
