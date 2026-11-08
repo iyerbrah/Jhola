@@ -58,7 +58,7 @@ const STACK = [
   ["Upstash Redis", "rate limits, a 30-day answer cache, generation log"],
   ["Tailwind CSS", "styling, with every colour pair checked for WCAG AA"],
   ["Vitest", "unit tests with fake model answers, no live API calls"],
-  ["Vercel", "hosting, deployed from GitHub on every push"],
+  ["Own Ubuntu server", "nginx with Let's Encrypt HTTPS in front, Node.js kept running by systemd"],
 ];
 
 const pct = (x: number | null | undefined) => (x == null ? "n/a" : `${Math.round(x * 100)}%`);

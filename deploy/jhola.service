@@ -1,0 +1,35 @@
+# Runs Jhola as a background service that starts on boot and restarts if it crashes.
+# deploy/deploy.sh installs this to /etc/systemd/system/jhola.service on every deploy.
+# Logs: journalctl -u jhola -f
+
+[Unit]
+Description=Jhola grocery cart builder (Next.js)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=jhola
+Group=jhola
+WorkingDirectory=/opt/jhola
+Environment=NODE_ENV=production
+Environment=NEXT_TELEMETRY_DISABLED=1
+# Only reachable from this machine; nginx forwards the public traffic.
+ExecStart=/usr/bin/node /opt/jhola/node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3000
+Restart=always
+RestartSec=3
+
+# Lock the process down: it can read the app and write only its own .next folder.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/jhola/.next
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

@@ -15,6 +15,12 @@ describe("markPantryOptional", () => {
     expect(res.items.map((i) => i.optional)).toEqual([false, false]);
   });
 
+  it("matches the staple as a whole word, not inside another word", () => {
+    // "unsalted" names no salt, so salt stays optional; "salts" still counts.
+    expect(markPantryOptional(withSalt, "unsalted butter toast", index).items[1].optional).toBe(true);
+    expect(markPantryOptional(withSalt, "bath salts and paneer", index).items[1].optional).toBe(false);
+  });
+
   it("leaves the cart alone if everything would become optional", () => {
     const onlySalt = { ...classic, items: [item("p005")] };
     expect(markPantryOptional(onlySalt, "kitchen basics", index).items[0].optional).toBe(false);

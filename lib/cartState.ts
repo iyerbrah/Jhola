@@ -1,3 +1,4 @@
+import { isSameKind } from "./kind";
 import { packLabel, type PricedItem, type PricedVariant, type Product } from "./schema";
 
 /** A cart the shopper can edit. Optional items count only when ticked (`included`). */
@@ -57,10 +58,14 @@ export function swapItem(cart: EditableCart, id: string, p: Product): EditableCa
   }));
 }
 
-/** In-stock products of the same kind that aren't already in the cart, cheapest first. */
+/**
+ * In-stock products of the same kind that aren't already in the cart, cheapest first.
+ * "Same kind" means same sub_category, unit and form, so rice never offers rice flour.
+ */
 export function swapOptions(cart: EditableCart, item: CartItem, catalog: Product[]): Product[] {
   const inCart = new Set(cart.items.map((it) => it.product_id));
+  const current = catalog.find((p) => p.id === item.product_id);
   return catalog
-    .filter((p) => p.in_stock && p.sub_category === item.sub_category && !inCart.has(p.id))
+    .filter((p) => p.in_stock && !inCart.has(p.id) && (current ? isSameKind(current, p) : p.sub_category === item.sub_category))
     .sort((a, b) => a.price - b.price || a.name.localeCompare(b.name));
 }

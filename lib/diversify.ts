@@ -1,3 +1,4 @@
+import { isSameKind } from "./kind";
 import type { CatalogIndex } from "./catalog";
 import { cartTotal } from "./price";
 import type { LlmVariant, Product } from "./schema";
@@ -28,7 +29,7 @@ export function diversify(variants: LlmVariant[], index: CatalogIndex, products:
           const p = index.get(it.product_id);
           if (!p) continue;
           const options = products
-            .filter((alt) => alt.in_stock && alt.sub_category === p.sub_category && alt.unit === p.unit && !used.has(alt.id))
+            .filter((alt) => alt.in_stock && isSameKind(p, alt) && !used.has(alt.id))
             .filter((alt) => alt.pack_size >= p.pack_size * 0.5 && alt.pack_size <= p.pack_size * 2.5)
             // Pricier first (higher tier), closest in price within each direction.
             .sort((a, b) => Number(b.price >= p.price) - Number(a.price >= p.price) || Math.abs(a.price - p.price) - Math.abs(b.price - p.price));

@@ -13,6 +13,11 @@ export const PANTRY_SUB_CATEGORIES: Record<string, string[]> = {
   garam_masala: ["garam masala"],
 };
 
+/** Whole-word match, plural allowed: "oil" matches "mustard oil" and "oils", not "boiled"; "rai" not "raita". */
+function namesWord(query: string, word: string): boolean {
+  return new RegExp(`(^|[^a-z])${word}s?($|[^a-z])`).test(query);
+}
+
 /**
  * Marks pantry staples optional, unless the shopper asked for that item by name
  * ("jeera rice" keeps cumin required; "buy salt" keeps salt required).
@@ -23,7 +28,7 @@ export function markPantryOptional(v: LlmVariant, query: string, index: CatalogI
     if (it.optional) return it;
     const sub = index.get(it.product_id)?.sub_category;
     const words = sub ? PANTRY_SUB_CATEGORIES[sub] : undefined;
-    if (!words || words.some((w) => q.includes(w))) return it;
+    if (!words || words.some((w) => namesWord(q, w))) return it;
     return { ...it, optional: true, note: "" };
   });
   // A cart must keep at least one required item (e.g. a request for spices only).
