@@ -87,7 +87,7 @@ Latest run (gpt-5.4-mini, 1,006 products, queries run one at a time from a home 
 | Latency | p50 / p95 per query | 5.4 s / 8.5 s | p95 < 8 s |
 | Cost | Average per query, from token counts and OpenAI list prices | $0.017 (about ₹1.5) | report |
 
-Latency is the one target this run misses, by 0.5 s: the p95 of 30 queries is the second-slowest query, and the two slowest were the two that needed a repair call. Without a repair, every query finished within 8 s. Latency also swings with OpenAI's load: an earlier run with nearly the same code measured 4.3 s / 5.4 s. These runs also cross from India to OpenAI's US servers for each of the 2–3 back-to-back calls; the deployed app runs in the US, next to OpenAI.
+Latency is the one target this run misses, by 0.5 s: the p95 of 30 queries is the second-slowest query, and the two slowest were the two that needed a repair call. Without a repair, every query finished within 8 s. Latency also swings with OpenAI's load: an earlier run with nearly the same code measured 4.3 s / 5.4 s. These runs also cross from India to OpenAI's US servers for each of the 2–3 back-to-back calls, so the live site's speed depends on where its server is relative to OpenAI.
 
 ### What each change improved
 
