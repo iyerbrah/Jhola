@@ -1,0 +1,83 @@
+# Deploys main to https://jhola.ramiyer.tech after CI passes on it.
+#
+# The runner SSHes in as "deploy", whose key can only run /usr/local/sbin/jhola-deploy with a
+# commit SHA. The server fetches that commit from GitHub, checks it's on main, builds and restarts.
+# See deploy/README.md for the one-time setup.
+#
+# To roll back: Actions → Deploy → Run workflow, and paste an older commit SHA from main.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Commit to deploy (full 40-character SHA from main). Empty = latest main."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+# One deploy at a time, and never cancel one halfway through a build.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to jhola.ramiyer.tech
+    # Only after CI passed on a push to main (not on PR runs), or when started by hand.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://jhola.ramiyer.tech
+    steps:
+      - name: Pick the commit
+        id: pick
+        env:
+          INPUT_SHA: ${{ inputs.sha }}
+          CI_SHA: ${{ github.event.workflow_run.head_sha }}
+          LATEST_SHA: ${{ github.sha }}
+        run: |
+          sha="${INPUT_SHA:-${CI_SHA:-$LATEST_SHA}}"
+          if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Not a full commit SHA: $sha"
+            exit 1
+          fi
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Deploying $sha"
+
+      - name: Set up SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          if [[ -z "$DEPLOY_SSH_KEY" || -z "$DEPLOY_KNOWN_HOSTS" ]]; then
+            echo "The DEPLOY_SSH_KEY secret or DEPLOY_KNOWN_HOSTS variable is missing. See deploy/README.md."
+            exit 1
+          fi
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Pinned host key: the runner refuses to talk to anything that isn't the real server.
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Deploy on the server
+        env:
+          SHA: ${{ steps.pick.outputs.sha }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            -o ServerAliveInterval=30 deploy@jhola.ramiyer.tech "$SHA"
+
+      - name: Check the public site
+        run: |
+          curl -fsS --retry 5 --retry-delay 3 --retry-all-errors -o /dev/null \
+            -w "Public site: HTTP %{http_code} in %{time_total}s\n" https://jhola.ramiyer.tech/

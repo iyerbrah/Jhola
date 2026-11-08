@@ -23,29 +23,60 @@ Browser ──HTTPS──▶ nginx (ports 80/443, Let's Encrypt certificate)
 | nginx | `/etc/nginx/sites-available/jhola`, from [nginx/jhola.conf](nginx/jhola.conf) plus certbot's HTTPS lines |
 | Certificate | Let's Encrypt, renews itself (first one expires Feb 6, 2027) |
 | Logs | `sudo journalctl -u jhola` |
-| Staging copy | `~/jhola-src` in ram's home (deploys copy here first) |
+| Deploys | GitHub Actions ([.github/workflows/deploy.yml](../.github/workflows/deploy.yml)) after CI passes on `main` |
+| Deploy user | `deploy`: no password; its one SSH key can only run `/usr/local/sbin/jhola-deploy` (from [server/jhola-deploy](server/jhola-deploy)) |
+| Deploy state | `/var/lib/jhola-deploy`: a clone of the repo, `current` (the live commit) and `history` (every deploy) |
+| Staging copy | `~/jhola-src` in ram's home (only the manual `deploy/deploy.sh` uses it) |
 
 ## Day to day
 
 ### Ship a change
 
-From the project folder on your Mac:
+Merge a pull request into `main`. CI runs on `main` again, and when it passes the **Deploy** workflow:
+
+1. connects to the server as `deploy` (the server's host key is pinned, so it can't be fooled into talking to another machine);
+2. runs `jhola-deploy <commit>`, which fetches that commit from GitHub, refuses anything that isn't on `main`, copies it into `/opt/jhola` (never touching the secrets file), runs `npm ci` and the build as the `jhola` user, restarts the app and waits for it to answer;
+3. checks the public site answers.
+
+Follow it under **Actions → Deploy** on GitHub; each run also shows up under **Deployments** on the repo page. A deploy takes about two minutes, and the site is down only for the second or two of the restart.
+
+To see which commit is live, on the server:
+
+```bash
+cat /var/lib/jhola-deploy/current
+```
+
+### Roll back
+
+On GitHub, open **Actions → Deploy → Run workflow**, paste the full SHA of an earlier commit on `main` (from `git log` or the commits page) and run it. Leaving the box empty redeploys the latest `main`. On the server, `cat /var/lib/jhola-deploy/history` lists every deploy with its time.
+
+The same works on the server by hand:
+
+```bash
+sudo /usr/local/sbin/jhola-deploy <commit SHA>
+```
+
+### Deploy by hand from the Mac
+
+`deploy/deploy.sh` still works and is needed in two cases: after changing [jhola.service](jhola.service) (only this script installs it), and if GitHub Actions is down. It copies the code from your Mac, including uncommitted changes, so prefer merging a PR.
 
 ```bash
 deploy/deploy.sh
 ```
 
-It runs the tests, copies the code (never secrets), installs packages and builds on the server, then restarts the app. It ends with:
+It runs the tests, copies the code (never secrets), installs packages and builds on the server, installs the service file, then restarts the app. The server asks once for ram's password. The `npm warn` lines during the install are harmless.
 
+### Change the deploy script itself
+
+Deploys never update `/usr/local/sbin/jhola-deploy`, the service file or nginx, so a merged PR can't give itself more access to the server. After changing [server/jhola-deploy](server/jhola-deploy), install it by hand, from the project folder on your Mac:
+
+```bash
+scp deploy/server/jhola-deploy deploy/server/setup-github-deploy.sh ~/.ssh/jhola_deploy.pub ram@jhola.ramiyer.tech:
 ```
-→ App answered on the server: HTTP 200
-→ Public site: HTTP 200 in 0.2s
-✓ Deployed
+
+```bash
+ssh -t ram@jhola.ramiyer.tech 'sudo bash setup-github-deploy.sh jhola_deploy.pub'
 ```
-
-The server asks once for ram's password. A deploy takes about a minute. The site is down for the second or two of the restart, and the cache and history aren't affected.
-
-The `npm warn` lines during the install (a deprecated eslint, two `install-scripts`, a newer npm) are harmless.
 
 ### Watch the logs
 
@@ -207,6 +238,42 @@ The first time, it asks for an email address (for expiry warnings) and asks you 
 sudo certbot renew --dry-run
 ```
 
+### 9. Let GitHub deploy
+
+All on your Mac, from the project folder. Make a key just for GitHub (no passphrase, since a robot uses it):
+
+```bash
+ssh-keygen -t ed25519 -N "" -C "github-actions-deploy" -f ~/.ssh/jhola_deploy
+```
+
+Copy the setup files and the public key to the server, then run the setup (it asks for ram's password twice: once to log in, once for sudo):
+
+```bash
+scp deploy/server/jhola-deploy deploy/server/setup-github-deploy.sh ~/.ssh/jhola_deploy.pub ram@jhola.ramiyer.tech:
+```
+
+```bash
+ssh -t ram@jhola.ramiyer.tech 'sudo bash setup-github-deploy.sh jhola_deploy.pub'
+```
+
+It ends with `✓ GitHub deploy access is set up`. Test the key by deploying the latest `main` with it. This is a real deploy, ending with `✓ Deployed` and the commit:
+
+```bash
+git fetch origin && ssh -i ~/.ssh/jhola_deploy -o IdentitiesOnly=yes deploy@jhola.ramiyer.tech "$(git rev-parse origin/main)"
+```
+
+Then give GitHub the private key and the server's host key:
+
+```bash
+gh secret set DEPLOY_SSH_KEY < ~/.ssh/jhola_deploy
+```
+
+```bash
+ssh-keyscan -t ed25519 jhola.ramiyer.tech 2>/dev/null | gh variable set DEPLOY_KNOWN_HOSTS
+```
+
+The host key's fingerprint should match what your Mac saw when you first connected: `ssh-keygen -F jhola.ramiyer.tech -l` and `ssh-keyscan -t ed25519 jhola.ramiyer.tech 2>/dev/null | ssh-keygen -lf -` print the same `SHA256:…`. For the current server it's `SHA256:9W6wUY9u/Vz2AgOMXvGUT4WYyrr/fQJkbK0MglgeUCI`.
+
 ## If something goes wrong
 
 | What you see | Cause and fix |
@@ -219,4 +286,9 @@ sudo certbot renew --dry-run
 | Every visitor gets "Too many requests" quickly | The app sees everyone as one address. The nginx file must keep its `X-Real-IP $remote_addr` line. |
 | Carts fail with "trouble answering" | The logs give a reason: `missing_key`, `bad_key` or `quota` come from OpenAI. |
 | The build stops with `Killed` | The server ran out of memory. Add swap: `sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' \| sudo tee -a /etc/fstab` |
+| Deploy workflow: `DEPLOY_SSH_KEY secret or DEPLOY_KNOWN_HOSTS variable is missing` | Step 9's two `gh` commands weren't run, or were run for another repo. `gh secret list` and `gh variable list` should show them. |
+| Deploy workflow: `Host key verification failed` | The server's host key changed (e.g. the VPS was rebuilt). Check the new fingerprint on the server with `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`, then rerun the `ssh-keyscan … \| gh variable set` command. |
+| Deploy workflow: `Permission denied (publickey)` | The key in the secret doesn't match `/home/deploy/.ssh/authorized_keys`. Rerun the setup with `~/.ssh/jhola_deploy.pub`, then `gh secret set` again. |
+| Deploy workflow: `sudo: a password is required` | The sudo rule is missing. Rerun the setup script; it checks the rule and says if sudo rejected it. |
+| Deploy workflow: `isn't on main` | Only commits on `main` can be deployed. Merge the PR first, or pick a SHA from `main`'s history. |
 | Local dev server shows errors after a build | `npm run build` was run on your Mac while `npm run dev` was running; both use `.next`. Stop the dev server, delete `.next`, start it again. Deploys build on the server, so they never cause this. |
