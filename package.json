@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "catalog:build": "tsx scripts/build-catalog.ts",
     "catalog:check": "tsx scripts/check-coverage.ts",

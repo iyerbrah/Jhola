@@ -2,6 +2,8 @@
 
 Type any grocery request in plain language, like *"chicken biryani for 4"* or *"healthy snacks under ₹300"*, and get three different, ready-to-order carts built from 1,006 real Indian grocery products, with quantities and totals worked out.
 
+[![CI](https://github.com/iyerbrah/Jhola/actions/workflows/ci.yml/badge.svg)](https://github.com/iyerbrah/Jhola/actions/workflows/ci.yml)
+
 **[Try the live demo →](https://jhola.ramiyer.tech/)** · [How it works](https://jhola.ramiyer.tech/how-it-works) · Built by [Ram Iyer](https://github.com/iyerbrah)
 
 ![Jhola demo: type a request, get three carts, edit one and check out](docs/demo.gif)
@@ -126,6 +128,7 @@ Other commands:
 
 ```bash
 npm test                          # unit tests (no API calls)
+npm run typecheck                 # TypeScript check (CI also runs lint, tests, the two checks below and a build)
 npm run eval                      # run the 30-query eval (about 5 min, about $0.50)
 npm run eval -- --group=edge      # one group only
 npm run try                       # run the 3 example queries against the real model
