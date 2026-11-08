@@ -5,9 +5,9 @@ import "./globals.css";
 const yatra = Yatra_One({ variable: "--font-yatra", weight: "400", subsets: ["latin"] });
 const mukta = Mukta({ variable: "--font-mukta", weight: ["400", "500", "600", "700"], subsets: ["latin"] });
 
-const SITE_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
-  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-  : "https://jhola-ai-cart-builder.vercel.app";
+// The public address, used for link previews (og:url, og:image). Read at build time: on the server
+// it comes from /opt/jhola/.env.production.local (https://jhola.ramiyer.tech).
+const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
 const DESCRIPTION =
   "Describe a dish, a meal or an occasion and get three ready-to-order grocery carts built from 1,000+ real Indian grocery products, with quantities and totals worked out.";
 

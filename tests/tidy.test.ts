@@ -11,6 +11,13 @@ describe("tidyCart", () => {
     expect(out.items.map((i) => [i.product_id, i.qty])).toEqual([["p002", 10], ["p003", 1]]);
   });
 
+  it("works out packs from the combined amount when a product is listed twice", () => {
+    // 100 g + 100 g of a 200 g paneer pack is one pack, not two.
+    const out = tidyCart(cart([item("p001", 1, false, 100), item("p001", 1, false, 100)]), index, products);
+    expect(out.items).toHaveLength(1);
+    expect(out.items[0]).toMatchObject({ product_id: "p001", need: 200, qty: 1 });
+  });
+
   it("keeps a merged line required if either copy was required", () => {
     const out = tidyCart(cart([item("p005", 1, true), item("p005", 1, false)]), index, products);
     expect(out.items).toHaveLength(1);

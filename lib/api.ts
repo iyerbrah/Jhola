@@ -39,10 +39,16 @@ export function defaultDeps(): ApiDeps {
   return defaults;
 }
 
-/** Best guess at the caller's IP. On Vercel, x-forwarded-for is set by the platform. */
+/**
+ * The caller's IP, for rate limits. x-real-ip comes first: nginx (deploy/nginx/jhola.conf) sets it
+ * to the real client address, overwriting anything the caller sent. x-forwarded-for is only a
+ * fallback, because behind a proxy that appends to it, its first entry is whatever the caller wrote.
+ * This is safe because the app listens on 127.0.0.1 only, so every request comes through nginx.
+ */
 export function clientIp(req: Request): string {
+  const real = req.headers.get("x-real-ip")?.trim();
   const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || req.headers.get("x-real-ip") || "local";
+  return real || forwarded || "local";
 }
 
 const json = (body: unknown, status: number, headers: Record<string, string> = {}) =>

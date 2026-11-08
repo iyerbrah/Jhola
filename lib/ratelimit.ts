@@ -23,7 +23,7 @@ export function redisFromEnv(): Redis | null {
 
 const secondsUntil = (resetMs: number) => Math.max(1, Math.ceil((resetMs - Date.now()) / 1000));
 
-/** Shared limits stored in Upstash, so they hold across every serverless instance. */
+/** Limits stored in Upstash, so counts survive restarts and deploys of the server. */
 export function createUpstashLimiter(redis: Redis, config: LimitConfig): Limiter & { reset(ip: string): Promise<void> } {
   const perIp = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(config.perHour, "1 h"), prefix: "acb:rl:ip" });
   const daily = new Ratelimit({ redis, limiter: Ratelimit.fixedWindow(config.perDay, "1 d"), prefix: "acb:rl:day" });
@@ -41,7 +41,7 @@ export function createUpstashLimiter(redis: Redis, config: LimitConfig): Limiter
   };
 }
 
-/** Same limits kept in memory. Only for local development and tests (each instance counts alone). */
+/** Same limits kept in memory: a fallback when Upstash isn't configured, and for tests. Counts reset on restart. */
 export function createMemoryLimiter(config: LimitConfig, now: () => number = Date.now): Limiter {
   const HOUR = 3600_000;
   const DAY = 24 * HOUR;

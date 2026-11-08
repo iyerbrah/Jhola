@@ -131,10 +131,15 @@ describe("generation history", () => {
 });
 
 describe("clientIp", () => {
-  it("uses the first x-forwarded-for address", () => {
+  it("uses the first x-forwarded-for address when there is no x-real-ip", () => {
     expect(clientIp(post({}, "9.9.9.9"))).toBe("9.9.9.9");
     expect(clientIp(new Request("http://x", { headers: { "x-real-ip": "8.8.8.8" } }))).toBe("8.8.8.8");
     expect(clientIp(new Request("http://x"))).toBe("local");
+  });
+
+  it("prefers x-real-ip, which the proxy sets, over a faked x-forwarded-for", () => {
+    const req = new Request("http://x", { headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8", "x-real-ip": "5.6.7.8" } });
+    expect(clientIp(req)).toBe("5.6.7.8");
   });
 });
 

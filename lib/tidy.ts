@@ -1,3 +1,4 @@
+import { isSameKind } from "./kind";
 import type { CatalogIndex } from "./catalog";
 import type { LlmVariant, Product } from "./schema";
 
@@ -31,7 +32,7 @@ export function bestPack(it: { need: number; qty: number }, p: Product, products
  * - an out-of-stock product -> the in-stock product of the same kind closest in price
  * - the pack size -> the cheapest size of that product that covers the amount needed
  * - pack counts -> recomputed from the amount needed (need ÷ pack size, rounded up)
- * - the same product listed twice -> one line with the quantities added (max 10)
+ * - the same product listed twice -> one line, packs worked out from the combined amount (max 10)
  * - qty outside 1-10 or not a whole number -> clamped and rounded
  * Unknown product IDs are left alone: there's nothing to go on, so the repair call handles them.
  */
@@ -43,7 +44,7 @@ export function tidyCart(v: LlmVariant, index: CatalogIndex, products: Product[]
       const out = p;
       p =
         products
-          .filter((x) => x.in_stock && x.sub_category === out.sub_category && x.unit === out.unit && !merged.has(x.id))
+          .filter((x) => x.in_stock && isSameKind(out, x) && !merged.has(x.id))
           .sort((a, b) => Math.abs(a.price - out.price) - Math.abs(b.price - out.price))[0] ?? p;
     }
     if (p) p = bestPack(it, p, products);
@@ -51,8 +52,11 @@ export function tidyCart(v: LlmVariant, index: CatalogIndex, products: Product[]
     const qty = p ? packsFor(it, p) : Math.min(10, Math.max(1, Math.round(Number.isFinite(it.qty) ? it.qty : 1)));
     const seen = merged.get(id);
     if (seen) {
-      seen.qty = Math.min(10, seen.qty + qty);
+      // Both lines give an amount: packs come from the combined amount (100 g + 100 g of a 200 g pack = 1 pack).
+      // Otherwise there's no shared amount to go on, so the pack counts add up.
+      const bothNeed = p != null && seen.need > 0 && it.need > 0;
       seen.need = seen.need + it.need;
+      seen.qty = bothNeed ? packsFor({ need: seen.need, qty: seen.qty + qty }, p!) : Math.min(10, seen.qty + qty);
       seen.optional = seen.optional && it.optional; // required wins
     } else {
       merged.set(id, { ...it, product_id: id, qty });

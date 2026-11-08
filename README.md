@@ -2,7 +2,7 @@
 
 Type any grocery request in plain language, like *"chicken biryani for 4"* or *"healthy snacks under ₹300"*, and get three different, ready-to-order carts built from 1,006 real Indian grocery products, with quantities and totals worked out.
 
-**[Try the live demo →](https://jhola-ai-cart-builder.vercel.app/)** · [How it works](https://jhola-ai-cart-builder.vercel.app/how-it-works) · Built by [Ram Iyer](https://github.com/iyerbrah)
+**[Try the live demo →](https://jhola.ramiyer.tech/)** · [How it works](https://jhola.ramiyer.tech/how-it-works) · Built by [Ram Iyer](https://github.com/iyerbrah)
 
 ![Jhola demo: type a request, get three carts, edit one and check out](docs/demo.gif)
 
@@ -14,7 +14,7 @@ Type any grocery request in plain language, like *"chicken biryani for 4"* or *"
 - **Cheap to run.** About ₹1.5 per answer, thanks to prompt caching. Rate limits and a 30-day answer cache in Upstash Redis keep a public link safe.
 - **Tested.** 80+ unit tests with fake model answers (no live API calls), WCAG AA colour contrast checked in code, and a mobile-first UI.
 
-**Stack:** Next.js (App Router) · TypeScript · Tailwind CSS · OpenAI `gpt-5.4-mini` with structured outputs · Zod · Upstash Redis · Vitest · Vercel
+**Stack:** Next.js (App Router) · TypeScript · Tailwind CSS · OpenAI `gpt-5.4-mini` with structured outputs · Zod · Upstash Redis · Vitest · nginx + systemd on an Ubuntu VPS
 
 | Ask in one line | Compare three carts | Works on a phone |
 | --- | --- | --- |
@@ -58,7 +58,8 @@ flowchart LR
 - **The whole catalog goes in the prompt.** At about 1,000 products it is roughly 21k tokens, and OpenAI's prompt caching bills about 95% of it at the cached rate, so a query costs about $0.02. Search or embeddings only become worth it when the catalog stops fitting.
 - **One plan, three parallel carts, instead of one big call.** Each call writes a third of the output and they run at once, which roughly halved latency against a single call.
 - **Mechanical fixes live in code, not in repair prompts.** Duplicate lines, out-of-stock picks, pantry staples, budgets and near-identical carts are fixed deterministically and unit-tested. Only what code can't fix goes back to the model.
-- **Limits ship with the public link.** 10 requests per person per hour and 300 a day, counted in Upstash Redis so they hold across serverless instances, plus a 30-day cache for repeated questions.
+- **Limits ship with the public link.** 10 requests per person per hour and 300 a day, counted in Upstash Redis so they survive restarts and deploys, plus a 30-day cache for repeated questions. nginx adds a looser per-address cap on the cart API, which still holds if Upstash is ever unreachable.
+- **A small VPS instead of serverless.** The app first ran on Vercel and moved to its own Ubuntu server: one long-running Node.js process behind nginx, with no function time limits or per-request billing. Upstash stayed, so the cache and history carried over unchanged.
 
 ## Known limitations
 
@@ -109,11 +110,17 @@ The biggest wins came from moving mechanical fixes (duplicates, budgets, near-id
 
 ## Run locally
 
+You need Node.js 20 or newer (the live server uses Node 24).
+
 ```bash
-npm install
-cp .env.example .env   # then add your OPENAI_API_KEY
-npm run dev
+npm ci
+cp .env.example .env.local   # then add your OPENAI_API_KEY
+npm run dev                  # http://localhost:3000
 ```
+
+On a Mac you can instead double-click `start-jhola.command`: it starts the dev server and opens the site in Safari. Locally, rate limits are off and there is no cache unless you add Upstash values to `.env.local`.
+
+Don't run `npm run build` while the dev server is running: both use the `.next` folder, and the dev server breaks until restarted.
 
 Other commands:
 
@@ -130,13 +137,17 @@ npm run check:contrast            # check every UI colour pair against WCAG AA
 npm run warm                      # pre-build the example chips' answers into the shared cache
 ```
 
-## Deploy your own
+## Deploy
 
-1. Push the repo to GitHub and import it at [vercel.com/new](https://vercel.com/new) (Next.js is detected automatically).
-2. In **Settings → Environment Variables**, add the values from `.env.example`: `OPENAI_API_KEY`, `LLM_MODEL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_HOUR`, `DAILY_REQUEST_CAP`, and optionally `HISTORY_KEY`. Paste bare values, without quote marks. `.env` never leaves your machine, so the live site only has what you add here.
-3. Redeploy so the variables take effect, and set a monthly spending limit in your OpenAI account before sharing the link.
-4. Check **Settings → Git** shows your repo with `main` as the production branch, so every push redeploys.
-5. Run `npm run warm` locally (it uses the same Upstash cache), so the home page's example chips answer instantly.
+The live site, [jhola.ramiyer.tech](https://jhola.ramiyer.tech), runs on an Ubuntu VPS: nginx in front with a Let's Encrypt certificate, the Next.js app as a systemd service, and Upstash Redis for rate limits, the cache and history. Each release is one command from the project folder on a Mac:
+
+```bash
+deploy/deploy.sh
+```
+
+It runs the tests, copies the code to the server, builds there and restarts the app. [deploy/README.md](deploy/README.md) covers day-to-day tasks, the full setup for a new server, and fixes for the problems hit along the way.
+
+Keep a monthly spending limit set in your OpenAI account, and after a change that bumps `CACHE_VERSION`, run `npm run warm` (it needs the Upstash values in `.env.local`) so the home page's example chips answer instantly.
 
 ## Data
 

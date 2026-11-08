@@ -1,3 +1,4 @@
+import { isSameKind } from "./kind";
 import type { CatalogIndex } from "./catalog";
 import { cartTotal } from "./price";
 import type { LlmVariant, Product } from "./schema";
@@ -23,8 +24,8 @@ export function fitToBudget(v: LlmVariant, budget: number, index: CatalogIndex, 
       if (!p || it.optional) return;
       // Cheaper product of the same kind and roughly the same amount.
       for (const alt of products) {
-        if (!alt.in_stock || inCart.has(alt.id) || alt.sub_category !== p.sub_category) continue;
-        if (alt.unit !== p.unit || alt.pack_size < p.pack_size * 0.75 || alt.price >= p.price) continue;
+        if (!alt.in_stock || inCart.has(alt.id) || !isSameKind(p, alt)) continue;
+        if (alt.pack_size < p.pack_size * 0.75 || alt.price >= p.price) continue;
         const saving = p.price * it.qty - alt.price * packsFor(it, alt);
         if (saving <= 0) continue; // cheaper per pack but more packs needed: no help
         changes.push({
