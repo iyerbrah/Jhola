@@ -18,6 +18,8 @@ export type EvalCase = {
   item_kind?: string;
   /** Each group is a list of keywords; every cart must contain an item matching at least one keyword per group. */
   must_include_any?: string[][];
+  /** Part of the small subset CI runs on pull requests (npm run eval:ci). */
+  ci?: boolean;
 };
 
 export type CaseScore = {
