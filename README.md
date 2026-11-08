@@ -154,13 +154,11 @@ npm run warm                      # pre-build the example chips' answers into th
 
 ## Deploy
 
-The live site, [jhola.ramiyer.tech](https://jhola.ramiyer.tech), runs on an Ubuntu VPS: nginx in front with a Let's Encrypt certificate, the Next.js app as a systemd service, and Upstash Redis for rate limits, the cache and history. Each release is one command from the project folder on a Mac:
+The live site, [jhola.ramiyer.tech](https://jhola.ramiyer.tech), runs on an Ubuntu VPS: nginx in front with a Let's Encrypt certificate, the Next.js app as a systemd service, and Upstash Redis for rate limits, the cache and history.
 
-```bash
-deploy/deploy.sh
-```
+Merging a pull request deploys it. Once CI passes on `main`, a GitHub Actions workflow SSHes in with a key that can run only one script, `jhola-deploy <commit>`. The server fetches that commit from GitHub, refuses anything not on `main`, builds it as an unprivileged user, restarts the app and checks it answers. Rolling back is the same workflow run with an older commit. `main` only changes through PRs that pass CI.
 
-It runs the tests, copies the code to the server, builds there and restarts the app. [deploy/README.md](deploy/README.md) covers day-to-day tasks, the full setup for a new server, and fixes for the problems hit along the way.
+[deploy/README.md](deploy/README.md) covers day-to-day tasks, rollbacks, the full setup for a new server, and fixes for the problems hit along the way.
 
 Keep a monthly spending limit set in your OpenAI account, and after a change that bumps `CACHE_VERSION`, run `npm run warm` (it needs the Upstash values in `.env.local`) so the home page's example chips answer instantly.
 

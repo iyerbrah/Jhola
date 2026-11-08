@@ -1,0 +1,83 @@
+#!/bin/bash
+# Deploys one commit of Jhola's main branch on this server.
+#
+# Installed (root-owned) at /usr/local/sbin/jhola-deploy by setup-github-deploy.sh.
+# GitHub Actions runs it through the "deploy" user's SSH key, which can run nothing else:
+#
+#   ssh deploy@jhola.ramiyer.tech <40-character commit SHA>
+#
+# It can also be run by hand on the server, e.g. to roll back:
+#
+#   sudo /usr/local/sbin/jhola-deploy <commit SHA>
+#
+# The code comes from GitHub itself (the repo is public), and only commits that are on main are
+# accepted. npm install and the build run as the unprivileged "jhola" user. This script does not
+# update itself, the systemd unit or nginx: changes to those are applied by hand (see deploy/README.md).
+
+set -euo pipefail
+
+REPO_URL=https://github.com/iyerbrah/Jhola.git
+STATE=/var/lib/jhola-deploy
+SRC=$STATE/src
+APP=/opt/jhola
+SHA=${1:-}
+
+if [[ ! $SHA =~ ^[0-9a-f]{40}$ ]]; then
+  echo "Usage: jhola-deploy <full 40-character commit SHA from main>" >&2
+  exit 2
+fi
+
+# One deploy at a time.
+exec 9>/run/lock/jhola-deploy.lock
+if ! flock -n 9; then
+  echo "Another deploy is already running." >&2
+  exit 1
+fi
+
+echo "→ Fetching $SHA from GitHub"
+mkdir -p "$STATE"
+if [[ ! -d $SRC/.git ]]; then
+  git clone --quiet "$REPO_URL" "$SRC"
+fi
+git -C "$SRC" fetch --quiet --prune origin main
+if ! git -C "$SRC" cat-file -e "$SHA^{commit}" 2>/dev/null; then
+  echo "Commit $SHA isn't on GitHub." >&2
+  exit 1
+fi
+if ! git -C "$SRC" merge-base --is-ancestor "$SHA" origin/main; then
+  echo "Commit $SHA isn't on main, so it can't be deployed." >&2
+  exit 1
+fi
+git -C "$SRC" checkout --quiet --force --detach "$SHA"
+git -C "$SRC" clean --quiet -ffdx
+
+echo "→ Copying it into $APP (secrets stay as they are)"
+rsync -a --delete \
+  --include=".env.example" --exclude=".env*" \
+  --exclude="node_modules" --exclude=".next" --exclude=".git" \
+  --exclude=".claude" --exclude="start-jhola.command" \
+  "$SRC/" "$APP/"
+chown -R jhola:jhola "$APP"
+
+as_app() { runuser -u jhola -- env HOME=/home/jhola NEXT_TELEMETRY_DISABLED=1 "$@"; }
+
+echo "→ Installing packages and building as the jhola user"
+cd "$APP"
+as_app npm ci --no-audit --no-fund --loglevel=error
+as_app npm run build
+
+echo "→ Restarting the app"
+systemctl restart jhola
+for _ in $(seq 1 30); do
+  curl -fs -o /dev/null http://127.0.0.1:3000/ && break
+  sleep 1
+done
+if ! curl -fsS -o /dev/null -w "→ App answered on the server: HTTP %{http_code}\n" http://127.0.0.1:3000/; then
+  echo "The app didn't come back after the restart. Its last log lines:" >&2
+  journalctl -u jhola -n 30 --no-pager >&2 || true
+  exit 1
+fi
+
+echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $SHA" >> "$STATE/history"
+echo "$SHA" > "$STATE/current"
+echo "✓ Deployed $SHA"
