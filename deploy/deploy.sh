@@ -1,6 +1,10 @@
 #!/bin/zsh
 # Deploy Jhola from this Mac to the live server: runs the tests, copies the code, builds it there,
-# restarts the service and checks the public site. Run from anywhere in the project:
+# restarts the service and checks the public site.
+#
+# Normally you don't need this: merging a PR into main deploys automatically (.github/workflows/deploy.yml).
+# Use it after changing deploy/jhola.service (only this script installs it) or if GitHub Actions is down.
+# It copies this folder as it is, including uncommitted changes. Run from anywhere in the project:
 #
 #   deploy/deploy.sh                    # deploys to ram@jhola.ramiyer.tech
 #   deploy/deploy.sh other@some-host    # or somewhere else
