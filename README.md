@@ -110,6 +110,17 @@ Each row is one full 30-query run after a change. Results move by a query or two
 
 The biggest wins came from moving mechanical fixes (duplicates, budgets, near-identical carts) out of the model and into code: they're instant, deterministic and testable, and they cut repair calls from 5 of 30 (second run) to 1 of 30. Latency also depends on OpenAI's load at the time; the same query took 5–6 s in the morning and 8–15 s in the afternoon of the same day.
 
+### The eval check on pull requests
+
+Every PR that touches the pipeline, prompts, catalog, eval code or dependencies runs a 9-query subset of the eval against the real model (the queries marked `"ci": true`, covering all four groups) and comments the scores on the PR. It fails when:
+
+- any query breaks a rule (fake or out-of-stock item, wrong price, over budget, wrong item count, carts too alike, wrong status), after one re-run to rule out a fluke;
+- ingredient coverage drops more than 8 points below the baseline, or under the 90% target;
+- carts get more alike (mean Jaccard up by more than 0.10, or over 0.60);
+- average cost per query rises more than 50%.
+
+Latency is shown but never fails the check, since GitHub's runners aren't the live server. The baseline lives in [evals/baseline.json](evals/baseline.json); a PR that deliberately moves the numbers updates it with `npm run eval:ci -- --update-baseline`, so the change is visible in review. Every PR, whatever it touches, also runs lint, typecheck, unit tests, the catalog and contrast checks and a build.
+
 ## Run locally
 
 You need Node.js 20 or newer (the live server uses Node 24).
@@ -131,6 +142,7 @@ npm test                          # unit tests (no API calls)
 npm run typecheck                 # TypeScript check (CI also runs lint, tests, the two checks below and a build)
 npm run eval                      # run the 30-query eval (about 5 min, about $0.50)
 npm run eval -- --group=edge      # one group only
+npm run eval:ci                   # the 9-query PR check against evals/baseline.json (about $0.15)
 npm run try                       # run the 3 example queries against the real model
 npm run try -- "poha for 3"       # run your own query
 DEBUG_CARTS=1 npm run try         # also print which rules triggered a repair

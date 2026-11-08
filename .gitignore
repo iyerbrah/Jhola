@@ -45,3 +45,6 @@ next-env.d.ts
 
 # raw dataset (license: download it yourself)
 /data/raw/
+
+# PR eval check report (posted as a PR comment, not committed)
+/evals/ci-report.md

@@ -14,6 +14,7 @@
     "try": "tsx scripts/try.ts",
     "check:contrast": "tsx scripts/check-contrast.ts",
     "eval": "tsx scripts/eval.ts",
+    "eval:ci": "tsx scripts/eval-ci.ts",
     "warm": "tsx scripts/warm-cache.ts"
   },
   "dependencies": {

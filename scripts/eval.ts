@@ -9,10 +9,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import queries from "../evals/queries.json";
-import { scoreCase, summarise, type CaseScore, type EvalCase, type Summary } from "../evals/score";
-import { buildCarts } from "../lib/buildCarts";
-import { catalog, catalogIndex } from "../lib/catalog";
-import { costUsd } from "../lib/cost";
+import { runCases } from "../evals/run";
+import { summarise, type EvalCase, type Summary } from "../evals/score";
+import { catalog } from "../lib/catalog";
 import { modelName } from "../lib/llm";
 
 for (const f of [".env.local", ".env"]) {
@@ -27,35 +26,6 @@ const group = arg("group");
 const cases = (queries as EvalCase[]).filter((c) => !group || c.group === group);
 
 const pct = (x: number | null) => (x == null ? "n/a" : `${Math.round(x * 100)}%`);
-const pad = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" : s.padEnd(n));
-
-async function runAll(): Promise<{ scores: CaseScore[]; failures: { query: string; error: string }[] }> {
-  const scores: CaseScore[] = [];
-  const failures: { query: string; error: string }[] = [];
-  let next = 0;
-  let done = 0;
-  const worker = async () => {
-    while (next < cases.length) {
-      const c = cases[next++];
-      try {
-        const res = await buildCarts(c.query);
-        const s = scoreCase(c, res, catalogIndex, costUsd(res.meta.model, res.meta));
-        scores.push(s);
-        const mark = `${s.valid ? "✓" : "✗"}${s.repaired ? "r" : " "}`;
-        console.log(`[${++done}/${cases.length}] ${mark} ${(s.latency_ms / 1000).toFixed(1).padStart(5)}s  ${pad(s.status, 13)} ${c.query}`);
-        for (const p of s.problems) console.log(`         - ${p}`);
-      } catch (err) {
-        const error = err instanceof Error ? err.message : String(err);
-        failures.push({ query: c.query, error });
-        console.log(`[${++done}/${cases.length}] ✗   FAILED ${c.query}: ${error}`);
-      }
-    }
-  };
-  await Promise.all(Array.from({ length: concurrency }, worker));
-  // Keep the file in eval-set order, whatever order runs finished in.
-  scores.sort((a, b) => cases.findIndex((c) => c.query === a.query) - cases.findIndex((c) => c.query === b.query));
-  return { scores, failures };
-}
 
 function printSummary(s: Summary) {
   const rows: [string, string, string][] = [
@@ -77,7 +47,7 @@ function printSummary(s: Summary) {
 async function main() {
   console.log(`Eval: ${cases.length} queries, model ${modelName()}, ${catalog.length} products, concurrency ${concurrency}\n`);
   const started = Date.now();
-  const { scores, failures } = await runAll();
+  const { scores, failures } = await runCases(cases, concurrency);
   const summary = summarise(scores, failures.length);
   printSummary(summary);
 
