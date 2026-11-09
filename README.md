@@ -57,7 +57,7 @@ flowchart LR
 ## Key decisions
 
 - **The model picks, code counts.** The LLM returns product IDs and how much of each is needed; code computes packs, prices and totals from the catalog. A wrong or invented price can't reach the screen, and the schema plus ID checks mean a prompt-injection reply can't put arbitrary content in a cart.
-- **The whole catalog goes in the prompt.** At about 1,000 products it is roughly 21k tokens, and OpenAI's prompt caching bills about 95% of it at the cached rate, so a query costs about $0.02. Search or embeddings only become worth it when the catalog stops fitting.
+- **A two-step catalog lookup, not the whole catalog in the prompt.** At 1,006 products the whole catalog fit (about 31k tokens, mostly cached). At 2,743 it was 78k tokens per call and about $0.14 a build, so the plan call now sees only an index of the kinds of product, and each cart call sees only the products of the kinds it needs. Each call is about 13k tokens and a build costs about $0.02 again.
 - **One plan, three parallel carts, instead of one big call.** Each call writes a third of the output and they run at once, which roughly halved latency against a single call.
 - **Mechanical fixes live in code, not in repair prompts.** Duplicate lines, out-of-stock picks, pantry staples, budgets and near-identical carts are fixed deterministically and unit-tested. Only what code can't fix goes back to the model.
 - **Limits ship with the public link.** 10 requests per person per hour and 300 a day, counted in Upstash Redis so they survive restarts and deploys, plus a 30-day cache for repeated questions. nginx adds a looser per-address cap on the cart API, which still holds if Upstash is ever unreachable.
