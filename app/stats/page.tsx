@@ -6,7 +6,7 @@ import { loadStats, type Stats } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Jhola: live stats",
+  title: "Live stats",
   description: "How the live Jhola site is doing: volume, speed, reliability, cost and feedback over the last 30 days.",
 };
 
