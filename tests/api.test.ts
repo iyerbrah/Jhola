@@ -159,8 +159,8 @@ describe("request log", () => {
   });
 
   it("answers normally when saving fails or hangs", async () => {
-    const broken: RequestLog = { record: async () => { throw new Error("db down"); }, recentBuilds: async () => [] };
-    const hanging: RequestLog = { record: () => new Promise(() => {}), recentBuilds: async () => [] };
+    const broken: RequestLog = { record: async () => { throw new Error("db down"); }, recentBuilds: async () => [], rate: async () => "unknown" };
+    const hanging: RequestLog = { record: () => new Promise(() => {}), recentBuilds: async () => [], rate: async () => "unknown" };
     for (const requestLog of [broken, hanging]) {
       const { deps } = setup({ requestLog });
       const t = Date.now();

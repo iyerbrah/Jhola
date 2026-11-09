@@ -5,6 +5,7 @@ import type { AgentCart } from "@/lib/agent/carts";
 import type { CartChange } from "@/lib/agent/changes";
 import { agentRequest, chatHistory, describeChange, describeRequirements, sendAgentTurn, suggestionsFor } from "@/lib/agent/client";
 import { catalogIndex } from "@/lib/catalog";
+import { Feedback } from "./Feedback";
 import { rupees } from "./format";
 
 type Turn = {
@@ -19,6 +20,8 @@ type Turn = {
   /** The carts right after it: Undo is offered only while nothing has changed since. */
   after?: string;
   undone?: boolean;
+  /** The turn's request_id, for 👍/👎 on the reply. */
+  requestId?: string;
 };
 
 type Props = {
@@ -70,12 +73,12 @@ export function CartChat({ carts, active, tiers, onCarts, buildId }: Props) {
     }
     const r = outcome.result;
     if (r.status !== "done" || r.changes.length === 0) {
-      update(id, { state: r.status === "done" ? "done" : "gave_up", reply: r.reply, changes: [] });
+      update(id, { state: r.status === "done" ? "done" : "gave_up", reply: r.reply, changes: [], requestId: r.meta.request_id });
       return;
     }
     const changed = r.changes.flatMap((c) => [...c.added.map((a) => `${c.cart - 1}:${a.product_id}`), ...c.qty_changed.map((q) => `${c.cart - 1}:${q.product_id}`)]);
     onCarts(r.carts, changed);
-    update(id, { state: "done", reply: r.reply, changes: r.changes, before, after: JSON.stringify(r.carts) });
+    update(id, { state: "done", reply: r.reply, changes: r.changes, before, after: JSON.stringify(r.carts), requestId: r.meta.request_id });
   }
 
   function undo(t: Turn) {
@@ -129,6 +132,9 @@ export function CartChat({ carts, active, tiers, onCarts, buildId }: Props) {
                 ) : (
                   <>
                     <p className={t.state === "gave_up" ? "text-ink-soft" : "text-ink"}>{t.reply}</p>
+                    <div className="mt-1.5">
+                      <Feedback requestId={t.requestId} target="reply" label="Helpful?" />
+                    </div>
                     {t.changes && t.changes.length > 0 && (
                       <div className="mt-2 rounded-2xl bg-chalk px-4 py-3">
                         <ul className="space-y-1.5">

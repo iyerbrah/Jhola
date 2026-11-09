@@ -77,16 +77,30 @@ create table if not exists trace_steps (
   error         text,
   primary key (request_id, step)
 );
+
+create table if not exists feedback (
+  id            bigserial primary key,
+  request_id    uuid not null references requests (id) on delete cascade,
+  target        text not null check (target in ('cart', 'reply')),
+  cart_position smallint not null default -1, -- which of the build's carts; -1 for an agent reply
+  rating        smallint not null check (rating in (-1, 1)),
+  visitor       text not null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+  unique (request_id, target, cart_position, visitor)
+);
 `;
 
-let shared: Sql | null | undefined;
+// Next gives each route its own copy of a module, so module-level variables aren't shared between
+// routes. The pool lives on globalThis instead: one per server process.
+const holder = globalThis as unknown as { __jholaSql?: Sql | null };
 
 /** The shared connection pool, or null when DATABASE_URL isn't set. */
 export function getSql(): Sql | null {
-  if (shared !== undefined) return shared;
+  if (holder.__jholaSql !== undefined) return holder.__jholaSql;
   const url = process.env.DATABASE_URL;
-  shared = url ? connect(url) : null;
-  return shared;
+  holder.__jholaSql = url ? connect(url) : null;
+  return holder.__jholaSql;
 }
 
 /** A small pool with short timeouts: a slow or missing database must never hold up a shopper. */
