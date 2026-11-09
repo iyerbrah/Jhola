@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Requirements } from "./requirements";
 
 export const CATEGORIES = [
   "dairy",
@@ -129,6 +130,8 @@ export type BuildCartsResponse = {
   assumptions: string[];
   suggestions: string[];
   variants: PricedVariant[];
+  /** What every cart was built to satisfy (budget, item count, named ingredients). Edits are checked against it. */
+  requirements: Requirements;
   meta: {
     latency_ms: number;
     model: string;
