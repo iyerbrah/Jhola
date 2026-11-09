@@ -28,10 +28,12 @@ type Props = {
   tiers: string[];
   /** Apply new carts. `changed` lists "cart:product" keys of lines to highlight. */
   onCarts: (carts: AgentCart[], changed: string[]) => void;
+  /** The cart build's request_id, so each turn is linked to it in the request log. */
+  buildId?: string;
 };
 
 /** Plain-language changes to a cart, made by the cart helper (lib/agent), with the change list and Undo. */
-export function CartChat({ carts, active, tiers, onCarts }: Props) {
+export function CartChat({ carts, active, tiers, onCarts, buildId }: Props) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState("");
   const [target, setTarget] = useState(active);
@@ -57,7 +59,7 @@ export function CartChat({ carts, active, tiers, onCarts }: Props) {
     setInput("");
     setTurns((ts) => [...ts, { id, message, state: "working", progress: "Reading your request" }]);
     abort.current = new AbortController();
-    const outcome = await sendAgentTurn(agentRequest(carts, target, message, chatHistory(turns)), {
+    const outcome = await sendAgentTurn(agentRequest(carts, target, message, chatHistory(turns), buildId), {
       onStatus: (progress) => update(id, { progress }),
       signal: abort.current.signal,
     });

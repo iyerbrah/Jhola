@@ -13,8 +13,9 @@ export type AgentDone = Extract<AgentStreamEvent, { type: "done" }>;
 export type AgentOutcome = { kind: "done"; result: AgentDone } | { kind: "error"; error: string; status: number; retryAfter?: number };
 
 /** The request body: product IDs, quantities and flags only. The server takes everything else from the catalog. */
-export function agentRequest(carts: AgentCart[], active: number, message: string, history: ChatTurn[]) {
+export function agentRequest(carts: AgentCart[], active: number, message: string, history: ChatTurn[], buildId?: string) {
   return {
+    ...(buildId ? { build_id: buildId } : {}),
     carts: carts.map((c) => ({
       name: c.name,
       reason: c.reason,
