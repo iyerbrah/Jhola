@@ -91,7 +91,7 @@ export const TOOL_SPECS = [
   {
     name: "cheapen",
     description:
-      "Let code make a cart cheaper with the smallest changes that are enough: cheaper packs or brands of the same kind, or one pack fewer. It never removes a product and keeps the cart's diet. With budget_inr it reaches that total or, if it can't, changes nothing and says the lowest total it can reach. With null it cuts about 15%.",
+      "Let code make a cart cheaper with the smallest changes that are enough: cheaper packs or brands of the same kind, or one pack fewer. It never removes a product and keeps the cart's diet. With budget_inr it reaches that total and records it as the cart's budget or, if it can't, changes nothing and says the lowest total it can reach. With null it cuts about 15%.",
     parameters: obj({ cart: cartArg, budget_inr: { type: ["integer", "null"], description: "Target total in rupees, or null for about 15% cheaper." } }),
   },
   {
@@ -420,7 +420,9 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
             `cheaper packs and brands can't get cart ${a.cart} to ₹${a.budget_inr}: the lowest they reach is ₹${lowest}. Nothing changed. Remove items the shopper can do without, or tell them the lowest realistic total.`,
           );
         }
-        return changed(state, i, fitted, deps, `Cheaper packs and brands: ₹${before} → ₹${cartTotal(fitted)}.`);
+        // The shopper named this budget, so it becomes the cart's requirement too.
+        const next = { ...fitted, requirements: { ...fitted.requirements, budget_inr: a.budget_inr } };
+        return changed(state, i, next, deps, `Cheaper packs and brands: ₹${before} → ₹${cartTotal(fitted)}. Budget of ₹${a.budget_inr} recorded.`);
       }
       for (const f of [0.85, 0.9, 0.95]) {
         const fitted = fitCart(c, Math.floor(before * f), deps);
