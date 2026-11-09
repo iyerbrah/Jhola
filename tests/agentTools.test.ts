@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { diffCarts } from "@/lib/agent/changes";
-import { cartView, runTool, statusFor, TOOL_SPECS, type AgentState } from "@/lib/agent/tools";
+import { cartView, packsForSameAmount, runTool, statusFor, TOOL_SPECS, type AgentState } from "@/lib/agent/tools";
 import { cartTotal } from "@/lib/cartState";
 import { toCartItem } from "@/lib/agent/carts";
 import { biryaniCarts, deps, index, none } from "./agentFixtures";
@@ -78,15 +78,27 @@ describe("editing tools", () => {
     expect(s.carts).toEqual(biryaniCarts());
   });
 
-  it("swap_item keeps the quantity and the optional flag; set_qty and remove_item edit in place", async () => {
+  it("swap_item keeps about the same amount; set_qty and remove_item edit in place", async () => {
     const s = fresh();
-    await run(s, "swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" });
-    expect(s.carts[0].items[0]).toMatchObject({ product_id: "p001", name: "Fresh Paneer", qty: 2, line_total: 190 });
+    // 2 × 500 g chicken = 1 kg -> 5 × 200 g paneer.
+    const r = await run(s, "swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" });
+    expect(r.output).toContain("Swapped Chicken Curry Cut for Fresh Paneer: 2 × 500 g → 5 × 200 g, about the same amount.");
+    expect(s.carts[0].items[0]).toMatchObject({ product_id: "p001", name: "Fresh Paneer", qty: 5, line_total: 475 });
     await run(s, "set_qty", { cart: 1, product_id: "p001", qty: 4 });
     expect(s.carts[0].items[0]).toMatchObject({ qty: 4, line_total: 380 });
     await run(s, "remove_item", { cart: 1, product_id: "p003" });
     expect(s.carts[0].items.map((i) => i.product_id)).toEqual(["p001", "p004", "p005"]);
     expect(s.carts[0].requirements.must_include).toEqual(["chicken"]);
+  });
+});
+
+describe("packsForSameAmount", () => {
+  const p = (id: string) => index.get(id)!;
+  it("matches the amount across pack sizes, within 1-10 packs, and gives up across units", () => {
+    expect(packsForSameAmount(p("p002"), 2, p("p001"))).toBe(5); // 1 kg -> 5 × 200 g
+    expect(packsForSameAmount(p("p001"), 1, p("p002"))).toBe(1); // 200 g -> one 500 g pack, never 0
+    expect(packsForSameAmount(p("p002"), 10, p("p001"))).toBe(10); // 5 kg would be 25 packs: capped
+    expect(packsForSameAmount(p("p004"), 1, { ...p("p004"), id: "x", unit: "pcs", pack_size: 6 })).toBeNull();
   });
 });
 
