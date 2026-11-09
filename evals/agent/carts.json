@@ -1728,5 +1728,405 @@
         }
       }
     ]
+  },
+  "biryani_and_cleaning": {
+    "query": "chicken biryani for 4, plus dishwash liquid and floor cleaner",
+    "carts": [
+      {
+        "name": "Budget Biryani",
+        "reason": "Lowest-cost home-style version.",
+        "items": [
+          {
+            "product_id": "p521",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~600 g for 4"
+          },
+          {
+            "product_id": "p010",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~400 g for 4"
+          },
+          {
+            "product_id": "p652",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~300 g for 4"
+          },
+          {
+            "product_id": "p680",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~200 g for 4"
+          },
+          {
+            "product_id": "p616",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~20 g for 4"
+          },
+          {
+            "product_id": "p610",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~20 g for 4"
+          },
+          {
+            "product_id": "p628",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~10 g for 4"
+          },
+          {
+            "product_id": "p599",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~50 g for 4"
+          },
+          {
+            "product_id": "p645",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~1 lemon for 4"
+          },
+          {
+            "product_id": "p684",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          },
+          {
+            "product_id": "p406",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~200 g for 4"
+          },
+          {
+            "product_id": "p805",
+            "qty": 1,
+            "optional": true,
+            "included": false,
+            "note": "~40 ml for 4"
+          },
+          {
+            "product_id": "p779",
+            "qty": 1,
+            "optional": true,
+            "included": false,
+            "note": "~10 g for 4"
+          },
+          {
+            "product_id": "p1368",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          },
+          {
+            "product_id": "p1408",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          }
+        ],
+        "requirements": {
+          "budget_inr": null,
+          "item_count": null,
+          "item_kind": "chicken",
+          "must_include": [
+            "chicken"
+          ],
+          "diet": null
+        }
+      },
+      {
+        "name": "Classic Biryani",
+        "reason": "Balanced, fuller biryani with more aroma.",
+        "items": [
+          {
+            "product_id": "p525",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~600 g for 4"
+          },
+          {
+            "product_id": "p017",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~500 g for 4"
+          },
+          {
+            "product_id": "p652",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~400 g for 4"
+          },
+          {
+            "product_id": "p680",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~200 g for 4"
+          },
+          {
+            "product_id": "p616",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~20 g for 4"
+          },
+          {
+            "product_id": "p610",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~20 g for 4"
+          },
+          {
+            "product_id": "p628",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~10 g for 4"
+          },
+          {
+            "product_id": "p599",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~50 g for 4"
+          },
+          {
+            "product_id": "p645",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~1 lemon"
+          },
+          {
+            "product_id": "p407",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~200 g for 4"
+          },
+          {
+            "product_id": "p685",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          },
+          {
+            "product_id": "p720",
+            "qty": 1,
+            "optional": true,
+            "included": false,
+            "note": ""
+          },
+          {
+            "product_id": "p805",
+            "qty": 1,
+            "optional": true,
+            "included": false,
+            "note": ""
+          },
+          {
+            "product_id": "p779",
+            "qty": 1,
+            "optional": true,
+            "included": false,
+            "note": ""
+          },
+          {
+            "product_id": "p1368",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          },
+          {
+            "product_id": "p1408",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          }
+        ],
+        "requirements": {
+          "budget_inr": null,
+          "item_count": null,
+          "item_kind": "chicken",
+          "must_include": [
+            "chicken"
+          ],
+          "diet": null
+        }
+      },
+      {
+        "name": "Premium Biryani",
+        "reason": "Richer biryani with ghee and whole spices.",
+        "items": [
+          {
+            "product_id": "p017",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~500 g rice"
+          },
+          {
+            "product_id": "p525",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~600 g chicken"
+          },
+          {
+            "product_id": "p653",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~500 g onions"
+          },
+          {
+            "product_id": "p680",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~200 g tomatoes"
+          },
+          {
+            "product_id": "p616",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~20 g ginger"
+          },
+          {
+            "product_id": "p610",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~20 g garlic"
+          },
+          {
+            "product_id": "p628",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~10 g chilli"
+          },
+          {
+            "product_id": "p599",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~50 g coriander"
+          },
+          {
+            "product_id": "p645",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "1 lemon"
+          },
+          {
+            "product_id": "p410",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": "~400 g curd"
+          },
+          {
+            "product_id": "p685",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          },
+          {
+            "product_id": "p721",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          },
+          {
+            "product_id": "p715",
+            "qty": 1,
+            "optional": true,
+            "included": false,
+            "note": ""
+          },
+          {
+            "product_id": "p758",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          },
+          {
+            "product_id": "p808",
+            "qty": 1,
+            "optional": true,
+            "included": false,
+            "note": ""
+          },
+          {
+            "product_id": "p800",
+            "qty": 1,
+            "optional": true,
+            "included": false,
+            "note": ""
+          },
+          {
+            "product_id": "p779",
+            "qty": 1,
+            "optional": true,
+            "included": false,
+            "note": ""
+          },
+          {
+            "product_id": "p1368",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          },
+          {
+            "product_id": "p1408",
+            "qty": 1,
+            "optional": false,
+            "included": true,
+            "note": ""
+          }
+        ],
+        "requirements": {
+          "budget_inr": null,
+          "item_count": null,
+          "item_kind": "chicken",
+          "must_include": [
+            "chicken"
+          ],
+          "diet": null
+        }
+      }
+    ]
   }
 }

@@ -10,7 +10,7 @@ import { jaccard, MAX_JACCARD } from "@/lib/validate";
 type Status = BuildCartsResponse["status"];
 
 export type EvalCase = {
-  group: "recipe" | "meal_idea" | "budget_gift" | "edge";
+  group: "recipe" | "meal_idea" | "budget_gift" | "household" | "edge";
   query: string;
   expected_status: Status | Status[];
   budget_inr?: number;
