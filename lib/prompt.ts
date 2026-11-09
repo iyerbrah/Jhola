@@ -2,18 +2,38 @@ import unitHints from "@/data/unit-hints.json";
 import { catalog } from "./catalog";
 import { packLabel, type Cart, type Plan, type PlanVariant, type Product } from "./schema";
 
-/** One compact line per in-stock product: p001|Fresh Paneer|Amul|200 g|₹95|paneer|veg,high_protein */
-export function catalogLines(products: Product[]): string {
-  return products
-    .filter((p) => p.in_stock)
-    .map((p) => [p.id, p.name, p.brand, packLabel(p), `₹${p.price}`, p.sub_category, p.tags.join(",")].join("|"))
+/**
+ * One line per kind of product the store has in stock, for the plan call:
+ * "paneer (dairy): 14, ₹72-420; e.g. Malai Fresh Paneer, Paneer".
+ * The examples show what a kind holds when its name alone doesn't ("face" is make-up).
+ */
+export function kindIndex(products: Product[]): string {
+  const kinds = new Map<string, Product[]>();
+  for (const p of products) if (p.in_stock) kinds.set(p.sub_category, [...(kinds.get(p.sub_category) ?? []), p]);
+  return [...kinds]
+    .sort(([a, pa], [b, pb]) => pa[0].category.localeCompare(pb[0].category) || a.localeCompare(b))
+    .map(([kind, ps]) => {
+      const prices = ps.map((p) => p.price);
+      // Two short example names: the cheapest and the priciest, cut at a word boundary.
+      const short = (n: string) => (n.length <= 28 ? n : n.slice(0, 28).replace(/\s+\S*$/, ""));
+      const names = [...new Set([...ps].sort((a, b) => a.price - b.price).map((p) => short(p.name.split(" - ")[0])))];
+      const examples = [names[0], names.at(-1)].filter((n, i, all) => n && all.indexOf(n) === i);
+      return `${kind} (${ps[0].category}): ${ps.length}, ₹${Math.min(...prices)}-${Math.max(...prices)}; e.g. ${examples.join(", ")}`;
+    })
+    .join("\n");
+}
+
+/** A cart call's products, by kind: "## paneer" then "p001|Fresh Paneer|Amul|200 g|₹95|veg,high_protein". */
+export function productLines(byKind: Map<string, Product[]>): string {
+  return [...byKind]
+    .map(([kind, ps]) => [`## ${kind}`, ...ps.map((p) => [p.id, p.name, p.brand, packLabel(p), `₹${p.price}`, ...(p.tags.length ? [p.tags.join(",")] : [])].join("|"))].join("\n"))
     .join("\n");
 }
 
 // Shared by the plan call and the cart calls, so the whole prefix (rules + catalog) is cached.
-const RULES = `You build shopping carts for an Indian quick-commerce app. It sells groceries and everyday household items: food and drinks, cleaning and laundry supplies, personal care, baby care, kitchen and home basics, and pet supplies. The shopper writes a request in plain language; you choose products only from the CATALOG below. Code computes every price and total, so never invent a product, ID or price.
+const RULES = `You build shopping carts for an Indian quick-commerce app. It sells groceries and everyday household items: food and drinks, cleaning and laundry supplies, personal care, baby care, kitchen and home basics, and pet supplies. The shopper writes a request in plain language. The KINDS list below is everything the store has in stock, one line per kind of product. Code computes every price and total, so never invent a product, ID or price.
 
-The work happens in two steps. Each message says which step to do and the JSON schema to return.
+The work happens in two steps. Each message says which step to do and the JSON schema to return. Step 1 plans with kinds; step 2 lists the PRODUCTS you may choose from for one cart.
 
 General rules:
 - If the shopper names a dish or a main ingredient ("chicken biryani", "paneer"), every cart is that dish or contains that ingredient; tiers change brands and extras, never the main ingredient.
@@ -33,8 +53,8 @@ export function buildInstructions(products: Product[] = catalog): string {
 UNIT HINTS (rough conversions):
 ${JSON.stringify(unitHints)}
 
-CATALOG (id|name|brand|pack size|price|sub_category|tags):
-${catalogLines(products)}`;
+KINDS (kind (category): how many products, price range in ₹; examples):
+${kindIndex(products)}`;
 }
 
 function queryTag(query: string): string {
@@ -45,15 +65,16 @@ export function planMessage(query: string): string {
   return `${queryTag(query)}
 
 STEP 1 (plan). Decide what to build; no product IDs yet.
-- status: "ok" if the catalog serves the request well; "partial" only if a key ingredient or item is missing and nothing in the catalog can stand in for it (packaging, gift boxes or a specific brand are not key items) (still plan 3 carts with what exists, and in message name what's missing plus the closest alternative); "cannot_fulfil" if it isn't a shopping request or the catalog can't sensibly serve it (then no variants, a short friendly message, and 2-3 suggestions: short example requests the app can do, like "Paneer butter masala for 4").
+- status: "ok" if the KINDS serve the request well; "partial" only if a key ingredient or item is missing and nothing in the KINDS can stand in for it (packaging, gift boxes or a specific brand are not key items) (still plan 3 carts with what exists, and in message name what's missing plus the closest alternative); "cannot_fulfil" if it isn't a shopping request or the store can't sensibly serve it (then no variants, a short friendly message, and 2-3 suggestions: short example requests the app can do, like "Paneer butter masala for 4").
 - message: empty for "ok" unless something important needs saying. Never repeat assumptions here; they go in assumptions. suggestions: empty unless cannot_fulfil.
-- must_include: the catalog sub_categories of any main ingredient the shopper explicitly named, which every cart must contain (e.g. "chicken biryani" -> ["chicken"], "paneer tikka" -> ["paneer"]). Empty for open requests like "dinner ideas".
-- constraints: budget_inr and item_count only if the shopper gave them (a count of distinct products, like "3 different green teas" -> 3); item_kind = the matching catalog sub_category (e.g. "dark_chocolate") or null.
+- must_include: the KINDS of any main ingredient the shopper explicitly named, which every cart must contain (e.g. "chicken biryani" -> ["chicken"], "paneer tikka" -> ["paneer"]). Empty for open requests like "dinner ideas".
+- constraints: budget_inr and item_count only if the shopper gave them (a count of distinct products, like "3 different green teas" -> 3); item_kind = the matching kind (e.g. "dark_chocolate") or null.
 - variants: exactly 3 genuinely different carts, listed cheapest to most expensive. Differ by price tier (Budget / Classic / Premium), by style (from scratch vs. a shortcut with a ready mix), or, for open requests like "breakfast ideas" or "snacks", by a different dish or theme in each cart. Never the same dish twice.
   - Keep each cart focused: at most 12 required lines and 4 optional lines. For big requests ("groceries for a week"), choose bigger packs rather than more lines.
   - If a budget is given, size every shopping list so its cart lands at or below about 90% of the budget (estimate from catalog prices), leaving room for rounding.
   - name: 2-3 words. reason: one short line.
-  - shopping_list: what this cart needs with amounts, using things the CATALOG has, separated by semicolons, and "(optional)" after pantry staples. Example: "paneer 400 g; tomato 500 g; onion 300 g; fresh cream 200 ml; butter 50 g; ginger-garlic paste; kasuri methi; salt (optional); turmeric (optional)".`;
+  - shopping_list: what this cart needs with amounts, using things the KINDS have, separated by semicolons, and "(optional)" after pantry staples. Example: "paneer 400 g; tomato 500 g; onion 300 g; fresh cream 200 ml; butter 50 g; ginger-garlic paste; kasuri methi; salt (optional); turmeric (optional)".
+  - kinds: every kind from the KINDS list this shopping list needs, by its exact name, at least one per line. Example: ["paneer", "tomato", "onion", "cream", "butter", "ginger_garlic_paste", "kasuri_methi", "salt", "turmeric"].`;
 }
 
 /** What each cart's price position means, cheapest first. */
@@ -66,7 +87,7 @@ const TIER_HINTS = [
 /** Share of the budget each cart aims for, cheapest tier first. The budget itself is the hard cap. */
 export const BUDGET_TARGETS = [0.6, 0.8, 0.92];
 
-export function cartMessage(query: string, plan: Plan, variant: PlanVariant, tierIndex = 0): string {
+export function cartMessage(query: string, plan: Plan, variant: PlanVariant, tierIndex: number, products: Map<string, Product[]>): string {
   const budget = plan.constraints.budget_inr;
   const target = budget != null ? Math.round(budget * (BUDGET_TARGETS[tierIndex] ?? BUDGET_TARGETS[2])) : null;
   const spend =
@@ -82,13 +103,16 @@ Every cart must contain: ${plan.must_include.join(", ")}.` : ""}
 Shopping list: ${variant.shopping_list}
 Constraints: ${JSON.stringify(plan.constraints)}${spend}
 
-- Map each shopping-list line to the best CATALOG product ID that fits this cart's price tier. Never list the same product twice.
+- Map each shopping-list line to the best product ID from the PRODUCTS below that fits this cart's price tier. Use only IDs listed there. Never list the same product twice.
 - need: the amount from the shopping list, never the pack size (if the list says "rice 600 g", need is 600 even when the pack is 1 kg). It is how much of that product the cart needs, in the product's own unit: grams for g/kg packs, ml for ml/L packs, pieces for pcs packs (e.g. 400 for "paneer 400 g", 1000 for "tomato 1 kg", 12 for "12 eggs"). For things bought by the pack (a chocolate bar, a spice jar, a soap, a detergent, a mop), use 0. Code turns need into whole packs.
 - qty: whole packs (1-10) you'd buy; it's only used when need is 0.
 - The other two carts are built separately for different tiers or styles, so stay true to this one: a budget cart picks the cheapest fitting products, a premium cart picks better brands or nicer variants (not more quantity than the list asks for), and a themed cart follows its own list. Don't default to the same popular products every cart would pick.
 - optional: true for lines marked (optional), otherwise false.
 - note: at most 5 words on the amount, e.g. "~400 g for 4". Empty for optional items.
-- model_total_inr: add up price × qty of the required items. If a budget is given and this is over it, swap in cheaper products before answering.`;
+- model_total_inr: add up price × qty of the required items. If a budget is given and this is over it, swap in cheaper products before answering.
+
+PRODUCTS for this cart, by kind (id|name|brand|pack size|price|tags):
+${productLines(products)}`;
 }
 
 export function cartRepairMessage(previous: Cart, errors: string[], index: Map<string, Product>): string {

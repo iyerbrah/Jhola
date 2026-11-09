@@ -79,6 +79,8 @@ export const PlanSchema = z.object({
       name: z.string(),
       reason: z.string(),
       shopping_list: z.string(),
+      /** Kinds of product (sub_categories) the shopping list needs. Code shows the cart call only these kinds' products. */
+      kinds: z.array(z.string()),
     }),
   ),
 });
