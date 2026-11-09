@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
+import { EXAMPLE } from "@/lib/example";
 
 // The link-preview card (1200x630) shown when the site is shared on LinkedIn, Slack, WhatsApp or email.
-export const alt = "Jhola: type one line, get three ready-to-order grocery carts";
+export const alt = "Jhola: type one line, get three ready-to-order carts";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -12,11 +13,8 @@ const SOFT = "#b9c1e6";
 const MARIGOLD = "#f0a202";
 const LEAF = "#2f9a5c";
 
-const CARTS = [
-  { name: "Budget", total: "₹349", tier: LEAF },
-  { name: "Classic", total: "₹490", tier: MARIGOLD },
-  { name: "Premium", total: "₹762", tier: CHALK },
-];
+// The same real answer as the home page's preview card, by first word ("Budget"), so three pills fit.
+const CARTS = EXAMPLE.carts.map((c, i) => ({ name: c.name.split(" ")[0], total: `₹${c.total}`, tier: [LEAF, MARIGOLD, CHALK][i] }));
 
 /** Fetch a Google Font as TTF for just the characters we draw. Returns null if offline. */
 async function googleFont(family: string, weight: number, text: string): Promise<ArrayBuffer | null> {
@@ -30,7 +28,7 @@ async function googleFont(family: string, weight: number, text: string): Promise
 }
 
 const HEADLINE = "One line in. Three ready carts out.";
-const SUBLINE = "“Paneer butter masala for 4” → three priced carts from 2,700+ real Indian products.";
+const SUBLINE = `“${EXAMPLE.query}” → three priced carts from 2,700+ real Indian groceries and household essentials.`;
 
 export default async function OpengraphImage() {
   const body = CARTS.map((c) => c.name + c.total).join("") + SUBLINE + "0123456789,+";
