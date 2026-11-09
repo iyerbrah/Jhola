@@ -55,6 +55,8 @@ export function swapItem<C extends EditableCart>(cart: C, id: string, p: Product
     price: p.price,
     line_total: p.price * it.qty,
     sub_category: p.sub_category,
+    category: p.category,
+    tags: p.tags,
     note: "",
   }));
 }

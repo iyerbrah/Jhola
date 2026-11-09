@@ -17,6 +17,8 @@ describe("priceVariants", () => {
       optional: false,
       note: "",
       sub_category: "paneer",
+      category: "dairy",
+      tags: ["veg", "high_protein"],
     });
     const salt = cart.items.find((i) => i.product_id === "p005")!;
     expect(salt.optional).toBe(true);

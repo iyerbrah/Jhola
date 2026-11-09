@@ -172,6 +172,8 @@ function toHistoryEntry(
         optional: it.optional,
         note: it.note,
         sub_category: p?.sub_category ?? "",
+        category: p?.category ?? "snacks",
+        tags: p?.tags ?? [],
       };
     }),
   }));
