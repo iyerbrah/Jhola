@@ -51,6 +51,12 @@ const cartArg = { type: "integer", description: "Cart number, 1 to 3." };
 const productArg = { type: "string", description: "Product ID from the carts or from search_catalog, like p214." };
 const qtyArg = { type: "integer", description: `Number of packs, 1 to ${MAX_QTY}.` };
 const obj = (properties: Record<string, unknown>) => ({ type: "object", properties, required: Object.keys(properties), additionalProperties: false });
+/** Every editing tool asks whether the shopper's request will be complete once this step has run. */
+const doneArg = {
+  type: "boolean",
+  description: "true if, once this step's calls have run, the shopper's whole request is done. Code then checks the rules and ends the turn for you, so you don't need finish.",
+};
+const editObj = (properties: Record<string, unknown>) => obj({ ...properties, done: doneArg });
 
 export const TOOL_SPECS = [
   {
@@ -71,40 +77,40 @@ export const TOOL_SPECS = [
   {
     name: "add_item",
     description: "Add a product to a cart as a required line.",
-    parameters: obj({ cart: cartArg, product_id: productArg, qty: qtyArg }),
+    parameters: editObj({ cart: cartArg, product_id: productArg, qty: qtyArg }),
   },
   {
     name: "remove_item",
     description: "Remove a product's line from a cart.",
-    parameters: obj({ cart: cartArg, product_id: productArg }),
+    parameters: editObj({ cart: cartArg, product_id: productArg }),
   },
   {
     name: "swap_item",
     description: "Replace one product in a cart with another. Code works out the packs for about the same amount (900 g of chicken → 5 × 200 g of paneer) when both are sold by weight, volume or pieces alike.",
-    parameters: obj({ cart: cartArg, product_id: { ...productArg, description: "The product in the cart now." }, new_product_id: { ...productArg, description: "The product to put in its place." } }),
+    parameters: editObj({ cart: cartArg, product_id: { ...productArg, description: "The product in the cart now." }, new_product_id: { ...productArg, description: "The product to put in its place." } }),
   },
   {
     name: "set_qty",
     description: "Change how many packs of a product a cart has.",
-    parameters: obj({ cart: cartArg, product_id: productArg, qty: qtyArg }),
+    parameters: editObj({ cart: cartArg, product_id: productArg, qty: qtyArg }),
   },
   {
     name: "cheapen",
     description:
       "Let code make a cart cheaper with the smallest changes that are enough: cheaper packs or brands of the same kind, or one pack fewer. It never removes a product and keeps the cart's diet. With budget_inr it reaches that total and records it as the cart's budget or, if it can't, changes nothing and says the lowest total it can reach. With null it cuts about 15%.",
-    parameters: obj({ cart: cartArg, budget_inr: { type: ["integer", "null"], description: "Target total in rupees, or null for about 15% cheaper." } }),
+    parameters: editObj({ cart: cartArg, budget_inr: { type: ["integer", "null"], description: "Target total in rupees, or null for about 15% cheaper." } }),
   },
   {
     name: "fit_diet",
     description:
       "Let code swap every item in a cart that breaks the cart's diet for the closest in-stock product of the same kind that fits it (same quantity). Lists the items with no same-kind option, which you then swap for something else or remove. Set the diet with set_requirements first (it can be in the same step, before this call).",
-    parameters: obj({ cart: cartArg }),
+    parameters: editObj({ cart: cartArg }),
   },
   {
     name: "set_requirements",
     description:
       "Record a new requirement the shopper stated for a cart, so it's checked from now on. Call it before editing for a diet or a budget.",
-    parameters: obj({
+    parameters: editObj({
       cart: cartArg,
       diet: { type: ["string", "null"], enum: [...DIETS, "any", null], description: "New diet; \"any\" removes the diet; null leaves it as it is." },
       budget_inr: { type: ["integer", "null"], description: "New budget in rupees; 0 removes the budget; null leaves it as it is." },
@@ -138,6 +144,8 @@ export type ToolName = (typeof TOOL_SPECS)[number]["name"];
 // ---------- The same rules, enforced on our side ----------
 
 const cart = z.number().int();
+/** Not used by the tool itself: the loop reads it (see runAgentTurn). Missing = false. */
+const done = z.boolean().default(false);
 const pid = z.string().max(12);
 const qty = z.number().int();
 const ARGS = {
@@ -148,18 +156,19 @@ const ARGS = {
     category: z.enum(CATEGORIES).nullable(),
   }),
   get_product: z.object({ product_id: pid }),
-  add_item: z.object({ cart, product_id: pid, qty }),
-  remove_item: z.object({ cart, product_id: pid }),
-  swap_item: z.object({ cart, product_id: pid, new_product_id: pid }),
-  set_qty: z.object({ cart, product_id: pid, qty }),
+  add_item: z.object({ cart, product_id: pid, qty, done }),
+  remove_item: z.object({ cart, product_id: pid, done }),
+  swap_item: z.object({ cart, product_id: pid, new_product_id: pid, done }),
+  set_qty: z.object({ cart, product_id: pid, qty, done }),
   set_requirements: z.object({
     cart,
     diet: z.enum([...DIETS, "any"]).nullable(),
     budget_inr: z.number().int().min(0).max(1_000_000).nullable(),
     drop_must_include: z.array(z.object({ kind: z.string().max(40), replaced_by: z.string().max(40).nullable() })).max(5),
+    done,
   }),
-  cheapen: z.object({ cart, budget_inr: z.number().int().positive().nullable() }),
-  fit_diet: z.object({ cart }),
+  cheapen: z.object({ cart, budget_inr: z.number().int().positive().nullable(), done }),
+  fit_diet: z.object({ cart, done }),
   check_rules: z.object({ cart }),
   finish: z.object({ reply: z.string() }),
 } satisfies Record<ToolName, z.ZodType>;
@@ -483,6 +492,8 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
         const unit = was[0].p.unit;
         const total = was.filter((w) => w.p.unit === unit).reduce((sum, w) => sum + w.qty * w.p.pack_size, 0);
         const kind = d.replaced_by.trim().toLowerCase();
+        // Eggs are counted by the piece and paneer by weight: amounts in different units can't be compared.
+        if (!deps.products.some((p) => p.in_stock && p.unit === unit && matchesKind(p, kind))) continue;
         r.min_amounts = [...(r.min_amounts ?? []).filter((m) => m.kind !== kind), { kind, amount: Math.ceil(total / 2), unit }].slice(-5);
       }
       const next = { ...c, requirements: r };

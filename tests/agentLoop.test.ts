@@ -50,7 +50,7 @@ describe("a turn that edits", () => {
   it("makes the visible cart vegetarian and reports exactly what changed", async () => {
     const { deps, events } = setup([
       step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] }], ["search_catalog", { text: "paneer", diet: "veg", max_price: null, category: null }]),
-      step(["swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" }], ["set_qty", { cart: 1, product_id: "p001", qty: 4 }]),
+      step(["swap_item", { cart: 1, product_id: "p002", new_product_id: "p001", done: false }], ["set_qty", { cart: 1, product_id: "p001", qty: 4, done: true }]),
       finish("Swapped the chicken for 800 g paneer, so it's a paneer biryani now. New total ₹494."),
     ]);
     const input = turn("make it vegetarian");
@@ -126,11 +126,11 @@ describe("a turn that edits", () => {
 });
 
 describe("ending the turn in code", () => {
-  const swapToPaneer = step(["swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" }]);
+  const swapToPaneer = step(["swap_item", { cart: 1, product_id: "p002", new_product_id: "p001", done: true }]);
   const veg = step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] }]);
 
-  it("ends after an edit-only step that leaves the cart passing every rule", async () => {
-    const { deps, sent } = setup([step(["remove_item", { cart: 1, product_id: "p003" }]), finish("never called")]);
+  it("ends when the model marks the edits done and the cart passes every rule", async () => {
+    const { deps, sent } = setup([step(["remove_item", { cart: 1, product_id: "p003", done: true }]), finish("never called")]);
     const res = await runAgentTurn(turn("I have onions"), deps);
     expect(res).toMatchObject({ status: "done", reply: "Done. Budget is now ₹504.", meta: { finished_by: "code", model_calls: 1 } });
     expect(sent).toHaveLength(1);
@@ -145,18 +145,26 @@ describe("ending the turn in code", () => {
   });
 
   it("doesn't end after a step that also looked something up, or had a failed call", async () => {
-    const looked = setup([step(["remove_item", { cart: 1, product_id: "p003" }], ["search_catalog", { text: "tea", diet: null, max_price: null, category: null }]), finish("Removed the onion.")]);
+    const looked = setup([step(["remove_item", { cart: 1, product_id: "p003", done: true }], ["search_catalog", { text: "tea", diet: null, max_price: null, category: null }]), finish("Removed the onion.")]);
     expect((await runAgentTurn(turn("no onion"), looked.deps)).meta.finished_by).toBe("model");
-    const failed = setup([step(["remove_item", { cart: 1, product_id: "p003" }], ["add_item", { cart: 1, product_id: "p999", qty: 1 }]), finish("Removed the onion.")]);
+    const failed = setup([step(["remove_item", { cart: 1, product_id: "p003", done: true }], ["add_item", { cart: 1, product_id: "p999", qty: 1, done: true }]), finish("Removed the onion.")]);
     expect((await runAgentTurn(turn("no onion, add tea"), failed.deps)).meta.finished_by).toBe("model");
   });
 
   it("waits until every cart the shopper asked about has been changed", async () => {
-    const onion = (cart: number) => step(["remove_item", { cart, product_id: "p003" }]);
+    const onion = (cart: number) => step(["remove_item", { cart, product_id: "p003", done: true }]);
     const { deps, sent } = setup([onion(1), onion(2), onion(3), finish("never called")]);
     const res = await runAgentTurn(turn("remove the onion from all three carts"), deps);
     expect(sent).toHaveLength(3);
     expect(res.reply).toBe("Done. Budget is now ₹504, Classic is now ₹562 and Premium is now ₹825.");
+  });
+
+  it("keeps going when the model says there's more to do, as for a two-part request", async () => {
+    // "atta and moong dal": the first step removes one and says it isn't done.
+    const { deps, sent } = setup([step(["remove_item", { cart: 1, product_id: "p003", done: false }]), step(["remove_item", { cart: 1, product_id: "p004", done: true }]), finish("never called")]);
+    const res = await runAgentTurn(turn("I have onion and rice"), deps);
+    expect(sent).toHaveLength(2);
+    expect(res.carts[0].items.map((i) => i.product_id)).toEqual(["p002", "p005"]);
   });
 
   it("lets the model finish a question itself", async () => {
