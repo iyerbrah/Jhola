@@ -163,13 +163,15 @@ describe("cheapen", () => {
     expect(r.ok).toBe(true);
     expect(r.output).toContain("Cheaper packs and brands: ₹855 → ₹645.");
     expect(s.carts[2].items.find((i) => i.product_id === "p002")?.qty).toBe(2);
+    expect(s.carts[2].requirements.budget_inr).toBe(800);
     expect([...s.touched]).toEqual([2]);
   });
 
-  it("cuts about 15% when there's no budget", async () => {
+  it("cuts about 15% when there's no budget, without recording one", async () => {
     const s = fresh();
     await run(s, "cheapen", { cart: 3, budget_inr: null });
     expect(cartTotal(s.carts[2])).toBeLessThanOrEqual(Math.floor(855 * 0.85));
+    expect(s.carts[2].requirements.budget_inr).toBeNull();
   });
 
   it("changes nothing when the budget can't be reached, and says the lowest it can do", async () => {
