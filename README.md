@@ -121,9 +121,9 @@ Every PR that touches the pipeline, prompts, catalog, eval code or dependencies 
 
 Latency is shown but never fails the check, since GitHub's runners aren't the live server. The baseline lives in [evals/baseline.json](evals/baseline.json); a PR that deliberately moves the numbers updates it with `npm run eval:ci -- --update-baseline`, so the change is visible in review. Every PR, whatever it touches, also runs lint, typecheck, unit tests, the catalog and contrast checks and a build.
 
-## The cart editor agent (in progress)
+## The cart editor agent
 
-Next, the shopper will be able to change a cart in plain language: *"make it vegetarian"*, *"keep it under ₹450"*, *"I already have rice"*. A tool-using agent makes the edits, code checks every one, and the shopper gets a change list with an Undo. The design is in [docs/agent-plan.md](docs/agent-plan.md). The agent's core and its eval are built ([lib/agent/](lib/agent/)); the endpoint and the chat box come next.
+Under the carts, the shopper can change one in plain language: *"make it vegetarian"*, *"keep it under ₹450"*, *"I already have rice"*. A tool-using agent makes the edits, code checks every one, and the shopper sees each step as it happens ("Searching for paneer…"), then a change list ("−Chicken Curry Cut ×2, +Fresh Paneer ×4 · ₹683 → ₹540") with an Undo. Suggestion chips come from the cart itself: "Make it vegetarian" appears only when something in it isn't. The design is in [docs/agent-plan.md](docs/agent-plan.md), the code in [lib/agent/](lib/agent/) and [components/CartChat.tsx](components/CartChat.tsx), and the endpoint is `POST /api/agent`, which streams JSON lines and has its own rate limit (30 turns an hour per person).
 
 The same rule as the cart builder: **the model decides, code checks.**
 - The agent works only through tools (search, add, remove, swap, quantity, requirements, `cheapen`, `fit_diet`, `finish`) that validate every argument and take prices from the catalog.

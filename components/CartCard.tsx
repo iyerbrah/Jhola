@@ -13,9 +13,11 @@ type Props = {
   onChange: (cart: EditableCart) => void;
   onSwap: (item: CartItem) => void;
   onChoose: () => void;
+  /** Product IDs the cart helper just changed, highlighted for a moment. */
+  flash?: string[];
 };
 
-export function CartCard({ id, tier, cart, onChange, onSwap, onChoose }: Props) {
+export function CartCard({ id, tier, cart, onChange, onSwap, onChoose, flash = [] }: Props) {
   const required = cart.items.filter((it) => !it.optional);
   const optional = cart.items.filter((it) => it.optional);
   const total = cartTotal(cart);
@@ -45,6 +47,7 @@ export function CartCard({ id, tier, cart, onChange, onSwap, onChoose }: Props) 
               <ItemRow
                 key={it.product_id}
                 item={it}
+                flash={flash.includes(it.product_id)}
                 canSwap={swapOptions(cart, it, catalog).length > 0}
                 onQty={(q) => onChange(setQty(cart, it.product_id, q))}
                 onRemove={() => onChange(removeItem(cart, it.product_id))}

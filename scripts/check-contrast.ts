@@ -51,6 +51,12 @@ const PAIRS: [string, string, string, boolean?][] = [
   [color("ink-soft"), color("mist"), "No carts badge (history)"],
   [color("chilli"), color("chilli-soft"), "error box"],
   [color("ink"), color("chilli-soft"), "error box text"],
+  [color("ink"), color("mist"), "your message in the cart chat"],
+  [color("leaf"), color("chalk"), "totals in the chat's change list"],
+  [color("ink-soft"), color("chalk"), "requirement changes in the change list"],
+  [color("ink"), color("marigold-soft"), "a just-changed cart line"],
+  [color("ink-soft"), color("marigold-soft"), "a just-changed cart line, second row"],
+  [color("leaf"), color("marigold-soft"), "a just-changed cart line, its note"],
 ];
 
 let failed = 0;

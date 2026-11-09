@@ -129,10 +129,28 @@ dialog::backdrop {
   animation: sheet-up 180ms ease-out;
 }
 
+/* A line the cart helper just changed glows marigold, then fades. */
+@keyframes flash {
+  from {
+    background: var(--color-marigold-soft);
+    box-shadow: 0 0 0 6px var(--color-marigold-soft);
+  }
+}
+.flash {
+  animation: flash 2.4s ease-out;
+  border-radius: 6px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise,
   .skeleton,
-  .sheet-enter {
+  .sheet-enter,
+  .flash {
     animation: none;
+  }
+  /* No fade, just a steady highlight while it lasts. */
+  .flash {
+    background: var(--color-marigold-soft);
+    box-shadow: 0 0 0 6px var(--color-marigold-soft);
   }
 }
