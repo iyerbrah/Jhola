@@ -32,6 +32,11 @@ export type AgentState = {
    * finish refuses a reply with any other amount, so it can't state a made-up total. Omitted = not checked.
    */
   amounts?: Set<number>;
+  /**
+   * Budgets the shopper named that cheapen couldn't reach by itself, by cart. Once later edits (removing
+   * extras) bring that cart under it, the budget is recorded, as cheapen would have done.
+   */
+  wantedBudgets?: Map<number, number>;
 };
 
 /** Every "₹1,240" in a text, as numbers. */
@@ -247,6 +252,12 @@ function stocked(id: string, c: AgentCart, deps: ToolDeps): Product | ToolResult
 }
 
 function changed(state: AgentState, i: number, cartNow: AgentCart, deps: ToolDeps, what: string): ToolResult {
+  const wanted = state.wantedBudgets?.get(i);
+  if (wanted != null && cartNow.requirements.budget_inr == null && cartTotal(cartNow) <= wanted) {
+    cartNow = { ...cartNow, requirements: { ...cartNow.requirements, budget_inr: wanted } };
+    what += ` The ₹${wanted} budget is met and recorded.`;
+    state.wantedBudgets!.delete(i);
+  }
   state.carts[i] = cartNow;
   state.version++;
   state.touched.add(i);
@@ -427,6 +438,7 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
         const fitted = fitCart(c, a.budget_inr, deps);
         if (!fitted) {
           const lowest = lowestFit(c, deps);
+          (state.wantedBudgets ??= new Map()).set(i, a.budget_inr);
           return fail(
             `cheaper packs and brands can't get cart ${a.cart} to ₹${a.budget_inr}: the lowest they reach is ₹${lowest}. Nothing changed. Remove items the shopper can do without, or tell them the lowest realistic total.`,
           );
@@ -498,7 +510,12 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
         if (!deps.products.some((p) => p.in_stock && p.unit === unit && matchesKind(p, kind))) continue;
         r.min_amounts = [...(r.min_amounts ?? []).filter((m) => m.kind !== kind), { kind, amount: Math.ceil(total / 2), unit }].slice(-5);
       }
-      const next = { ...c, requirements: r };
+      // The cart's description names the old ingredient ("chicken biryani"): name the replacement instead.
+      let reason = c.reason;
+      for (const d of a.drop_must_include) {
+        if (d.replaced_by) reason = reason.replace(new RegExp(`\\b${d.kind.replace(/[^a-z ]/gi, "")}\\b`, "gi"), d.replaced_by.trim().toLowerCase());
+      }
+      const next = { ...c, reason, requirements: r };
       const problems = checkCart(next, deps.index);
       const result = changed(state, i, next, deps, "Requirements updated.");
       return problems.length ? ok(`${result.output}\nTo fix now:\n${problems.map((p) => `- ${p}`).join("\n")}`) : result;
