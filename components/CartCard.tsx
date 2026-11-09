@@ -2,6 +2,7 @@
 
 import { catalog } from "@/lib/catalog";
 import { cartTotal, removeItem, setQty, swapOptions, toggleOptional, type CartItem, type EditableCart } from "@/lib/cartState";
+import { Feedback } from "./Feedback";
 import { rupees } from "./format";
 import { ItemRow } from "./ItemRow";
 
@@ -15,9 +16,12 @@ type Props = {
   onChoose: () => void;
   /** Product IDs the cart helper just changed, highlighted for a moment. */
   flash?: string[];
+  /** The build's request_id and this cart's place in it, for 👍/👎. */
+  requestId?: string;
+  position?: number;
 };
 
-export function CartCard({ id, tier, cart, onChange, onSwap, onChoose, flash = [] }: Props) {
+export function CartCard({ id, tier, cart, onChange, onSwap, onChoose, flash = [], requestId, position = 0 }: Props) {
   const required = cart.items.filter((it) => !it.optional);
   const optional = cart.items.filter((it) => it.optional);
   const total = cartTotal(cart);
@@ -38,6 +42,10 @@ export function CartCard({ id, tier, cart, onChange, onSwap, onChoose, flash = [
           <p className="num font-display text-2xl text-leaf">{rupees(total)}</p>
         </div>
         <p className="mt-1 text-ink-soft">{cart.reason}</p>
+        {/* Keyed by the build, so a new set of carts starts with no vote. */}
+        <div className="mt-3">
+          <Feedback key={requestId} requestId={requestId} target="cart" cart={position} label="Good cart?" />
+        </div>
       </header>
 
       <div className="flex-1 px-5">

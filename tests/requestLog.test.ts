@@ -131,7 +131,7 @@ describe.skipIf(!url)("Postgres request log", () => {
     await ensureSchema(sql);
     await sql.unsafe((await import("@/lib/db")).SCHEMA);
     const tables = await sql`select table_name from information_schema.tables where table_schema = ${schema} order by 1`;
-    expect(tables.map((t) => t.table_name)).toEqual(["cart_items", "carts", "requests", "trace_steps"]);
+    expect(tables.map((t) => t.table_name)).toEqual(["cart_items", "carts", "feedback", "requests", "trace_steps"]);
   });
 
   it("stores a build with its carts, items and steps, and lists it with names from the catalog", async () => {
@@ -162,6 +162,24 @@ describe.skipIf(!url)("Postgres request log", () => {
     expect(carts.map((c) => `${c.role}:${c.n}`)).toEqual(["after:3", "before:3"]);
     const [row] = await sql`select parent_id, stop_reason, meta->>'finished_by' as finished_by from requests where id = ${r.id}`;
     expect(row).toEqual({ parent_id: parent, stop_reason: "finished", finished_by: "code" });
+  });
+
+  it("saves, changes and takes back votes, one per visitor, and refuses unknown or mismatched targets", async () => {
+    const log = createPgRequestLog(sql, index);
+    const b = build();
+    await log.record(b);
+    const f = { request_id: b.id, target: "cart" as const, cart_position: 1, visitor: "v1" };
+    expect(await log.rate({ ...f, rating: 1 })).toBe("saved");
+    expect(await log.rate({ ...f, rating: -1 })).toBe("saved");
+    expect(await log.rate({ ...f, visitor: "v2", rating: 1 })).toBe("saved");
+    const votes = await sql`select visitor, rating from feedback where request_id = ${b.id} order by visitor`;
+    expect(votes.map((v) => `${v.visitor}:${v.rating}`)).toEqual(["v1:-1", "v2:1"]);
+    expect(await log.rate({ ...f, rating: 0 })).toBe("cleared");
+    const [{ n }] = await sql`select count(*)::int as n from feedback where request_id = ${b.id}`;
+    expect(n).toBe(1);
+    expect(await log.rate({ ...f, cart_position: 2, rating: 1 })).toBe("saved");
+    expect(await log.rate({ ...f, request_id: b.id, target: "reply", cart_position: -1, rating: 1 })).toBe("mismatch");
+    expect(await log.rate({ ...f, request_id: randomUUID(), rating: 1 })).toBe("unknown");
   });
 
   it("stores a request whole or not at all", async () => {
