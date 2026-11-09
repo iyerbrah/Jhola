@@ -80,7 +80,7 @@ export const TOOL_SPECS = [
   },
   {
     name: "swap_item",
-    description: "Replace one product in a cart with another, keeping its quantity. Use set_qty afterwards if the pack size differs.",
+    description: "Replace one product in a cart with another. Code works out the packs for about the same amount (900 g of chicken → 5 × 200 g of paneer) when both are sold by weight, volume or pieces alike.",
     parameters: obj({ cart: cartArg, product_id: { ...productArg, description: "The product in the cart now." }, new_product_id: { ...productArg, description: "The product to put in its place." } }),
   },
   {
@@ -247,6 +247,25 @@ function changed(state: AgentState, i: number, cartNow: AgentCart, deps: ToolDep
 const isResult = (x: unknown): x is ToolResult => typeof x === "object" && x !== null && "output" in x;
 
 /**
+ * Packs of `next` that hold about the same amount as `qty` packs of `prev` (900 g of chicken ->
+ * 5 × 200 g of paneer), or null when they're sold in different units (eggs by the piece).
+ */
+export function packsForSameAmount(prev: Product, qty: number, next: Product): number | null {
+  if (prev.unit !== next.unit) return null;
+  const packs = Math.ceil((qty * prev.pack_size) / next.pack_size - 0.05);
+  return Math.min(MAX_QTY, Math.max(1, packs));
+}
+
+/** Swaps a line for another product, with packs recomputed to keep about the same amount. */
+function swapKeepingAmount(c: AgentCart, prev: Product, qty: number, next: Product): { cart: AgentCart; qty: number; sameUnit: boolean } {
+  const swapped = swapItem(c, prev.id, next);
+  const packs = packsForSameAmount(prev, qty, next);
+  return packs == null ? { cart: swapped, qty, sameUnit: false } : { cart: setQty(swapped, next.id, packs), qty: packs, sameUnit: true };
+}
+
+const amount = (p: Product, qty: number) => `${qty} × ${packLabel(p)}`;
+
+/**
  * The cart builder's own budget fitting (lib/budget.ts) run on an edited cart: ordered lines can be
  * swapped for cheaper packs of the same kind or lose a pack; unticked optional lines are left alone.
  * Swaps only consider products with the cart's diet. Returns null if the budget can't be reached.
@@ -291,7 +310,7 @@ export function fitDiet(c: AgentCart, deps: ToolDeps): { cart: AgentCart; swappe
       .filter((x) => x.in_stock && !inCart.has(x.id) && x.tags.includes(diet) && isSameKind(p, x))
       .sort((a, b) => Math.abs(Math.log(a.pack_size / p.pack_size)) - Math.abs(Math.log(b.pack_size / p.pack_size)) || Math.abs(a.price - p.price) - Math.abs(b.price - p.price))[0];
     if (alt) {
-      cart = swapItem(cart, p.id, alt);
+      cart = swapKeepingAmount(cart, p, it.qty, alt).cart;
       swapped.push([p, alt]);
     } else left.push(p);
   }
@@ -368,7 +387,12 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
       }
       const p = stocked(a.new_product_id, c, deps);
       if (isResult(p)) return p;
-      return changed(state, i, swapItem(c, a.product_id, p), deps, `Swapped ${it.name} for ${p.name} (kept qty ${it.qty}).`);
+      const prev = deps.index.get(a.product_id)!;
+      const s = swapKeepingAmount(c, prev, it.qty, p);
+      const note = s.sameUnit
+        ? `${amount(prev, it.qty)} → ${amount(p, s.qty)}, about the same amount.`
+        : `kept ${s.qty} pack${s.qty === 1 ? "" : "s"}: ${prev.unit} and ${p.unit} can't be compared, so use set_qty if the amount should change.`;
+      return changed(state, i, s.cart, deps, `Swapped ${it.name} for ${p.name}: ${note}`);
     }
     case "set_qty": {
       const a = args as z.infer<typeof ARGS.set_qty>;
