@@ -145,6 +145,15 @@ describe("set_requirements", () => {
     expect((await run(s, "finish", { reply: "Done." })).finished).toBeTruthy();
   });
 
+  it("doesn't ask for an amount in a unit the replacement isn't sold in", async () => {
+    const s = fresh();
+    // Pretend the chicken is sold by the piece: paneer (by weight) can't be compared with it.
+    s.carts[0] = { ...s.carts[0], items: s.carts[0].items.map((i) => (i.product_id === "p002" ? { ...i, product_id: "p002" } : i)) };
+    const byPiece = { ...deps, index: new Map([...index, ["p002", { ...index.get("p002")!, unit: "pcs" as const, pack_size: 6 }]]) };
+    await runTool("set_requirements", JSON.stringify({ cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] }), s, byPiece);
+    expect(s.carts[0].requirements.min_amounts ?? []).toEqual([]);
+  });
+
   it("refuses a replacement the catalog doesn't stock (with the diet), and allows none when the shopper has it", async () => {
     const s = fresh();
     const bad = await run(s, "set_requirements", { cart: 1, diet: "vegan", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });

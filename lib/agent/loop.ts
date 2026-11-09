@@ -212,10 +212,12 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
 
       conversation.push({ kind: "model", calls: res.calls, replay: res.replay });
       const thisResponse = new Set<string>();
-      const step = { edited: false, looked: false, failed: false };
+      const step = { edited: false, saysDone: false, looked: false, failed: false };
       for (const call of res.calls) {
-        if (EDIT_TOOLS.has(call.name)) step.edited = true;
-        else if (call.name !== "finish") step.looked = true;
+        if (EDIT_TOOLS.has(call.name)) {
+          step.edited = true;
+          if (saysDone(call.arguments)) step.saysDone = true;
+        } else if (call.name !== "finish") step.looked = true;
         const key = `${call.name}:${call.arguments}:${state.version}`;
         const earlier = results.get(key);
         // The same call twice in one response (e.g. one search per cart): answer it again, free.
@@ -243,8 +245,8 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
         results.set(key, { output: result.output, repeats: 0 });
         conversation.push({ kind: "tool_result", call_id: call.call_id, output: result.output });
       }
-      // The edits are done and code can confirm it: end now instead of paying a model call for "finish".
-      if (step.edited && !step.looked && !step.failed && editsComplete(state, deps.index)) return end("finished", codeReply(input.carts, state), "code");
+      // The model says the request is done and code can confirm it: end now instead of paying a model call for "finish".
+      if (step.edited && step.saysDone && !step.looked && !step.failed && editsComplete(state, deps.index)) return end("finished", codeReply(input.carts, state), "code");
     }
   } finally {
     clearTimeout(timer);
@@ -253,10 +255,19 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
 
 const EDIT_TOOLS = new Set(["add_item", "remove_item", "swap_item", "set_qty", "set_requirements", "cheapen", "fit_diet"]);
 
+/** Did the model mark this edit as completing the request? */
+function saysDone(rawArgs: string): boolean {
+  try {
+    return JSON.parse(rawArgs)?.done === true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * A step's edits finish the turn when every cart the shopper asked about has been changed and every
- * changed cart passes every rule. (The loop also requires that the step only edited, without looking
- * anything up, and that no call failed: either would mean the model has more to do.)
+ * changed cart passes every rule. (The loop also requires that the model marked an edit done, that the
+ * step didn't look anything up, and that no call failed.)
  */
 export function editsComplete(state: AgentState, index: CatalogIndex): boolean {
   const scope = state.scope ?? new Set(state.carts.map((_, i) => i));
