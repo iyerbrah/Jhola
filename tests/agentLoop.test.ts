@@ -143,9 +143,21 @@ describe("limits: a turn that hits one changes nothing", () => {
     expect(res.meta.model_calls).toBe(5);
   });
 
-  it("stops when the same call repeats with the carts unchanged", async () => {
-    const { deps } = setup([search("paneer"), search("paneer")]);
+  it("warns once about a repeated call, then stops if it happens again", async () => {
+    const { deps, sent } = setup([search("paneer"), search("paneer"), search("paneer")]);
     expect((await runAgentTurn(turn("paneer"), deps)).stop_reason).toBe("repeated_call");
+    expect(toolResults(sent[2]).at(-1)).toContain("You already made this exact call and nothing has changed since");
+  });
+
+  it("answers identical calls in one response once, without counting the copies", async () => {
+    const bread = ["search_catalog", { text: "bread", diet: null, max_price: null, category: null }] as [string, Record<string, unknown>];
+    const { deps, sent } = setup([step(bread, bread, bread), finish("Found bread.")]);
+    const res = await runAgentTurn(turn("add bread to every cart"), deps);
+    expect(res.status).toBe("done");
+    expect(res.meta.tool_calls).toBe(2);
+    const outputs = toolResults(sent[1]);
+    expect(outputs).toHaveLength(3);
+    expect(new Set(outputs).size).toBe(1);
   });
 
   it("allows the same call again after the carts changed", async () => {
