@@ -5,6 +5,7 @@ import { tidyCart } from "./tidy";
 import { catalog, catalogIndex, indexCatalog, type CatalogIndex } from "./catalog";
 import { LlmError, openAiClient, type ChatMessage, type LlmClient, type LlmResult, type LlmUsage } from "./llm";
 import { markPantryOptional } from "./pantry";
+import { requirementsFromPlan } from "./requirements";
 import { priceVariants } from "./price";
 import { buildInstructions, cartMessage, cartRepairMessage, planMessage } from "./prompt";
 import type { BuildCartsResponse, Cart, LlmOutput, LlmVariant, Product } from "./schema";
@@ -51,13 +52,15 @@ export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Prom
   };
   const user = (content: string): ChatMessage[] => [{ role: "user", content }];
 
-  const respond = (out: Omit<BuildCartsResponse, "meta" | "variants"> & { variants: LlmVariant[] }, repaired: boolean): BuildCartsResponse => ({
+  type Answer = Pick<LlmOutput, "status" | "message" | "assumptions" | "suggestions" | "constraints" | "must_include"> & { variants: LlmVariant[] };
+  const respond = (out: Answer, repaired: boolean): BuildCartsResponse => ({
     status: out.status,
     message: out.message,
     assumptions: dropRedundantAssumptions(out.assumptions, query),
     suggestions: out.status === "cannot_fulfil" ? out.suggestions.slice(0, 3) : [],
     // Cheapest cart first, so the cards read Budget -> Premium.
     variants: priceVariants(out.variants, index).sort((a, b) => a.total - b.total),
+    requirements: requirementsFromPlan(out),
     meta: { latency_ms: Date.now() - started, model, repaired, ...usage, steps_ms: { ...steps } },
   });
 

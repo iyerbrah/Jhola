@@ -12,6 +12,7 @@ const answer = (query: string): BuildCartsResponse => ({
   assumptions: [],
   suggestions: [],
   variants: [1, 2, 3].map((n) => ({ name: `Cart ${n}`, reason: query, items: [], total: n })),
+  requirements: { budget_inr: null, item_count: null, item_kind: null, must_include: [], diet: null },
   meta: { latency_ms: 1, model: "fake", repaired: false, input_tokens: 0, cached_tokens: 0, output_tokens: 0 },
 });
 
