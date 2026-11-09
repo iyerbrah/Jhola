@@ -199,7 +199,8 @@ describe("what the model is sent", () => {
     const [first] = sent;
     expect(first.slice(0, 6).map((i) => (i.kind === "message" ? i.content : ""))).toEqual(["m2", "m3", "m4", "m5", "m6", "m7"]);
     const last = first.at(-1)!;
-    expect(last.kind === "message" && last.content).toContain('Cart 2 "Classic" (the shopper is looking at this one)');
+    expect(last.kind === "message" && last.content).toContain('Cart 2 "Classic" (the shopper is looking at this one; you can change it)');
+    expect(last.kind === "message" && last.content).toContain('Cart 1 "Budget" (look only: don\'t change it)');
     expect(last.kind === "message" && last.content).toMatch(/<message>cheaper please<\/message>$/);
   });
 

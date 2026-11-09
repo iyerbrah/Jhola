@@ -14,6 +14,7 @@ import type { AgentCart } from "./carts";
 import { diffCarts, type CartChange } from "./changes";
 import type { AgentInputItem, AgentModel, ModelStep, ToolCall } from "./model";
 import { AGENT_INSTRUCTIONS, turnMessage, type ChatTurn } from "./prompt";
+import { cartsInScope } from "./scope";
 import type { CatalogSearch } from "./search";
 import { runTool, statusFor, type AgentState } from "./tools";
 
@@ -84,10 +85,12 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
   const trace_id = deps.traceId ?? randomUUID();
   const started = Date.now();
 
-  const state: AgentState = { carts: structuredClone(input.carts), active: input.active, version: 0, touched: new Set() };
+  const previous = [...input.history].reverse().find((m) => m.role === "user")?.content;
+  const scope = cartsInScope(input.message, input.carts.map((c) => c.name), input.active, previous);
+  const state: AgentState = { carts: structuredClone(input.carts), active: input.active, version: 0, touched: new Set(), scope };
   const conversation: AgentInputItem[] = [
     ...input.history.slice(-limits.historyMessages).map((m): AgentInputItem => ({ kind: "message", role: m.role, content: m.content })),
-    { kind: "message", role: "user", content: turnMessage(state.carts, state.active, input.message, deps.index) },
+    { kind: "message", role: "user", content: turnMessage(state.carts, state.active, input.message, deps.index, scope) },
   ];
 
   const usage: LlmUsage = { input_tokens: 0, cached_tokens: 0, output_tokens: 0 };
@@ -118,6 +121,7 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
       status: result.status,
       stop_reason,
       changed_carts: result.changes.map((c) => c.cart),
+      scope: [...scope].map((i) => i + 1),
       ...result.meta,
     });
     return result;
