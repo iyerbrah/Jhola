@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { handleBuildCarts, clientIp, type ApiDeps } from "@/lib/api";
 import { normalizeQuery, type ResponseCache } from "@/lib/cache";
-import { createMemoryHistory } from "@/lib/history";
+import { createMemoryRequestLog, type RequestLog } from "@/lib/requestLog";
 import { LlmError } from "@/lib/llm";
 import { createMemoryLimiter } from "@/lib/ratelimit";
 import type { BuildCartsResponse } from "@/lib/schema";
@@ -23,15 +23,16 @@ function memoryCache(): ResponseCache & { store: Map<string, BuildCartsResponse>
 
 function setup(overrides: Partial<ApiDeps> = {}) {
   const built: string[] = [];
+  const log = createMemoryRequestLog();
   const deps: ApiDeps = {
     limiter: createMemoryLimiter({ perHour: 10, perDay: 300 }),
     cache: memoryCache(),
-    history: createMemoryHistory(),
+    requestLog: log,
     build: async (q) => (built.push(q), answer(q)),
     deadlineMs: 1000,
     ...overrides,
   };
-  return { deps, built };
+  return { deps, built, log };
 }
 
 const post = (body: unknown, ip = "1.2.3.4") =>
@@ -113,21 +114,60 @@ describe("POST /api/build-carts", () => {
   });
 });
 
-describe("generation history", () => {
-  it("saves each generation with its cost, but not cache hits or failures", async () => {
-    const real = { ...answer("x"), meta: { ...answer("x").meta, model: "gpt-5.4-mini-2026-03-17", input_tokens: 62000, cached_tokens: 58000, output_tokens: 1400 } };
-    const { deps } = setup({ build: async () => real });
-    await handleBuildCarts(post({ query: "poha for 2" }), deps);
-    await handleBuildCarts(post({ query: "poha for 2" }), deps); // cache hit
-    const entries = await deps.history.list();
-    expect(entries).toHaveLength(1);
-    expect(entries[0].query).toBe("poha for 2");
-    // 4000 × 0.75 + 58000 × 0.075 + 1400 × 4.50, per million
-    expect(entries[0].cost_usd).toBeCloseTo(0.01365, 6);
+describe("request log", () => {
+  const real = { ...answer("x"), meta: { ...answer("x").meta, model: "gpt-5.4-mini-2026-03-17", input_tokens: 62000, cached_tokens: 58000, output_tokens: 1400 } };
 
-    const failing = setup({ build: async () => { throw new LlmError("down"); } });
+  it("saves each build with its cost and carts, and returns its request_id", async () => {
+    const { deps, log } = setup({ build: async () => real });
+    const res = await (await handleBuildCarts(post({ query: "poha for 2" }), deps)).json();
+    expect(res.meta.request_id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(log.records).toHaveLength(1);
+    const r = log.records[0];
+    expect(r).toMatchObject({ id: res.meta.request_id, kind: "build", query: "poha for 2", status: "ok", cached: false });
+    // 4000 × 0.75 + 58000 × 0.075 + 1400 × 4.50, per million
+    expect(r.cost_usd).toBeCloseTo(0.01365, 6);
+    expect(r.carts.map((c) => [c.role, c.name])).toEqual([["result", "Cart 1"], ["result", "Cart 2"], ["result", "Cart 3"]]);
+    expect(r.visitor).toMatch(/^[0-9a-f]{16}$/);
+    expect(JSON.stringify(r)).not.toContain("1.2.3.4");
+    expect((await log.recentBuilds(10)).map((e) => e.query)).toEqual(["poha for 2"]);
+  });
+
+  it("saves the model calls as trace steps", async () => {
+    const { deps, log } = setup({
+      build: async (_q, opts) => {
+        opts?.onStep?.({ kind: "model", name: "plan", attempt: 1, ok: true, ms: 900, input_tokens: 10, cached_tokens: 5, output_tokens: 3 });
+        opts?.onStep?.({ kind: "model", name: "cart:1", attempt: 1, ok: false, ms: 50, error: "timeout" });
+        return answer("x");
+      },
+    });
+    await handleBuildCarts(post({ query: "poha" }), deps);
+    expect(log.records[0].steps.map((s) => `${s.name}:${s.ok}`)).toEqual(["plan:true", "cart:1:false"]);
+  });
+
+  it("saves cache hits (free, with a new request_id) and failures, but lists neither in /history", async () => {
+    const { deps, log } = setup({ build: async () => real });
+    const first = await (await handleBuildCarts(post({ query: "poha for 2" }), deps)).json();
+    const hit = await (await handleBuildCarts(post({ query: "poha for 2" }), deps)).json();
+    expect(hit.meta.request_id).not.toBe(first.meta.request_id);
+    expect(log.records[0]).toMatchObject({ cached: true, cost_usd: 0 });
+
+    const failing = setup({ build: async () => { throw new LlmError("down", "timeout"); } });
     await handleBuildCarts(post({ query: "poha" }), failing.deps);
-    expect(await failing.deps.history.list()).toHaveLength(0);
+    expect(failing.log.records[0]).toMatchObject({ status: "error", error_kind: "timeout", query: "poha" });
+    expect(await failing.log.recentBuilds(10)).toEqual([]);
+    expect((await log.recentBuilds(10)).length).toBe(1);
+  });
+
+  it("answers normally when saving fails or hangs", async () => {
+    const broken: RequestLog = { record: async () => { throw new Error("db down"); }, recentBuilds: async () => [] };
+    const hanging: RequestLog = { record: () => new Promise(() => {}), recentBuilds: async () => [] };
+    for (const requestLog of [broken, hanging]) {
+      const { deps } = setup({ requestLog });
+      const t = Date.now();
+      const res = await handleBuildCarts(post({ query: "poha" }), deps);
+      expect(res.status).toBe(200);
+      expect(Date.now() - t).toBeLessThan(200);
+    }
   });
 });
 

@@ -138,6 +138,8 @@ export type BuildCartsResponse = {
     repaired: boolean;
     /** True when the answer came from the answer cache (no LLM call). */
     cached?: boolean;
+    /** This request's ID in the request log, for feedback and for linking agent turns to their build. */
+    request_id?: string;
     /** Time spent in each step (plan call, parallel cart calls, repair). */
     steps_ms?: { plan: number; carts: number; repair: number };
     input_tokens: number;
