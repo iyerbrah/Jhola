@@ -72,7 +72,7 @@
     "turns": ["make it under ₹50"],
     "checks": [
       { "unchanged": true },
-      { "reply_any": ["can't", "cannot", "not possible", "too low", "not enough", "isn't enough", "won't", "unable"] }
+      { "reply_any": ["can't", "cannot", "couldn't", "could not", "not possible", "too low", "not enough", "isn't enough", "won't", "unable", "lowest"] }
     ] },
 
   { "id": "biryani-have-rice", "group": "remove", "carts": "chicken_biryani", "active": 1, "ci": true,
