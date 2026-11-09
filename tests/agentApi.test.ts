@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { handleAgentTurn, MAX_BODY_BYTES, type AgentApiDeps, type AgentStreamEvent } from "@/lib/agent/api";
 import type { AgentTurnInput, AgentTurnResult } from "@/lib/agent/loop";
 import { createMemoryLimiter } from "@/lib/ratelimit";
+import { createMemoryRequestLog } from "@/lib/requestLog";
 import { index, none } from "./agentFixtures";
 
 const cart = (name: string, items = [{ product_id: "p002", qty: 2 }, { product_id: "p004", qty: 1 }]) => ({ name, items, requirements: { ...none, must_include: ["chicken"] } });
@@ -22,11 +23,15 @@ async function events(res: Response): Promise<AgentStreamEvent[]> {
 
 function setup(over: Partial<AgentApiDeps> = {}) {
   const calls: { input: AgentTurnInput; signal: AbortSignal }[] = [];
+  const log = createMemoryRequestLog();
   const deps: AgentApiDeps = {
     limiter: createMemoryLimiter({ perHour: 30, perDay: 600 }),
     index,
-    run: async (input, { onEvent, signal }) => {
+    requestLog: log,
+    run: async (input, { onEvent, signal, log: stepLog }) => {
       calls.push({ input, signal });
+      stepLog({ event: "agent_step", kind: "model", name: "gpt-5.4-mini", ok: true, ms: 1200, input_tokens: 3000, cached_tokens: 2800, output_tokens: 40 });
+      stepLog({ event: "agent_step", kind: "tool", name: "swap_item", ok: true, ms: 1 });
       onEvent({ type: "status", text: "Searching for paneer" });
       onEvent({ type: "status", text: "Swapping Chicken Curry Cut for Fresh Paneer" });
       return {
@@ -40,7 +45,7 @@ function setup(over: Partial<AgentApiDeps> = {}) {
     },
     ...over,
   };
-  return { deps, calls };
+  return { deps, calls, log };
 }
 
 describe("POST /api/agent", () => {
@@ -115,6 +120,23 @@ describe("POST /api/agent", () => {
 
     const broken = setup({ limiter: { check: async () => { throw new Error("Upstash down"); } } });
     expect((await handleAgentTurn(post(body()), broken.deps)).status).toBe(200);
+  });
+
+  it("saves the turn with its steps, linked to its build, and returns its request_id", async () => {
+    const { deps, log } = setup();
+    const buildId = "0b6f2f6e-3a0e-4c8e-9b7a-2f1d5c9e8a11";
+    const done = (await events(await handleAgentTurn(post(body({ build_id: buildId })), deps))).at(-1) as Extract<AgentStreamEvent, { type: "done" }>;
+    expect(done.meta.request_id).toMatch(/^[0-9a-f-]{36}$/);
+    const r = log.records[0];
+    expect(r).toMatchObject({ id: done.meta.request_id, kind: "agent", parent_id: buildId, query: "make it vegetarian", status: "done" });
+    expect(r.steps.map((s) => `${s.kind}:${s.name}`)).toEqual(["model:gpt-5.4-mini", "tool:swap_item"]);
+    // Nothing changed in this fake turn, so only the carts before it are kept.
+    expect(r.carts.map((c) => c.role)).toEqual(["before", "before"]);
+  });
+
+  it("rejects a build_id that isn't a UUID", async () => {
+    const { deps } = setup();
+    expect((await handleAgentTurn(post(body({ build_id: "drop table requests" })), deps)).status).toBe(400);
   });
 
   it("ends the stream with an error line if the turn throws", async () => {

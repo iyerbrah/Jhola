@@ -25,6 +25,7 @@
     "@upstash/redis": "^1.39.0",
     "next": "15.5.28",
     "openai": "^7.43.0",
+    "postgres": "^3.4.9",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "zod": "^4.6.7"

@@ -257,7 +257,7 @@ export function CartBuilder() {
               ))}
             </div>
 
-            <CartChat key={buildId} carts={carts} active={active} tiers={TIERS} onCarts={applyAgentCarts} />
+            <CartChat key={buildId} carts={carts} active={active} tiers={TIERS} onCarts={applyAgentCarts} buildId={res.meta.request_id} />
           </section>
         )}
         </main>
