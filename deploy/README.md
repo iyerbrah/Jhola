@@ -27,6 +27,7 @@ Browser ──HTTPS──▶ nginx (ports 80/443, Let's Encrypt certificate)
 | Deploy user | `deploy`: no password; its one SSH key can only run `/usr/local/sbin/jhola-deploy` (from [server/jhola-deploy](server/jhola-deploy)) |
 | Deploy state | `/var/lib/jhola-deploy`: a clone of the repo, `current` (the live commit) and `history` (every deploy) |
 | Staging copy | `~/jhola-src` in ram's home (only the manual `deploy/deploy.sh` uses it) |
+| Request log | PostgreSQL on this machine (127.0.0.1:5432), database `jhola`; the app creates its tables itself. Backups nightly in `/var/backups/jhola` |
 
 ## Day to day
 
@@ -101,6 +102,26 @@ sudo journalctl -u jhola -f
 ```
 
 Each cart request logs one `build_carts` line with its query, time, tokens and whether it came from the cache. Each agent turn logs one `agent_step` line per model or tool call and one `agent_turn` line, all sharing a `trace_id`. To follow one turn: `sudo journalctl -u jhola | grep <trace_id>`. Ctrl+C stops watching.
+
+### Look at the request log
+
+Every cart build and agent turn is saved in Postgres (`requests`, with `carts`, `cart_items` and `trace_steps`). For a quick look on the server:
+
+```bash
+sudo -u postgres psql jhola -c "select kind, status, count(*), round(avg(latency_ms)) as avg_ms from requests where created_at > now() - interval '1 day' group by 1, 2 order by 1, 2"
+```
+
+One request's model and tool calls, slowest first (paste a `request_id` from a response or the logs):
+
+```bash
+sudo -u postgres psql jhola -c "select step, kind, name, attempt, ok, ms from trace_steps where request_id = '<request_id>' order by ms desc"
+```
+
+Backups run nightly to `/var/backups/jhola` (7 days kept). To restore one into the live database (it replaces what's there):
+
+```bash
+sudo -u postgres pg_restore --clean --if-exists -d jhola /var/backups/jhola/jhola-2026-11-09.dump
+```
 
 ### Change a secret or setting
 
@@ -290,6 +311,20 @@ ssh-keyscan -t ed25519 jhola.ramiyer.tech 2>/dev/null | gh variable set DEPLOY_K
 
 The host key's fingerprint should match what your Mac saw when you first connected: `ssh-keygen -F jhola.ramiyer.tech -l` and `ssh-keyscan -t ed25519 jhola.ramiyer.tech 2>/dev/null | ssh-keygen -lf -` print the same `SHA256:…`. For the current server it's `SHA256:9W6wUY9u/Vz2AgOMXvGUT4WYyrr/fQJkbK0MglgeUCI`.
 
+### 10. Add the database (the request log)
+
+Copy the setup script to the server and run it. It installs PostgreSQL (listening on this machine only), creates the `jhola` database, sets up nightly backups, writes `DATABASE_URL` and `VISITOR_SECRET` into the secrets file and restarts the app. From your Mac:
+
+```bash
+scp deploy/server/setup-postgres.sh ram@jhola.ramiyer.tech:
+```
+
+```bash
+ssh -t ram@jhola.ramiyer.tech 'sudo bash setup-postgres.sh'
+```
+
+It ends with `✓ PostgreSQL is ready`. The app creates its tables the first time it saves a request, so there's nothing else to run. Without the database the site still works; requests just aren't kept.
+
 ## If something goes wrong
 
 | What you see | Cause and fix |
@@ -307,4 +342,5 @@ The host key's fingerprint should match what your Mac saw when you first connect
 | Deploy workflow: `Permission denied (publickey)` | The key in the secret doesn't match `/home/deploy/.ssh/authorized_keys`. Rerun the setup with `~/.ssh/jhola_deploy.pub`, then `gh secret set` again. |
 | Deploy workflow: `sudo: a password is required` | The sudo rule is missing. Rerun the setup script; it checks the rule and says if sudo rejected it. |
 | Deploy workflow: `isn't on main` | Only commits on `main` can be deployed. Merge the PR first, or pick a SHA from `main`'s history. |
+| Logs say `[request-log] couldn't save … request(s)` | The app can't reach Postgres. `systemctl status postgresql`, and check `DATABASE_URL` in the secrets file. The site keeps working; those requests just aren't kept. Rerunning `setup-postgres.sh` resets the password and the secrets line together. |
 | Local dev server shows errors after a build | `npm run build` was run on your Mac while `npm run dev` was running; both use `.next`. Stop the dev server, delete `.next`, start it again. Deploys build on the server, so they never cause this. |
