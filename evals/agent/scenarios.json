@@ -5,6 +5,7 @@
       { "only_changed": [1] },
       { "diet": [1, "veg"] },
       { "contains_any": [1, ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"]] },
+      { "replaces_amount": [1, "chicken", ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"], 0.4] },
       { "contains_any": [1, ["basmati", "rice"]] }
     ] },
   { "id": "biryani-veg-all-carts", "group": "diet", "carts": "chicken_biryani", "active": 1,
@@ -13,7 +14,10 @@
       { "diet": [1, "veg"] }, { "diet": [2, "veg"] }, { "diet": [3, "veg"] },
       { "contains_any": [1, ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"]] },
       { "contains_any": [2, ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"]] },
-      { "contains_any": [3, ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"]] }
+      { "contains_any": [3, ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"]] },
+      { "replaces_amount": [1, "chicken", ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"], 0.4] },
+      { "replaces_amount": [2, "chicken", ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"], 0.4] },
+      { "replaces_amount": [3, "chicken", ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"], 0.4] }
     ] },
   { "id": "egg-curry-no-eggs", "group": "diet", "carts": "egg_curry", "active": 2,
     "turns": ["no eggs please, my mother is vegetarian"],
@@ -35,7 +39,8 @@
     "checks": [
       { "only_changed": [3] },
       { "diet": [3, "vegan"] },
-      { "contains_any": [3, ["tofu", "soya", "tempeh", "mushroom", "chana", "peas", "vegetable", "potato", "cauliflower"]] }
+      { "contains_any": [3, ["tofu", "soya", "tempeh", "mushroom", "chana", "peas", "vegetable", "potato", "cauliflower"]] },
+      { "replaces_amount": [3, "paneer", ["tofu", "soya", "tempeh", "mushroom", "chana", "peas", "vegetable", "potato", "cauliflower"], 0.4] }
     ] },
 
   { "id": "paneer-under-450", "group": "budget", "carts": "paneer_butter_masala", "active": 2, "ci": true,

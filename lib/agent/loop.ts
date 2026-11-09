@@ -10,20 +10,22 @@ import type { CatalogIndex } from "../catalog";
 import { costUsd } from "../cost";
 import { LlmError, type LlmUsage } from "../llm";
 import type { Product } from "../schema";
-import type { AgentCart } from "./carts";
+import { checkCart, type AgentCart } from "./carts";
 import { diffCarts, type CartChange } from "./changes";
 import type { AgentInputItem, AgentModel, ModelStep, ToolCall } from "./model";
 import { AGENT_INSTRUCTIONS, turnMessage, type ChatTurn } from "./prompt";
 import { cartsInScope } from "./scope";
 import type { CatalogSearch } from "./search";
 import { amountsIn, runTool, statusFor, type AgentState } from "./tools";
+import { cartTotal } from "../cartState";
+import { DIET_LABELS } from "../requirements";
 
 export const LIMITS = {
   /**
-   * A normal edit takes 2-5 tool calls; a diet change on a rich cart (4 swaps) takes up to 10.
-   * The first eval run hit 8 and 5 on those; past these limits the agent is lost.
+   * A normal edit takes 2-5 tool calls; a diet change on all three carts takes about 13. Tool calls
+   * cost milliseconds, not money, so this is generous; model calls are what cost time and money.
    */
-  maxToolCalls: 12,
+  maxToolCalls: 16,
   maxModelCalls: 6,
   deadlineMs: 25_000,
   /** Earlier chat messages sent with each turn. */
@@ -50,6 +52,8 @@ export type AgentTurnResult = {
   changes: CartChange[];
   meta: {
     trace_id: string;
+    /** "code" when the turn ended as soon as code could confirm the edits were done (see autoFinish). */
+    finished_by?: "model" | "code";
     model: string;
     model_calls: number;
     tool_calls: number;
@@ -108,6 +112,8 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
   let step = 0;
   /** Results by call (name, arguments, cart version), for answering repeats without running them again. */
   const results = new Map<string, { output: string; repeats: number }>();
+  /** Any call refused this turn (e.g. cheapen couldn't reach a budget): the model then writes the reply. */
+  let turnHadError = false;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), limits.deadlineMs);
   const cancel = () => controller.abort();
@@ -115,7 +121,7 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
   if (deps.signal?.aborted) controller.abort();
   const stopped = (): StopReason => (deps.signal?.aborted ? "cancelled" : "timeout");
 
-  const end = (stop_reason: StopReason, reply?: string): AgentTurnResult => {
+  const end = (stop_reason: StopReason, reply?: string, finished_by: "model" | "code" = "model"): AgentTurnResult => {
     clearTimeout(timer);
     deps.signal?.removeEventListener("abort", cancel);
     const done = stop_reason === "finished";
@@ -126,7 +132,16 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
       reply: done ? reply! : GAVE_UP[stop_reason as Exclude<StopReason, "finished">],
       carts,
       changes: done ? diffCarts(input.carts, carts) : [],
-      meta: { trace_id, model, model_calls: modelCalls, tool_calls: toolCalls, latency_ms: Date.now() - started, cost_usd: model ? costUsd(model, usage) : null, ...usage },
+      meta: {
+        trace_id,
+        ...(done ? { finished_by } : {}),
+        model,
+        model_calls: modelCalls,
+        tool_calls: toolCalls,
+        latency_ms: Date.now() - started,
+        cost_usd: model ? costUsd(model, usage) : null,
+        ...usage,
+      },
     };
     log({
       event: "agent_turn",
@@ -199,7 +214,12 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
 
       conversation.push({ kind: "model", calls: res.calls, replay: res.replay });
       const thisResponse = new Set<string>();
+      const step = { edited: false, saysDone: false, looked: false, failed: false };
       for (const call of res.calls) {
+        if (EDIT_TOOLS.has(call.name)) {
+          step.edited = true;
+          if (saysDone(call.arguments)) step.saysDone = true;
+        } else if (call.name !== "finish") step.looked = true;
         const key = `${call.name}:${call.arguments}:${state.version}`;
         const earlier = results.get(key);
         // The same call twice in one response (e.g. one search per cart): answer it again, free.
@@ -223,11 +243,50 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
         }
         const result = await runCall(call);
         if (result.finished) return end("finished", result.finished.reply);
+        if (!result.ok) step.failed = turnHadError = true;
         results.set(key, { output: result.output, repeats: 0 });
         conversation.push({ kind: "tool_result", call_id: call.call_id, output: result.output });
       }
+      // The model says the request is done and code can confirm it: end now instead of paying a model call
+      // for "finish". Only for a clean turn: after any refused call there's something to explain, and a
+      // code-written "Done." could hide that the request wasn't fully met.
+      if (step.edited && step.saysDone && !step.looked && !turnHadError && editsComplete(state, deps.index)) return end("finished", codeReply(input.carts, state), "code");
     }
   } finally {
     clearTimeout(timer);
   }
+}
+
+const EDIT_TOOLS = new Set(["add_item", "remove_item", "swap_item", "set_qty", "set_requirements", "cheapen", "fit_diet"]);
+
+/** Did the model mark this edit as completing the request? */
+function saysDone(rawArgs: string): boolean {
+  try {
+    return JSON.parse(rawArgs)?.done === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * A step's edits finish the turn when every cart the shopper asked about has been changed and every
+ * changed cart passes every rule. (The loop also requires that the model marked an edit done, that the
+ * step didn't look anything up, and that no call failed.)
+ */
+export function editsComplete(state: AgentState, index: CatalogIndex): boolean {
+  const scope = state.scope ?? new Set(state.carts.map((_, i) => i));
+  if (state.touched.size === 0 || ![...scope].every((i) => state.touched.has(i))) return false;
+  return [...state.touched].every((i) => checkCart(state.carts[i], index).length === 0);
+}
+
+/** The reply when code ends the turn: what's now true, from the carts themselves. */
+export function codeReply(before: AgentCart[], state: AgentState): string {
+  const changed = [...state.touched].sort().map((i) => state.carts[i]);
+  const describe = (c: AgentCart, i: number) => {
+    const diet = c.requirements.diet && c.requirements.diet !== before[i]?.requirements.diet ? `${DIET_LABELS[c.requirements.diet]}, at ` : "";
+    return `${c.name} is now ${diet}₹${cartTotal(c)}`;
+  };
+  const parts = [...state.touched].sort().map((i) => describe(state.carts[i], i));
+  if (changed.length === 1) return `Done. ${parts[0]}.`;
+  return `Done. ${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}.`;
 }

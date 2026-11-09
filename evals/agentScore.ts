@@ -43,6 +43,11 @@ export type AgentCheck =
   /** The cart still has this kind, but none of the products it started with. */
   | { replaced: [cart: number, kind: string] }
   | { requirement: [cart: number, field: "budget_inr" | "diet", value: number | string | null] }
+  /**
+   * What replaced a main ingredient is a similar amount: the final cart has at least `ratio` times
+   * the starting amount of `from`, counted over products of the `to` kinds in the same unit.
+   */
+  | { replaces_amount: [cart: number, from: string, to: string[], ratio: number] }
   /** The last reply mentions at least one of these (case-insensitive). */
   | { reply_any: string[] };
 
@@ -156,6 +161,17 @@ export function runCheck(check: AgentCheck, start: AgentCart[], final: AgentCart
     if (!now.length) return [`${name(n)} has no ${kind} left`];
     const kept = now.filter(({ p }) => old.has(p.id));
     return kept.length ? kept.map(({ p }) => `${name(n)} still has the original ${p.name}`) : [];
+  }
+  if ("replaces_amount" in check) {
+    const [n, from, to, ratio] = check.replaces_amount;
+    const was = ordered(start[n - 1], index).filter(({ p }) => isKind(p, from));
+    if (!was.length) return [`${name(n)} started with no ${from}`];
+    const unit = was[0].p.unit;
+    const before = was.reduce((sum, { it, p }) => sum + it.qty * p.pack_size, 0);
+    const after = ordered(cart(n), index)
+      .filter(({ p }) => p.unit === unit && !isKind(p, from) && to.some((k) => isKind(p, k)))
+      .reduce((sum, { it, p }) => sum + it.qty * p.pack_size, 0);
+    return after >= before * ratio ? [] : [`${name(n)} replaced ${before} ${unit} of ${from} with ${after} ${unit}; wanted at least ${Math.ceil(before * ratio)} ${unit}`];
   }
   if ("requirement" in check) {
     const [n, field, value] = check.requirement;
