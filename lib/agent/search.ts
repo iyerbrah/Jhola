@@ -6,7 +6,7 @@
  * The interface is async so a Postgres keyword + vector search can replace it later
  * without changing the agent.
  */
-import type { Diet } from "../requirements";
+import { fitsDiet, shownTags, type Diet } from "../requirements";
 import { packLabel, type Category, type Product } from "../schema";
 
 export type SearchQuery = {
@@ -116,9 +116,27 @@ const SYNONYMS: Record<string, string[]> = {
   "refined flour": ["maida"],
   "wheat flour": ["atta"],
   "flattened rice": ["poha"],
-  "cooking oil": ["oil"],
   "soft drink": ["soft", "cold", "aerated"],
   pav: ["pav", "bread"],
+  // Household and personal care
+  sabun: ["soap"],
+  nappy: ["diaper"],
+  nappi: ["diaper"], // "nappies" after plural folding
+  "washing powder": ["detergent"],
+  "laundry detergent": ["detergent"],
+  "dish soap": ["dishwash"],
+  "washing up": ["dishwash"],
+  "bin bag": ["garbage", "dustbin"],
+  "garbage bag": ["garbage", "dustbin"],
+  tissue: ["tissue", "napkin"],
+  "toilet roll": ["toilet", "paper"],
+  pad: ["sanitary", "pad"],
+  deo: ["deodorant"],
+  "body spray": ["deodorant"],
+  "tooth paste": ["toothpaste"],
+  "hand soap": ["hand", "wash"],
+  sanitiser: ["sanitizer"],
+  agarbatti: ["agarbatti", "incense"],
   // Ideas -> kinds of product (chocolate is left out on purpose: the agent can search for it by name)
   dessert: ["dessert", "ice", "sweet", "mousse", "brownie", "pastry", "kulfi"],
   sweets: ["sweet", "dessert"],
@@ -211,7 +229,7 @@ function groupScore(item: Indexed, group: string[]): number {
 }
 
 export function toHit(p: Product): SearchHit {
-  return { id: p.id, name: p.name, brand: p.brand, pack: packLabel(p), price: p.price, sub_category: p.sub_category, tags: p.tags, in_stock: p.in_stock };
+  return { id: p.id, name: p.name, brand: p.brand, pack: packLabel(p), price: p.price, sub_category: p.sub_category, tags: shownTags(p), in_stock: p.in_stock };
 }
 
 /**
@@ -231,7 +249,9 @@ export function createMemorySearch(products: Product[]): CatalogSearch {
       for (const item of indexed) {
         const { p } = item;
         if (!include_out_of_stock && !p.in_stock) continue;
-        if (diet && !p.tags.includes(diet)) continue;
+        // A diet filters food only: a vegetarian shopper still finds soap. Pet products are left out of diet
+        // searches, so a vegetarian swap for chicken never lands on chicken cat treats.
+        if (diet && (!fitsDiet(p, diet) || p.category === "pet_care")) continue;
         if (max_price != null && p.price > max_price) continue;
         if (category && p.category !== category) continue;
         let matched = 0;

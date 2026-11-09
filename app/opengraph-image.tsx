@@ -30,7 +30,7 @@ async function googleFont(family: string, weight: number, text: string): Promise
 }
 
 const HEADLINE = "One line in. Three ready carts out.";
-const SUBLINE = "“Paneer butter masala for 4” → three priced carts from 1,000+ real Indian grocery products.";
+const SUBLINE = "“Paneer butter masala for 4” → three priced carts from 2,700+ real Indian products.";
 
 export default async function OpengraphImage() {
   const body = CARTS.map((c) => c.name + c.total).join("") + SUBLINE + "0123456789,+";
