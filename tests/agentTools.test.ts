@@ -179,19 +179,28 @@ describe("set_requirements", () => {
 describe("cheapen", () => {
   it("reaches a budget with the smallest change that's enough", async () => {
     const s = fresh();
-    // Premium: chicken ×3 ₹630 + premium rice ₹137 + onion ₹30 + masala ₹58 = ₹855. One pack of chicken fewer is enough.
-    const r = await run(s, "cheapen", { cart: 3, budget_inr: 800 });
+    // Premium: chicken ×3 ₹630 + premium rice ₹137 + onion ₹30 + masala ₹58 = ₹855. The plain rice (₹84) is enough.
+    const r = await run(s, "cheapen", { cart: 3, budget_inr: 805 });
     expect(r.ok).toBe(true);
-    expect(r.output).toContain("Cheaper packs and brands: ₹855 → ₹645.");
-    expect(s.carts[2].items.find((i) => i.product_id === "p002")?.qty).toBe(2);
-    expect(s.carts[2].requirements.budget_inr).toBe(800);
+    expect(r.output).toContain("Cheaper packs and brands: ₹855 → ₹802.");
+    expect(s.carts[2].items.find((i) => i.product_id === "p004")?.qty).toBe(1);
+    expect(s.carts[2].requirements.budget_inr).toBe(805);
     expect([...s.touched]).toEqual([2]);
   });
 
-  it("cuts about 15% when there's no budget, without recording one", async () => {
+  it("never takes a pack off the named ingredient", async () => {
+    // Without the chicken going from 3 packs to 2, ₹700 is out of reach.
+    const s = fresh();
+    const r = await run(s, "cheapen", { cart: 3, budget_inr: 700 });
+    expect(r.ok).toBe(false);
+    expect(s.carts[2].items.find((i) => i.product_id === "p002")?.qty).toBe(3);
+  });
+
+  it("cuts what it can when there's no budget, without recording one", async () => {
     const s = fresh();
     await run(s, "cheapen", { cart: 3, budget_inr: null });
-    expect(cartTotal(s.carts[2])).toBeLessThanOrEqual(Math.floor(855 * 0.85));
+    expect(cartTotal(s.carts[2])).toBe(802);
+    expect(s.carts[2].items.find((i) => i.product_id === "p002")?.qty).toBe(3);
     expect(s.carts[2].requirements.budget_inr).toBeNull();
   });
 
@@ -199,7 +208,7 @@ describe("cheapen", () => {
     const s = fresh();
     const r = await run(s, "cheapen", { cart: 1, budget_inr: 100 });
     expect(r.ok).toBe(false);
-    expect(r.output).toContain("can't get cart 1 to ₹100: the lowest they reach is ₹324. Nothing changed.");
+    expect(r.output).toContain("can't get cart 1 to ₹100: the lowest they reach is ₹534. Nothing changed.");
     expect(s.carts).toEqual(biryaniCarts());
     expect((await run(s, "cheapen", { cart: 1, budget_inr: 600 })).output).toContain("already ₹534, at or under ₹600. Nothing changed.");
   });
