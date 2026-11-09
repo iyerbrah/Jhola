@@ -57,11 +57,20 @@ export type RequestRecord = {
 /** One generation for the /history page: the answer as the shopper saw it, plus when and what it cost. */
 export type HistoryEntry = BuildCartsResponse & { id: string; at: string; query: string; cost_usd: number | null };
 
+/** A shopper's vote on one of a build's carts, or on an agent reply. Rating 0 takes the vote back. */
+export type FeedbackRecord = { request_id: string; target: "cart" | "reply"; cart_position: number; rating: -1 | 0 | 1; visitor: string };
+/** "unknown": no such request. "mismatch": carts are rated on builds, replies on agent turns. */
+export type RateResult = "saved" | "cleared" | "unknown" | "mismatch";
+
 export interface RequestLog {
   record(r: RequestRecord): Promise<void>;
   /** The newest builds that called the model (cache hits and errors left out), newest first. */
   recentBuilds(limit: number): Promise<HistoryEntry[]>;
+  /** Saves (or takes back) one visitor's vote. Each visitor has at most one vote per cart or reply. */
+  rate(f: FeedbackRecord): Promise<RateResult>;
 }
+
+const targetKind = { cart: "build", reply: "agent" } as const;
 
 // ---------- Turning results into records ----------
 
@@ -193,10 +202,24 @@ const isHistory = (r: RequestRecord) => r.kind === "build" && !r.cached && r.sta
 // ---------- Stores ----------
 
 /** For your own machine and tests: the newest records in memory, lost on restart. */
-export function createMemoryRequestLog(keep = 500, index: CatalogIndex = catalogIndex): RequestLog & { records: RequestRecord[] } {
+export function createMemoryRequestLog(keep = 500, index: CatalogIndex = catalogIndex): RequestLog & { records: RequestRecord[]; votes: Map<string, FeedbackRecord> } {
   const records: RequestRecord[] = [];
+  const votes = new Map<string, FeedbackRecord>();
   return {
     records,
+    votes,
+    async rate(f) {
+      const r = records.find((x) => x.id === f.request_id);
+      if (!r) return "unknown";
+      if (r.kind !== targetKind[f.target] || (f.target === "cart" && !r.carts.some((c) => c.role === "result" && c.position === f.cart_position))) return "mismatch";
+      const key = `${f.request_id}|${f.target}|${f.cart_position}|${f.visitor}`;
+      if (f.rating === 0) {
+        votes.delete(key);
+        return "cleared";
+      }
+      votes.set(key, f);
+      return "saved";
+    },
     async record(r) {
       records.unshift({ ...r, created_at: r.created_at ?? new Date() });
       records.length = Math.min(records.length, keep);
@@ -212,6 +235,31 @@ export function createMemoryRequestLog(keep = 500, index: CatalogIndex = catalog
 
 export function createPgRequestLog(sql: Sql, index: CatalogIndex = catalogIndex): RequestLog {
   return {
+    async rate(f) {
+      await ensureSchema(sql);
+      // The request is saved in the background, so a vote can arrive a moment before it: look twice.
+      let [req] = await sql`select kind from requests where id = ${f.request_id}`;
+      if (!req) {
+        await new Promise((r) => setTimeout(r, 500));
+        [req] = await sql`select kind from requests where id = ${f.request_id}`;
+      }
+      if (!req) return "unknown";
+      if (req.kind !== targetKind[f.target]) return "mismatch";
+      if (f.target === "cart") {
+        const [cart] = await sql`select 1 from carts where request_id = ${f.request_id} and role = 'result' and position = ${f.cart_position}`;
+        if (!cart) return "mismatch";
+      }
+      if (f.rating === 0) {
+        await sql`delete from feedback where request_id = ${f.request_id} and target = ${f.target} and cart_position = ${f.cart_position} and visitor = ${f.visitor}`;
+        return "cleared";
+      }
+      await sql`
+        insert into feedback (request_id, target, cart_position, rating, visitor)
+        values (${f.request_id}, ${f.target}, ${f.cart_position}, ${f.rating}, ${f.visitor})
+        on conflict (request_id, target, cart_position, visitor)
+        do update set rating = excluded.rating, updated_at = now()`;
+      return "saved";
+    },
     async record(r) {
       await ensureSchema(sql);
       const { carts, steps, meta, ...row } = r;
@@ -272,15 +320,17 @@ export function createPgRequestLog(sql: Sql, index: CatalogIndex = catalogIndex)
   };
 }
 
-let shared: RequestLog | null = null;
+// One log per server process, shared by every route (Next gives each route its own copy of this
+// module, so a module-level variable would give /api/feedback a different, empty memory log).
+const holder = globalThis as unknown as { __jholaRequestLog?: RequestLog };
 
 /** The app's request log: Postgres when DATABASE_URL is set, otherwise in memory. */
 export function defaultRequestLog(): RequestLog {
-  if (shared) return shared;
+  if (holder.__jholaRequestLog) return holder.__jholaRequestLog;
   const sql = getSql();
   if (!sql) console.warn("[request-log] DATABASE_URL isn't set: keeping requests in memory only.");
-  shared = sql ? createPgRequestLog(sql) : createMemoryRequestLog();
-  return shared;
+  holder.__jholaRequestLog = sql ? createPgRequestLog(sql) : createMemoryRequestLog();
+  return holder.__jholaRequestLog;
 }
 
 // ---------- Writing without waiting ----------
