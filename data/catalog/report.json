@@ -24,7 +24,7 @@
     "sauces_spreads": 95,
     "snacks": 248
   },
-  "kinds": 362,
+  "kinds": 363,
   "dropped": {
     "multipack or combo": 919,
     "bulk pack": 100,
@@ -176,7 +176,7 @@
     }
   ],
   "home_skips": {
-    "count": 168,
+    "count": 188,
     "examples": [
       {
         "name": "Black Soft Drink - Max Taste, Zero Sugar(Diet)",
@@ -251,6 +251,12 @@
         "kind": "sauce"
       },
       {
+        "name": "Ragi Sticks - Achari Masala",
+        "category": "snacks",
+        "keyword_kind": "ready_to_cook_meat",
+        "kind": "healthy_baked_snacks"
+      },
+      {
         "name": "Chocolate Syrup",
         "category": "snacks",
         "keyword_kind": "chocolate",
@@ -293,6 +299,12 @@
         "kind": "cream_biscuits_wafers"
       },
       {
+        "name": "Waffy Choco Flavoured Rolls - Crunchy, Crispy",
+        "category": "snacks",
+        "keyword_kind": "ready_to_cook_meat",
+        "kind": "cream_biscuits_wafers"
+      },
+      {
         "name": "Soya Drink Chocolate",
         "category": "dairy",
         "keyword_kind": "chocolate",
@@ -315,18 +327,6 @@
         "category": "snacks",
         "keyword_kind": "chana",
         "kind": "healthy_baked_snacks"
-      },
-      {
-        "name": "Potato Stix - Aloo Chat",
-        "category": "snacks",
-        "keyword_kind": "potato",
-        "kind": "chips_corn_snacks"
-      },
-      {
-        "name": "Dark Baking Bar",
-        "category": "chocolates",
-        "keyword_kind": "snack_bar",
-        "kind": "cooking_chocolate_cocoa"
       }
     ]
   },
