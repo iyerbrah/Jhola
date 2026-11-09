@@ -184,6 +184,19 @@ describe("limits: a turn that hits one changes nothing", () => {
     expect(await runAgentTurn(turn("hi"), twice.deps)).toMatchObject({ status: "gave_up", stop_reason: "provider_error" });
   });
 
+  it("stops with \"cancelled\" when the shopper leaves mid-turn", async () => {
+    const shopper = new AbortController();
+    const slow = (signal: AbortSignal) =>
+      new Promise<ModelStep>((_, reject) => {
+        signal.addEventListener("abort", () => reject(new LlmError("aborted", "timeout")));
+        setTimeout(() => shopper.abort(), 5);
+      });
+    const { deps } = setup([slow], { signal: shopper.signal });
+    const res = await runAgentTurn(turn("slow"), deps);
+    expect(res).toMatchObject({ status: "gave_up", stop_reason: "cancelled" });
+    expect(res.carts).toEqual(biryaniCarts());
+  });
+
   it("doesn't retry a timeout", async () => {
     const { deps, sent } = setup([new LlmError("slow", "timeout"), finish("never")]);
     expect((await runAgentTurn(turn("hi"), deps)).stop_reason).toBe("timeout");
