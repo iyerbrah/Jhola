@@ -143,6 +143,9 @@ npm run typecheck                 # TypeScript check (CI also runs lint, tests, 
 npm run eval                      # run the 30-query eval (about 5 min, about $0.50)
 npm run eval -- --group=edge      # one group only
 npm run eval:ci                   # the 9-query PR check against evals/baseline.json (about $0.15)
+npm run eval:agent                # the cart editor agent's 27-scenario eval (about $0.15)
+npm run eval:agent -- --ci        # its 6-scenario PR check against evals/agent/baseline.json (about $0.03)
+npm run try:agent -- "chicken biryani for 4" "make it vegetarian"   # try the agent on real carts
 npm run try                       # run the 3 example queries against the real model
 npm run try -- "poha for 3"       # run your own query
 DEBUG_CARTS=1 npm run try         # also print which rules triggered a repair

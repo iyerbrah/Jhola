@@ -1,6 +1,7 @@
-# The eval check: runs the 9-query CI subset of the eval against the real model
-# on PRs that can change answers, compares it with evals/baseline.json, comments
-# the scores on the PR and fails on a regression. About $0.15 per run.
+# The eval checks, on PRs that can change answers, both against the real model:
+# - the cart builder: 9 queries vs evals/baseline.json (about $0.15)
+# - the cart editor agent: 6 scenarios vs evals/agent/baseline.json (about $0.03)
+# Both reports go into one PR comment, and the run fails if either check fails.
 #
 # It only runs when matching files change, so it is not a required check
 # (a required check that never starts would block the PR).
@@ -45,7 +46,7 @@ jobs:
 
       - run: npm ci
 
-      - name: Run the eval check
+      - name: Run the cart builder eval check
         id: eval
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -53,6 +54,22 @@ jobs:
           set +e
           npm run eval:ci
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Run the agent eval check
+        id: agent
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          set +e
+          npm run eval:agent -- --ci
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      # One report for one comment: the cart builder's (which starts with the comment marker), then the agent's.
+      - name: Combine the reports
+        if: always()
+        run: |
+          if [ ! -f evals/ci-report.md ]; then printf '<!-- jhola-eval -->\n## ❌ Eval check: no report (it crashed; see the run log)\n' > evals/ci-report.md; fi
+          if [ -f evals/ci-agent-report.md ]; then printf '\n' >> evals/ci-report.md && cat evals/ci-agent-report.md >> evals/ci-report.md; fi
 
       - name: Add the report to the run summary
         if: always() && hashFiles('evals/ci-report.md') != ''
@@ -74,8 +91,8 @@ jobs:
             gh pr comment "$PR" --repo "$REPO" --body-file evals/ci-report.md
           fi
 
-      - name: Fail if the eval check failed
-        if: steps.eval.outputs.exit_code != '0'
+      - name: Fail if either eval check failed
+        if: steps.eval.outputs.exit_code != '0' || steps.agent.outputs.exit_code != '0'
         run: |
-          echo "The eval check failed. See the PR comment or the run summary for which check broke."
+          echo "An eval check failed (cart builder exit ${{ steps.eval.outputs.exit_code }}, agent exit ${{ steps.agent.outputs.exit_code }}). See the PR comment or the run summary."
           exit 1

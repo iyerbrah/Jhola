@@ -16,6 +16,8 @@
     "check:contrast": "tsx scripts/check-contrast.ts",
     "eval": "tsx scripts/eval.ts",
     "eval:ci": "tsx scripts/eval-ci.ts",
+    "eval:agent": "tsx scripts/eval-agent.ts",
+    "eval:agent:snapshot": "tsx scripts/snapshot-agent-carts.ts",
     "warm": "tsx scripts/warm-cache.ts"
   },
   "dependencies": {
