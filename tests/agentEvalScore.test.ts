@@ -70,6 +70,7 @@ describe("agent eval checks", () => {
     expect(runCheck({ requirement: [2, "diet", "veg"] }, start, veg, "", index)).toEqual(["cart 2 diet is none, not veg"]);
     expect(runCheck({ reply_any: ["can't", "too low"] }, start, start, "Sorry, ₹50 is too low for pav bhaji.", index)).toEqual([]);
     expect(runCheck({ reply_any: ["can't"] }, start, start, "Done!", index)[0]).toContain("mentions none of");
+    expect(runCheck({ reply_any: ["can't"] }, start, start, "I can’t get it under ₹50.", index)).toEqual([]);
   });
 });
 

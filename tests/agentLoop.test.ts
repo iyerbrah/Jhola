@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { runAgentTurn, type AgentDeps, type AgentTurnInput } from "@/lib/agent/loop";
+import { LIMITS, runAgentTurn, type AgentDeps, type AgentTurnInput } from "@/lib/agent/loop";
 import type { AgentInputItem, AgentModel, ModelStep } from "@/lib/agent/model";
 import { cartTotal } from "@/lib/cartState";
 import { LlmError } from "@/lib/llm";
@@ -49,7 +49,7 @@ const toolResults = (input: AgentInputItem[]) => input.flatMap((i) => (i.kind ==
 describe("a turn that edits", () => {
   it("makes the visible cart vegetarian and reports exactly what changed", async () => {
     const { deps, events } = setup([
-      step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: ["chicken"] }], ["search_catalog", { text: "paneer", diet: "veg", max_price: null, category: null }]),
+      step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] }], ["search_catalog", { text: "paneer", diet: "veg", max_price: null, category: null }]),
       step(["swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" }], ["set_qty", { cart: 1, product_id: "p001", qty: 4 }]),
       finish("Swapped the chicken for 800 g paneer, so it's a paneer biryani now. New total ₹494."),
     ]);
@@ -61,14 +61,14 @@ describe("a turn that edits", () => {
     expect(res.reply).toContain("paneer biryani");
     expect(res.carts[0].items.map((i) => [i.product_id, i.qty])).toEqual([["p001", 4], ["p004", 1], ["p003", 1], ["p005", 1]]);
     expect(cartTotal(res.carts[0])).toBe(380 + 84 + 30);
-    expect(res.carts[0].requirements).toMatchObject({ diet: "veg", must_include: [] });
+    expect(res.carts[0].requirements).toMatchObject({ diet: "veg", must_include: ["paneer"] });
     expect(res.carts.slice(1)).toEqual(biryaniCarts().slice(1));
     expect(res.changes).toHaveLength(1);
     expect(res.changes[0]).toMatchObject({
       cart: 1,
       removed: [{ product_id: "p002", qty: 2 }],
       added: [{ product_id: "p001", qty: 4 }],
-      requirements: ["now vegetarian", "no longer needs chicken"],
+      requirements: ["now vegetarian", "no longer needs chicken", "now needs paneer"],
       total_before: 534,
       total_after: 494,
     });
@@ -81,7 +81,7 @@ describe("a turn that edits", () => {
 
   it("sends a refused finish back to the model, which then fixes the cart", async () => {
     const { deps, sent } = setup([
-      step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: ["chicken"] }], ["finish", { reply: "Done" }]),
+      step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] }], ["finish", { reply: "Done" }]),
       step(["swap_item", { cart: 1, product_id: "p002", new_product_id: "p007" }]),
       finish("Now vegetarian."),
     ]);
@@ -124,28 +124,40 @@ describe("a turn that edits", () => {
 });
 
 describe("limits: a turn that hits one changes nothing", () => {
-  it("stops after 8 tool calls and returns the carts it started with", async () => {
-    const { deps } = setup([
-      step(["remove_item", { cart: 1, product_id: "p003" }], ...["a", "b", "c", "d"].map((t): [string, Record<string, unknown>] => ["search_catalog", { text: t, diet: null, max_price: null, category: null }])),
-      step(...["e", "f", "g", "h"].map((t): [string, Record<string, unknown>] => ["search_catalog", { text: t, diet: null, max_price: null, category: null }])),
-    ]);
+  it(`stops after ${LIMITS.maxToolCalls} tool calls and returns the carts it started with`, async () => {
+    const searches = (from: number, n: number) =>
+      Array.from({ length: n }, (_, k): [string, Record<string, unknown>] => ["search_catalog", { text: `item ${from + k}`, diet: null, max_price: null, category: null }]);
+    const half = Math.ceil(LIMITS.maxToolCalls / 2);
+    const { deps } = setup([step(["remove_item", { cart: 1, product_id: "p003" }], ...searches(0, half)), step(...searches(half, LIMITS.maxToolCalls))]);
     const res = await runAgentTurn(turn("do lots"), deps);
     expect(res).toMatchObject({ status: "gave_up", stop_reason: "tool_limit", changes: [] });
     expect(res.carts).toEqual(biryaniCarts());
-    expect(res.meta.tool_calls).toBe(8);
+    expect(res.meta.tool_calls).toBe(LIMITS.maxToolCalls);
     expect(res.reply).toContain("left your carts as they were");
   });
 
-  it("stops after 5 model calls", async () => {
-    const { deps } = setup(["a", "b", "c", "d", "e", "f"].map((t) => search(t)));
+  it(`stops after ${LIMITS.maxModelCalls} model calls`, async () => {
+    const { deps } = setup(Array.from({ length: LIMITS.maxModelCalls + 1 }, (_, k) => search(`thing ${k}`)));
     const res = await runAgentTurn(turn("browse"), deps);
     expect(res).toMatchObject({ status: "gave_up", stop_reason: "model_limit" });
-    expect(res.meta.model_calls).toBe(5);
+    expect(res.meta.model_calls).toBe(LIMITS.maxModelCalls);
   });
 
-  it("stops when the same call repeats with the carts unchanged", async () => {
-    const { deps } = setup([search("paneer"), search("paneer")]);
+  it("warns once about a repeated call, then stops if it happens again", async () => {
+    const { deps, sent } = setup([search("paneer"), search("paneer"), search("paneer")]);
     expect((await runAgentTurn(turn("paneer"), deps)).stop_reason).toBe("repeated_call");
+    expect(toolResults(sent[2]).at(-1)).toContain("You already made this exact call and nothing has changed since");
+  });
+
+  it("answers identical calls in one response once, without counting the copies", async () => {
+    const bread = ["search_catalog", { text: "bread", diet: null, max_price: null, category: null }] as [string, Record<string, unknown>];
+    const { deps, sent } = setup([step(bread, bread, bread), finish("Found bread.")]);
+    const res = await runAgentTurn(turn("add bread to every cart"), deps);
+    expect(res.status).toBe("done");
+    expect(res.meta.tool_calls).toBe(2);
+    const outputs = toolResults(sent[1]);
+    expect(outputs).toHaveLength(3);
+    expect(new Set(outputs).size).toBe(1);
   });
 
   it("allows the same call again after the carts changed", async () => {
@@ -187,7 +199,8 @@ describe("what the model is sent", () => {
     const [first] = sent;
     expect(first.slice(0, 6).map((i) => (i.kind === "message" ? i.content : ""))).toEqual(["m2", "m3", "m4", "m5", "m6", "m7"]);
     const last = first.at(-1)!;
-    expect(last.kind === "message" && last.content).toContain('Cart 2 "Classic" (the shopper is looking at this one)');
+    expect(last.kind === "message" && last.content).toContain('Cart 2 "Classic" (the shopper is looking at this one; you can change it)');
+    expect(last.kind === "message" && last.content).toContain('Cart 1 "Budget" (look only: don\'t change it)');
     expect(last.kind === "message" && last.content).toMatch(/<message>cheaper please<\/message>$/);
   });
 

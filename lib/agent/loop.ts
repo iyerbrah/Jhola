@@ -14,13 +14,17 @@ import type { AgentCart } from "./carts";
 import { diffCarts, type CartChange } from "./changes";
 import type { AgentInputItem, AgentModel, ModelStep, ToolCall } from "./model";
 import { AGENT_INSTRUCTIONS, turnMessage, type ChatTurn } from "./prompt";
+import { cartsInScope } from "./scope";
 import type { CatalogSearch } from "./search";
-import { runTool, statusFor, type AgentState } from "./tools";
+import { amountsIn, runTool, statusFor, type AgentState } from "./tools";
 
 export const LIMITS = {
-  /** A normal edit takes 2-5 tool calls; more means the agent is lost. */
-  maxToolCalls: 8,
-  maxModelCalls: 5,
+  /**
+   * A normal edit takes 2-5 tool calls; a diet change on a rich cart (4 swaps) takes up to 10.
+   * The first eval run hit 8 and 5 on those; past these limits the agent is lost.
+   */
+  maxToolCalls: 12,
+  maxModelCalls: 6,
   deadlineMs: 25_000,
   /** Earlier chat messages sent with each turn. */
   historyMessages: 6,
@@ -84,10 +88,14 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
   const trace_id = deps.traceId ?? randomUUID();
   const started = Date.now();
 
-  const state: AgentState = { carts: structuredClone(input.carts), active: input.active, version: 0, touched: new Set() };
+  const previous = [...input.history].reverse().find((m) => m.role === "user")?.content;
+  const scope = cartsInScope(input.message, input.carts.map((c) => c.name), input.active, previous);
+  const state: AgentState = { carts: structuredClone(input.carts), active: input.active, version: 0, touched: new Set(), scope };
+  const first = turnMessage(state.carts, state.active, input.message, deps.index, scope);
+  state.amounts = new Set(amountsIn(first));
   const conversation: AgentInputItem[] = [
     ...input.history.slice(-limits.historyMessages).map((m): AgentInputItem => ({ kind: "message", role: m.role, content: m.content })),
-    { kind: "message", role: "user", content: turnMessage(state.carts, state.active, input.message, deps.index) },
+    { kind: "message", role: "user", content: first },
   ];
 
   const usage: LlmUsage = { input_tokens: 0, cached_tokens: 0, output_tokens: 0 };
@@ -95,7 +103,8 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
   let modelCalls = 0;
   let toolCalls = 0;
   let step = 0;
-  const seen = new Set<string>();
+  /** Results by call (name, arguments, cart version), for answering repeats without running them again. */
+  const results = new Map<string, { output: string; repeats: number }>();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), limits.deadlineMs);
 
@@ -117,6 +126,7 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
       status: result.status,
       stop_reason,
       changed_carts: result.changes.map((c) => c.cart),
+      scope: [...scope].map((i) => i + 1),
       ...result.meta,
     });
     return result;
@@ -149,6 +159,7 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
     const t = Date.now();
     const result = await runTool(call.name, call.arguments, state, deps);
     toolCalls++;
+    for (const n of amountsIn(result.output)) state.amounts?.add(n);
     log({ event: "agent_step", trace_id, step: ++step, kind: "tool", name: call.name, ok: result.ok, ms: Date.now() - t, ...(result.ok ? {} : { error: result.output.slice(0, 200) }) });
     return result;
   };
@@ -179,14 +190,32 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
       }
 
       conversation.push({ kind: "model", calls: res.calls, replay: res.replay });
+      const thisResponse = new Set<string>();
       for (const call of res.calls) {
-        if (toolCalls >= limits.maxToolCalls) return end("tool_limit");
-        // The same call with the carts unchanged can only give the same answer: the agent is going round in circles.
         const key = `${call.name}:${call.arguments}:${state.version}`;
-        if (seen.has(key)) return end("repeated_call");
-        seen.add(key);
+        const earlier = results.get(key);
+        // The same call twice in one response (e.g. one search per cart): answer it again, free.
+        if (earlier && thisResponse.has(key)) {
+          conversation.push({ kind: "tool_result", call_id: call.call_id, output: earlier.output });
+          continue;
+        }
+        if (toolCalls >= limits.maxToolCalls) return end("tool_limit");
+        thisResponse.add(key);
+        // The same call as in an earlier step, with the carts unchanged, can only give the same answer.
+        // Say so once; a second time means the agent is going round in circles.
+        if (earlier) {
+          if (++earlier.repeats >= 2) return end("repeated_call");
+          toolCalls++;
+          conversation.push({
+            kind: "tool_result",
+            call_id: call.call_id,
+            output: `${earlier.output}\n(You already made this exact call and nothing has changed since, so this is the same result. Do something different, or finish.)`,
+          });
+          continue;
+        }
         const result = await runCall(call);
         if (result.finished) return end("finished", result.finished.reply);
+        results.set(key, { output: result.output, repeats: 0 });
         conversation.push({ kind: "tool_result", call_id: call.call_id, output: result.output });
       }
     }

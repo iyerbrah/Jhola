@@ -121,6 +121,31 @@ Every PR that touches the pipeline, prompts, catalog, eval code or dependencies 
 
 Latency is shown but never fails the check, since GitHub's runners aren't the live server. The baseline lives in [evals/baseline.json](evals/baseline.json); a PR that deliberately moves the numbers updates it with `npm run eval:ci -- --update-baseline`, so the change is visible in review. Every PR, whatever it touches, also runs lint, typecheck, unit tests, the catalog and contrast checks and a build.
 
+## The cart editor agent (in progress)
+
+Next, the shopper will be able to change a cart in plain language: *"make it vegetarian"*, *"keep it under ₹450"*, *"I already have rice"*. A tool-using agent makes the edits, code checks every one, and the shopper gets a change list with an Undo. The design is in [docs/agent-plan.md](docs/agent-plan.md). The agent's core and its eval are built ([lib/agent/](lib/agent/)); the endpoint and the chat box come next.
+
+The same rule as the cart builder: **the model decides, code checks.**
+- The agent works only through tools (search, add, remove, swap, quantity, requirements, `cheapen`, `fit_diet`, `finish`) that validate every argument and take prices from the catalog.
+- Which carts it may change is decided in code from the shopper's words: the visible cart, unless they name another or say "all".
+- `finish` is refused while a changed cart breaks a rule (stock, budget, diet, the dish's main ingredient, item counts).
+- `finish` also refuses a reply that mentions a rupee amount the agent was never shown, so it can't claim a total it didn't reach.
+- Limits of 12 tool calls, 6 model calls and 25 s per turn. A turn that hits one leaves the carts as they were.
+
+`npm run eval:agent` plays 27 scripted conversations from saved carts (diet, budget, things the shopper has, adding, swaps and quantities, questions, impossible requests including a prompt injection, and two-turn chats) and checks the final carts in code.
+
+| Change | Task success | Wrong cart changed | Turns that gave up | p50 / p95 per turn | Cost per turn |
+| --- | --- | --- | --- | --- | --- |
+| First version | 63% (17/27) | 3 | 6 of 29 | 4.7 / 9.2 s | $0.0036 |
+| Identical calls in one response share a result, instead of counting as "going in circles" | 74% | 1 | 4 | 5.2 / 10.9 s | $0.0048 |
+| Code decides which carts a turn may change | 78% | **0** | 4 | 5.5 / 10.0 s | $0.0058 |
+| `cheapen` tool (the cart builder's own budget fitting), limits 12 tool / 6 model calls | 85% | 0 | 1 | 3.8 / 11.5 s | $0.0051 |
+| A dropped ingredient must name its replacement; replies can't state amounts the agent wasn't shown | 81% | 0 | 2 | 4.1 / 11.6 s | $0.0050 |
+| Diet changes can't skip the replacement; fewer rounds per turn | 85% | 0 | 3 | 4.0 / 13.2 s | $0.0058 |
+| `fit_diet` tool: code swaps items to fit a diet by kind, the model handles the rest | **93% (25/27)**, twice | 0 | 1 | 4.1 / 11.3 s | $0.0041 |
+
+Across every run: **0 rule breaks** in changed carts, and questions, a laptop charger and the prompt injection changed nothing. As with the cart builder, the biggest gains came from moving mechanical work (budget fitting, diet swaps, which carts may change) out of the model and into code. Two fixes to the eval's own checks landed mid-way (curly apostrophes before the fifth row, "couldn't" before the sixth), so from those rows on, the impossible-budget reply is scored more fairly than in the rows above. Still open: the agent won't remove items from a grocery list to meet a budget without asking first, and p95 latency is over the 10 s goal.
+
 ## Run locally
 
 You need Node.js 20 or newer (the live server uses Node 24).

@@ -43,6 +43,7 @@ export function diffCarts(before: AgentCart[], after: AgentCart[]): CartChange[]
     if (rb.diet !== ra.diet) requirements.push(ra.diet ? `now ${DIET_LABELS[ra.diet]}` : "no diet rule");
     if (rb.budget_inr !== ra.budget_inr) requirements.push(ra.budget_inr != null ? `budget ₹${ra.budget_inr}` : "no budget");
     for (const k of rb.must_include) if (!ra.must_include.includes(k)) requirements.push(`no longer needs ${k.replace(/_/g, " ")}`);
+    for (const k of ra.must_include) if (!rb.must_include.includes(k)) requirements.push(`now needs ${k.replace(/_/g, " ")}`);
 
     if (removed.length || added.length || qty_changed.length || requirements.length) {
       changes.push({ cart: i + 1, name: a.name, removed, added, qty_changed, requirements, total_before: cartTotal(b), total_after: cartTotal(a) });
