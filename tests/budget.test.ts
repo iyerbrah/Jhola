@@ -31,6 +31,11 @@ describe("fitToBudget", () => {
     expect(res.items[0].qty).toBe(3);
   });
 
+  it("never takes a pack off a named ingredient", () => {
+    const v = { ...classic, items: [item("p010", 4), item("p002")] }; // 288 + 40 = 328
+    expect(fitToBudget(v, 260, index, products, ["paneer"])).toBeNull();
+  });
+
   it("gives up when nothing can fit", () => {
     expect(fitToBudget({ ...classic, items: [item("p004")] }, 10, index, products)).toBeNull();
   });

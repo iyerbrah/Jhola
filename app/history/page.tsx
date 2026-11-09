@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { rupees } from "@/components/format";
+import { rupees, usd } from "@/components/format";
 import { defaultRequestLog, type HistoryEntry } from "@/lib/requestLog";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Jhola: generations", robots: { index: false } };
+export const metadata: Metadata = { title: "Recent builds", robots: { index: false } };
 
 const when = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
-
-function usd(n: number | null): string {
-  if (n == null) return "price unknown";
-  return n < 0.01 ? `$${n.toFixed(4)}` : `$${n.toFixed(3)}`;
-}
 
 const STATUS_STYLE: Record<HistoryEntry["status"], string> = {
   ok: "bg-leaf-soft text-leaf",
@@ -53,7 +48,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
         </Link>
       </header>
 
-      <h1 className="font-display text-4xl text-ink">Generations</h1>
+      <h1 className="font-display text-4xl text-ink">Recent builds</h1>
       <p className="mt-1 text-ink-soft">The last 200 sets of carts the model built, newest first. Answers served from the cache cost nothing and aren&apos;t listed.</p>
       {unavailable && (
         <p role="alert" className="mt-4 rounded-2xl border-l-4 border-chilli bg-chilli-soft px-4 py-3 text-ink">
@@ -62,7 +57,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
       )}
 
       <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Generations" value={String(entries.length)} />
+        <Stat label="Builds" value={String(entries.length)} />
         <Stat label="Total cost" value={usd(totalCost)} />
         <Stat label="Average cost" value={priced.length ? usd(totalCost / priced.length) : "–"} />
         <Stat label="Average time" value={entries.length ? `${(avgLatency / 1000).toFixed(1)} s` : "–"} />

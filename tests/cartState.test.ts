@@ -34,6 +34,12 @@ describe("cart editing", () => {
     expect(cart.items[0].qty).toBe(10);
   });
 
+  it("drops the builder's amount note when the quantity changes", () => {
+    const noted = { ...fresh(), items: fresh().items.map((it) => (it.product_id === "p001" ? { ...it, note: "~400 g for 4" } : it)) };
+    expect(setQty(noted, "p001", 2).items[0].note).toBe("~400 g for 4"); // same quantity
+    expect(setQty(noted, "p001", 1).items[0].note).toBe("");
+  });
+
   it("removes an item", () => {
     const cart = removeItem(fresh(), "p004");
     expect(cart.items.map((i) => i.product_id)).not.toContain("p004");

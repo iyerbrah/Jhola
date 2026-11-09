@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DailyChart } from "@/components/DailyChart";
+import { usd } from "@/components/format";
 import { SiteFooter } from "@/components/SiteFooter";
 import { loadStats, type Stats } from "@/lib/stats";
 
@@ -12,7 +13,6 @@ export const metadata: Metadata = {
 
 const pct = (x: number | null) => (x == null ? "–" : `${Math.round(x * 100)}%`);
 const secs = (ms: number | null) => (ms == null ? "–" : `${(ms / 1000).toFixed(1)} s`);
-const usd = (n: number | null) => (n == null ? "–" : n < 0.1 ? `$${n.toFixed(4)}` : `$${n.toFixed(2)}`);
 const STEP_LABEL: Record<string, string> = { plan: "Plan (cart builder)", cart: "One cart (cart builder)", repair: "Repair (cart builder)", agent: "One agent step" };
 
 export default async function StatsPage() {

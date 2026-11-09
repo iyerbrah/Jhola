@@ -125,7 +125,7 @@ export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Prom
   variants = variants.map((v) => markPantryOptional(tidyCart(v, index, products), query, index));
   const budget = plan.constraints.budget_inr;
   if (budget != null) {
-    variants = variants.map((v) => fitToBudget(v, budget, index, products) ?? v);
+    variants = variants.map((v) => fitToBudget(v, budget, index, products, plan.must_include) ?? v);
   }
   // Carts too alike (e.g. same onion, paneer and spices in two carts)? Swap shared items for other brands.
   variants = diversify(variants, index, products, budget ?? null);
