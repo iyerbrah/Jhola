@@ -385,6 +385,13 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
       const r = { ...c.requirements };
       if (a.diet) r.diet = a.diet === "any" ? null : a.diet;
       if (a.budget_inr != null) r.budget_inr = a.budget_inr === 0 ? null : a.budget_inr;
+      // A diet change is never "the shopper already has it": the dish needs a replacement.
+      const noReplacement = a.drop_must_include.filter((d) => !d.replaced_by).map((d) => d.kind);
+      if (a.diet && a.diet !== "any" && noReplacement.length) {
+        return fail(
+          `this is a diet change, so the dish needs something in place of ${noReplacement.join(", ")}. Set replaced_by to a ${DIET_LABELS[a.diet]} kind of product (paneer, mushroom, soya chunks, mixed vegetables).`,
+        );
+      }
       // A replacement becomes the dish's new named ingredient, so finish checks the cart really has it.
       const replacements = a.drop_must_include.flatMap((d) => (d.replaced_by ? [d.replaced_by.trim().toLowerCase()] : []));
       for (const k of replacements) {
