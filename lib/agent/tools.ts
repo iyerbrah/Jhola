@@ -289,14 +289,15 @@ export function fitCart(c: AgentCart, budget: number, deps: ToolDeps): AgentCart
     model_total_inr: 0,
     items: ordered.map(({ it }) => ({ product_id: it.product_id, need: 0, qty: it.qty, optional: false, note: "" })),
   };
-  const fitted = fitToBudget(variant, budget, deps.index, products);
+  const fitted = fitToBudget(variant, budget, deps.index, products, c.requirements.must_include);
   if (!fitted) return null;
   const items = [...c.items];
   ordered.forEach(({ it, i }, k) => {
     const next = fitted.items[k];
     const p = deps.index.get(next.product_id);
     if (!p) return;
-    items[i] = next.product_id === it.product_id ? { ...it, qty: next.qty, line_total: it.price * next.qty } : toCartItem(p, next.qty, it.optional, it.included, it.note);
+    // A changed product or quantity drops the cart builder's note, which describes the old amount.
+    items[i] = next.product_id === it.product_id ? { ...it, qty: next.qty, line_total: it.price * next.qty, note: next.qty === it.qty ? it.note : "" } : toCartItem(p, next.qty, it.optional, it.included);
   });
   return { ...c, items };
 }

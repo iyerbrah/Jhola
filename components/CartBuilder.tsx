@@ -13,6 +13,7 @@ import { SiteFooter } from "./SiteFooter";
 import { Summary } from "./Summary";
 import { SwapSheet } from "./SwapSheet";
 import { useCatalog } from "./useCatalog";
+import { EXAMPLE } from "@/lib/example";
 
 type Phase =
   | { kind: "idle" }
@@ -109,6 +110,26 @@ export function CartBuilder({ catalogSize }: { catalogSize: number }) {
     row.addEventListener("scroll", onScroll, { passive: true });
     return () => row.removeEventListener("scroll", onScroll);
   }, [carts.length]);
+
+  // On phones the row is only as tall as the cart in view, not the tallest cart, so a short cart isn't
+  // followed by a blank gap before the chat. Desktop shows all three side by side and is left alone.
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const wide = window.matchMedia("(min-width: 1024px)");
+    const fit = () => {
+      const card = row.children[active] as HTMLElement | undefined;
+      row.style.height = !wide.matches && card ? `${card.offsetHeight + 24}px` : ""; // + the row's pb-6
+    };
+    fit();
+    const resized = new ResizeObserver(fit);
+    for (const child of row.children) resized.observe(child);
+    wide.addEventListener("change", fit);
+    return () => {
+      resized.disconnect();
+      wide.removeEventListener("change", fit);
+    };
+  }, [active, carts]);
 
   // Keep the active pill visible in the strip (sideways only).
   useEffect(() => {
@@ -236,7 +257,7 @@ export function CartBuilder({ catalogSize }: { catalogSize: number }) {
 
             <div
               ref={rowRef}
-              className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-6 lg:mx-0 lg:grid lg:grid-cols-3 lg:items-start lg:overflow-visible lg:px-0"
+              className="-mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto overflow-y-hidden scroll-px-4 px-4 pb-6 transition-[height] duration-300 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0"
             >
               {carts.map((c, i) => (
                 // Carts rise in one after another; on desktop the middle one sits lower to break the grid.
@@ -342,34 +363,27 @@ function ErrorState({ phase, onRetry }: { phase: Extract<Phase, { kind: "error" 
   );
 }
 
-/** The hero's shopping-list card: shows what one line turns into. Desktop only. */
+/** The hero's shopping-list card: what one line turned into on the live site (lib/example.ts). Desktop only. */
 function ListPreview() {
-  const rows = [
-    { name: "Budget", total: 285, tier: TIERS[0] },
-    { name: "Shortcut", total: 594, tier: TIERS[1] },
-    { name: "Classic", total: 934, tier: TIERS[2] },
-  ];
   return (
     <div className="rise relative z-20 hidden lg:-mb-40 lg:block" style={{ "--i": 2 } as React.CSSProperties}>
       <figure className="relative rotate-[-3deg] rounded-2xl bg-paper px-6 pb-5 pt-7 text-ink shadow-lift">
         <span className="absolute -top-3 left-1/2 h-6 w-24 -translate-x-1/2 rotate-[4deg] bg-marigold/85" aria-hidden />
         <figcaption className="text-sm text-ink-soft">One line in</figcaption>
-        <p className="font-display text-xl leading-tight">
-          Paneer butter masala <span className="whitespace-nowrap">for 4</span>
-        </p>
+        <p className="font-display text-xl leading-tight">{EXAMPLE.query}</p>
         <p className="mt-4 text-sm text-ink-soft">Three carts out</p>
         <ul className="ruled mt-1">
-          {rows.map((r) => (
+          {EXAMPLE.carts.map((r, i) => (
             <li key={r.name} className="flex h-8 items-center justify-between">
               <span className="flex items-center gap-2 font-semibold">
-                <span className="h-2.5 w-2.5 rounded-full" style={{ background: r.tier }} aria-hidden />
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: TIERS[i] }} aria-hidden />
                 {r.name}
               </span>
               <span className="num font-display text-lg">{rupees(r.total)}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-sm text-ink-soft">Packs sized for 4 people. Every total checked by code.</p>
+        <p className="mt-3 text-sm text-ink-soft">Packs sized for {EXAMPLE.people} people. Every total checked by code.</p>
       </figure>
     </div>
   );

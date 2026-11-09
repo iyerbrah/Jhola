@@ -1,12 +1,10 @@
 "use client";
 
 import type { RefObject } from "react";
+import { EXAMPLE } from "@/lib/example";
 
-export const EXAMPLES = [
-  "Paneer butter masala for 4",
-  "Tasty Indian breakfast for 2",
-  "Gift of 4 dark chocolates under ₹1000",
-];
+/** A dish, a household request and a gift with a budget, so the chips show the range. Warmed by `npm run warm`. */
+export const EXAMPLES = [EXAMPLE.query, "Cleaning supplies for a new flat", "Gift of 4 dark chocolates under ₹1000"];
 
 type Props = {
   value: string;

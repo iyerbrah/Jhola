@@ -3,6 +3,7 @@ import type { CatalogIndex } from "./catalog";
 import { cartTotal } from "./price";
 import type { LlmVariant, Product } from "./schema";
 import { packsFor } from "./tidy";
+import { matchesKind } from "./validate";
 
 type Change = { saving: number; apply: (items: LlmVariant["items"]) => LlmVariant["items"] };
 
@@ -10,8 +11,11 @@ type Change = { saving: number; apply: (items: LlmVariant["items"]) => LlmVarian
  * Brings an over-budget cart under budget with the smallest changes, without an LLM call:
  * swap a required item for a cheaper in-stock product from the same sub_category with a
  * similar pack size, or lower a qty above 1. Returns the fitted cart, or null if it can't.
+ *
+ * Named ingredients (`mustInclude`, e.g. the paneer in a paneer butter masala) can get a cheaper
+ * brand but never lose a pack: half the paneer isn't a cheaper version of the same dish.
  */
-export function fitToBudget(v: LlmVariant, budget: number, index: CatalogIndex, products: Product[]): LlmVariant | null {
+export function fitToBudget(v: LlmVariant, budget: number, index: CatalogIndex, products: Product[], mustInclude: string[] = []): LlmVariant | null {
   let items = v.items.map((it) => ({ ...it }));
   for (let step = 0; step < 20; step++) {
     const total = cartTotal(items, index);
@@ -33,8 +37,8 @@ export function fitToBudget(v: LlmVariant, budget: number, index: CatalogIndex, 
           apply: (xs) => xs.map((x, j) => (j === i ? { ...x, product_id: alt.id, qty: packsFor(x, alt) } : x)),
         });
       }
-      // One pack fewer.
-      if (it.qty > 1) {
+      // One pack fewer, except for a named ingredient.
+      if (it.qty > 1 && !mustInclude.some((k) => matchesKind(p, k))) {
         changes.push({ saving: p.price, apply: (xs) => xs.map((x, j) => (j === i ? { ...x, qty: x.qty - 1 } : x)) });
       }
     });

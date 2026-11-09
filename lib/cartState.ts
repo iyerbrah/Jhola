@@ -31,9 +31,10 @@ const update = <C extends EditableCart>(cart: C, id: string, fn: (it: CartItem) 
   items: cart.items.map((it) => (it.product_id === id ? fn(it) : it)),
 });
 
+/** A new quantity drops the cart builder's note, which describes the old amount ("~400 g for 4"). */
 export function setQty<C extends EditableCart>(cart: C, id: string, qty: number): C {
   const q = Math.min(MAX_QTY, Math.max(1, Math.round(qty)));
-  return update(cart, id, (it) => ({ ...it, qty: q, line_total: it.price * q }));
+  return update(cart, id, (it) => ({ ...it, qty: q, line_total: it.price * q, note: q === it.qty ? it.note : "" }));
 }
 
 export function removeItem<C extends EditableCart>(cart: C, id: string): C {

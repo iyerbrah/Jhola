@@ -172,7 +172,7 @@ describe("ending the turn in code", () => {
     const { deps, sent } = setup([
       step(["cheapen", { cart: 1, budget_inr: 100, done: false }]),
       step(["remove_item", { cart: 1, product_id: "p003", done: true }]),
-      finish("₹100 isn't possible for this biryani; the lowest is ₹324, so I only removed the onion."),
+      finish("₹100 isn't possible for this biryani; the lowest is ₹534, so I only removed the onion."),
     ]);
     const res = await runAgentTurn(turn("under ₹100"), deps);
     expect(sent).toHaveLength(3);
