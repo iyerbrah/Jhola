@@ -13,6 +13,7 @@ import { SiteFooter } from "./SiteFooter";
 import { Summary } from "./Summary";
 import { SwapSheet } from "./SwapSheet";
 import { useCatalog } from "./useCatalog";
+import { EXAMPLE } from "@/lib/example";
 
 type Phase =
   | { kind: "idle" }
@@ -362,34 +363,27 @@ function ErrorState({ phase, onRetry }: { phase: Extract<Phase, { kind: "error" 
   );
 }
 
-/** The hero's shopping-list card: shows what one line turns into. Desktop only. */
+/** The hero's shopping-list card: what one line turned into on the live site (lib/example.ts). Desktop only. */
 function ListPreview() {
-  const rows = [
-    { name: "Budget", total: 285, tier: TIERS[0] },
-    { name: "Shortcut", total: 594, tier: TIERS[1] },
-    { name: "Classic", total: 934, tier: TIERS[2] },
-  ];
   return (
     <div className="rise relative z-20 hidden lg:-mb-40 lg:block" style={{ "--i": 2 } as React.CSSProperties}>
       <figure className="relative rotate-[-3deg] rounded-2xl bg-paper px-6 pb-5 pt-7 text-ink shadow-lift">
         <span className="absolute -top-3 left-1/2 h-6 w-24 -translate-x-1/2 rotate-[4deg] bg-marigold/85" aria-hidden />
         <figcaption className="text-sm text-ink-soft">One line in</figcaption>
-        <p className="font-display text-xl leading-tight">
-          Paneer butter masala <span className="whitespace-nowrap">for 4</span>
-        </p>
+        <p className="font-display text-xl leading-tight">{EXAMPLE.query}</p>
         <p className="mt-4 text-sm text-ink-soft">Three carts out</p>
         <ul className="ruled mt-1">
-          {rows.map((r) => (
+          {EXAMPLE.carts.map((r, i) => (
             <li key={r.name} className="flex h-8 items-center justify-between">
               <span className="flex items-center gap-2 font-semibold">
-                <span className="h-2.5 w-2.5 rounded-full" style={{ background: r.tier }} aria-hidden />
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: TIERS[i] }} aria-hidden />
                 {r.name}
               </span>
               <span className="num font-display text-lg">{rupees(r.total)}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-sm text-ink-soft">Packs sized for 4 people. Every total checked by code.</p>
+        <p className="mt-3 text-sm text-ink-soft">Packs sized for {EXAMPLE.people} people. Every total checked by code.</p>
       </figure>
     </div>
   );
