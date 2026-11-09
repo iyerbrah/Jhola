@@ -31,7 +31,7 @@ export const LIMITS = {
 };
 export type AgentLimits = typeof LIMITS;
 
-export type StopReason = "finished" | "tool_limit" | "model_limit" | "timeout" | "repeated_call" | "no_tool_call" | "provider_error";
+export type StopReason = "finished" | "tool_limit" | "model_limit" | "timeout" | "repeated_call" | "no_tool_call" | "provider_error" | "cancelled";
 
 export type AgentTurnInput = {
   carts: AgentCart[];
@@ -71,6 +71,8 @@ export type AgentDeps = {
   /** One JSON object per step and one per turn. Defaults to the server log. */
   log?: (line: Record<string, unknown>) => void;
   traceId?: string;
+  /** Aborts the turn, e.g. when the shopper closes the page, so no more model calls are paid for. */
+  signal?: AbortSignal;
 };
 
 const GAVE_UP: Record<Exclude<StopReason, "finished">, string> = {
@@ -80,6 +82,7 @@ const GAVE_UP: Record<Exclude<StopReason, "finished">, string> = {
   no_tool_call: "I couldn't work out that change, so I left your carts as they were. Try saying it another way.",
   timeout: "That took too long, so I left your carts as they were. Please try again.",
   provider_error: "I'm having trouble right now, so I left your carts as they were. Please try again in a moment.",
+  cancelled: "Stopped, so I left your carts as they were.",
 };
 
 export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Promise<AgentTurnResult> {
@@ -107,9 +110,14 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
   const results = new Map<string, { output: string; repeats: number }>();
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), limits.deadlineMs);
+  const cancel = () => controller.abort();
+  deps.signal?.addEventListener("abort", cancel);
+  if (deps.signal?.aborted) controller.abort();
+  const stopped = (): StopReason => (deps.signal?.aborted ? "cancelled" : "timeout");
 
   const end = (stop_reason: StopReason, reply?: string): AgentTurnResult => {
     clearTimeout(timer);
+    deps.signal?.removeEventListener("abort", cancel);
     const done = stop_reason === "finished";
     const carts = done ? state.carts : input.carts;
     const result: AgentTurnResult = {
@@ -167,12 +175,12 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
   try {
     while (true) {
       if (modelCalls >= limits.maxModelCalls) return end("model_limit");
-      if (controller.signal.aborted) return end("timeout");
+      if (controller.signal.aborted) return end(stopped());
       let res: ModelStep;
       try {
         res = await callModel();
       } catch (err) {
-        if (controller.signal.aborted || (err instanceof LlmError && err.kind === "timeout")) return end("timeout");
+        if (controller.signal.aborted || (err instanceof LlmError && err.kind === "timeout")) return end(stopped());
         if (err instanceof LlmError) return end("provider_error");
         throw err;
       }
