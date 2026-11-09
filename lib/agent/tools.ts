@@ -11,6 +11,7 @@ import { fitToBudget } from "../budget";
 import { cartTotal, MAX_QTY, removeItem, setQty, swapItem } from "../cartState";
 import { isSameKind } from "../kind";
 import { DIET_LABELS, DIETS } from "../requirements";
+import { matchesKind } from "../validate";
 import { CATEGORIES, packLabel, type LlmVariant, type Product } from "../schema";
 import { checkCart, MAX_ITEMS, toCartItem, type AgentCart } from "./carts";
 import type { CatalogSearch, SearchHit } from "./search";
@@ -26,7 +27,17 @@ export type AgentState = {
   touched: Set<number>;
   /** Carts this turn may change (see lib/agent/scope.ts). Omitted = all. */
   scope?: Set<number>;
+  /**
+   * Rupee amounts the agent has been shown this turn (carts, tool results, the shopper's message).
+   * finish refuses a reply with any other amount, so it can't state a made-up total. Omitted = not checked.
+   */
+  amounts?: Set<number>;
 };
+
+/** Every "₹1,240" in a text, as numbers. */
+export function amountsIn(text: string): number[] {
+  return [...text.matchAll(/₹\s?(\d[\d,]*)/g)].map((m) => Number(m[1].replace(/,/g, ""))).filter(Number.isFinite);
+}
 
 export type ToolDeps = { index: CatalogIndex; products: Product[]; search: CatalogSearch };
 
@@ -93,8 +104,14 @@ export const TOOL_SPECS = [
       budget_inr: { type: ["integer", "null"], description: "New budget in rupees; 0 removes the budget; null leaves it as it is." },
       drop_must_include: {
         type: "array",
-        items: { type: "string" },
-        description: "Named ingredients the cart no longer has to contain, because the shopper asked for something else (e.g. [\"chicken\"] when they want it vegetarian). Empty to keep all.",
+        items: obj({
+          kind: { type: "string", description: "A named ingredient the cart requires now, e.g. chicken." },
+          replaced_by: {
+            type: ["string", "null"],
+            description: "What replaces it in the dish, as a kind of product (paneer, mushroom, soya chunks, mixed vegetables). The cart must then contain it. null only if the shopper already has it.",
+          },
+        }),
+        description: "Named ingredients the cart no longer has to contain, because the shopper asked for something else. Empty to keep all.",
       },
     }),
   },
@@ -133,7 +150,7 @@ const ARGS = {
     cart,
     diet: z.enum([...DIETS, "any"]).nullable(),
     budget_inr: z.number().int().min(0).max(1_000_000).nullable(),
-    drop_must_include: z.array(z.string().max(40)).max(5),
+    drop_must_include: z.array(z.object({ kind: z.string().max(40), replaced_by: z.string().max(40).nullable() })).max(5),
   }),
   cheapen: z.object({ cart, budget_inr: z.number().int().positive().nullable() }),
   check_rules: z.object({ cart }),
@@ -360,14 +377,21 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
       const i = editableCart(a.cart, state);
       if (isResult(i)) return i;
       const c = state.carts[i];
-      const unknown = a.drop_must_include.filter((k) => !c.requirements.must_include.includes(k));
+      const dropped = a.drop_must_include.map((d) => d.kind);
+      const unknown = dropped.filter((k) => !c.requirements.must_include.includes(k));
       if (unknown.length) {
         return fail(`cart ${a.cart} doesn't require ${unknown.join(", ")}. It requires: ${c.requirements.must_include.join(", ") || "nothing by name"}.`);
       }
       const r = { ...c.requirements };
       if (a.diet) r.diet = a.diet === "any" ? null : a.diet;
       if (a.budget_inr != null) r.budget_inr = a.budget_inr === 0 ? null : a.budget_inr;
-      r.must_include = r.must_include.filter((k) => !a.drop_must_include.includes(k));
+      // A replacement becomes the dish's new named ingredient, so finish checks the cart really has it.
+      const replacements = a.drop_must_include.flatMap((d) => (d.replaced_by ? [d.replaced_by.trim().toLowerCase()] : []));
+      for (const k of replacements) {
+        const stocked = deps.products.some((p) => p.in_stock && (!r.diet || p.tags.includes(r.diet)) && matchesKind(p, k));
+        if (!stocked) return fail(`no in-stock${r.diet ? ` ${DIET_LABELS[r.diet]}` : ""} product matches "${k}". Search for what to use instead, then name its kind (like paneer).`);
+      }
+      r.must_include = [...new Set([...r.must_include.filter((k) => !dropped.includes(k)), ...replacements])].slice(0, 5);
       const next = { ...c, requirements: r };
       const problems = checkCart(next, deps.index);
       const result = changed(state, i, next, deps, "Requirements updated.");
@@ -388,6 +412,20 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
         return fail(
           `can't finish while a cart you changed breaks a rule:\n${broken.map((p) => `- ${p}`).join("\n")}\nFix these. If one truly can't be fixed, change it back and say why in the reply.`,
         );
+      }
+      if (state.amounts) {
+        const known = new Set(state.amounts);
+        for (const c of state.carts) {
+          known.add(cartTotal(c));
+          if (c.requirements.budget_inr != null) known.add(c.requirements.budget_inr);
+          for (const it of c.items) known.add(it.price).add(it.line_total);
+        }
+        const madeUp = [...new Set(amountsIn(reply).filter((n) => !known.has(n)))];
+        if (madeUp.length) {
+          return fail(
+            `your reply mentions ${madeUp.map((n) => `₹${n}`).join(", ")}, which isn't a price or total in the carts or tool results. Use the totals the carts show, or leave amounts out (don't state amounts you worked out yourself).`,
+          );
+        }
       }
       return { ok: true, output: "Finished.", finished: { reply } };
     }

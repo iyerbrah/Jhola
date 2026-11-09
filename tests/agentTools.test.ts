@@ -93,9 +93,11 @@ describe("editing tools", () => {
 describe("set_requirements", () => {
   it("sets a diet, drops a named ingredient, and lists what now needs fixing", async () => {
     const s = fresh();
-    const r = await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: ["chicken"] });
-    expect(s.carts[0].requirements).toMatchObject({ diet: "veg", must_include: [] });
-    expect(r.output).toContain("To fix now:\n- Budget: p002 (Chicken Curry Cut) isn't vegetarian");
+    const r = await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
+    expect(s.carts[0].requirements).toMatchObject({ diet: "veg", must_include: ["paneer"] });
+    expect(r.output).toContain("To fix now:");
+    expect(r.output).toContain("- Budget: p002 (Chicken Curry Cut) isn't vegetarian");
+    expect(r.output).toContain("- Budget has no paneer, which the shopper asked for");
     expect([...s.touched]).toEqual([0]);
   });
 
@@ -109,8 +111,27 @@ describe("set_requirements", () => {
     expect(s.carts[1].requirements).toMatchObject({ diet: null, budget_inr: null });
   });
 
+  it("makes a replacement the dish's new named ingredient, which finish then checks", async () => {
+    const s = fresh();
+    await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
+    await run(s, "remove_item", { cart: 1, product_id: "p002" });
+    const refused = await run(s, "finish", { reply: "Made it vegetarian." });
+    expect(refused.output).toContain("Budget has no paneer, which the shopper asked for");
+    await run(s, "add_item", { cart: 1, product_id: "p001", qty: 4 });
+    expect((await run(s, "finish", { reply: "Swapped the chicken for paneer." })).finished).toBeTruthy();
+  });
+
+  it("refuses a replacement the catalog doesn't stock (with the diet), and allows none when the shopper has it", async () => {
+    const s = fresh();
+    const bad = await run(s, "set_requirements", { cart: 1, diet: "vegan", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
+    expect(bad.output).toContain('no in-stock vegan product matches "paneer"');
+    expect(s.carts[0].requirements.must_include).toEqual(["chicken"]);
+    await run(s, "set_requirements", { cart: 1, diet: null, budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: null }] });
+    expect(s.carts[0].requirements.must_include).toEqual([]);
+  });
+
   it("refuses to drop an ingredient the cart doesn't require", async () => {
-    const r = await run(fresh(), "set_requirements", { cart: 1, diet: null, budget_inr: null, drop_must_include: ["mutton"] });
+    const r = await run(fresh(), "set_requirements", { cart: 1, diet: null, budget_inr: null, drop_must_include: [{ kind: "mutton", replaced_by: null }] });
     expect(r.output).toContain("cart 1 doesn't require mutton. It requires: chicken");
   });
 });
@@ -165,11 +186,12 @@ describe("check_rules and finish", () => {
 
   it("finish refuses while a changed cart breaks a rule, then accepts once it's fixed", async () => {
     const s = fresh();
-    await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: ["chicken"] });
+    await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
     const refused = await run(s, "finish", { reply: "Done!" });
     expect(refused.ok).toBe(false);
     expect(refused.finished).toBeUndefined();
-    expect(refused.output).toContain("can't finish while a cart you changed breaks a rule:\n- cart 1: Budget: p002 (Chicken Curry Cut) isn't vegetarian");
+    expect(refused.output).toContain("can't finish while a cart you changed breaks a rule:");
+    expect(refused.output).toContain("- cart 1: Budget: p002 (Chicken Curry Cut) isn't vegetarian");
     await run(s, "swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" });
     const accepted = await run(s, "finish", { reply: "  Swapped chicken for paneer.  " });
     expect(accepted.finished).toEqual({ reply: "Swapped chicken for paneer." });
@@ -179,6 +201,15 @@ describe("check_rules and finish", () => {
     const s = fresh();
     s.carts[2] = { ...s.carts[2], requirements: { ...s.carts[2].requirements, budget_inr: 100 } };
     expect((await run(s, "finish", { reply: "It's ₹592." })).finished).toBeTruthy();
+  });
+
+  it("finish refuses a reply with an amount the agent was never shown", async () => {
+    const s = { ...fresh(), amounts: new Set([534, 683]) };
+    await run(s, "remove_item", { cart: 1, product_id: "p003" });
+    const made = await run(s, "finish", { reply: "Removed the onion; the new total is ₹474." });
+    expect(made.output).toContain("your reply mentions ₹474, which isn't a price or total");
+    // ₹504 is cart 1's new total and ₹534 its old one, so both are fine.
+    expect((await run(s, "finish", { reply: "Removed the onion: ₹534 → ₹504." })).finished).toBeTruthy();
   });
 
   it("finish refuses an empty reply and cuts a long one", async () => {
@@ -210,7 +241,7 @@ describe("what the model and shopper read", () => {
 describe("diffCarts", () => {
   it("reports the end result: removed, added, quantity and requirement changes, and totals", async () => {
     const s = fresh();
-    await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: ["chicken"] });
+    await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
     await run(s, "remove_item", { cart: 1, product_id: "p002" });
     await run(s, "add_item", { cart: 1, product_id: "p001", qty: 4 });
     await run(s, "set_qty", { cart: 1, product_id: "p004", qty: 2 });
@@ -221,7 +252,7 @@ describe("diffCarts", () => {
         removed: [{ product_id: "p002", name: "Chicken Curry Cut", qty: 2 }],
         added: [{ product_id: "p001", name: "Fresh Paneer", qty: 4 }],
         qty_changed: [{ product_id: "p004", name: "Basmati Rice", from: 1, to: 2 }],
-        requirements: ["now vegetarian", "no longer needs chicken"],
+        requirements: ["now vegetarian", "no longer needs chicken", "now needs paneer"],
         total_before: 534,
         total_after: 380 + 168 + 30,
       },

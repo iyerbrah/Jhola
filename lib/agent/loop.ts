@@ -16,7 +16,7 @@ import type { AgentInputItem, AgentModel, ModelStep, ToolCall } from "./model";
 import { AGENT_INSTRUCTIONS, turnMessage, type ChatTurn } from "./prompt";
 import { cartsInScope } from "./scope";
 import type { CatalogSearch } from "./search";
-import { runTool, statusFor, type AgentState } from "./tools";
+import { amountsIn, runTool, statusFor, type AgentState } from "./tools";
 
 export const LIMITS = {
   /**
@@ -91,9 +91,11 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
   const previous = [...input.history].reverse().find((m) => m.role === "user")?.content;
   const scope = cartsInScope(input.message, input.carts.map((c) => c.name), input.active, previous);
   const state: AgentState = { carts: structuredClone(input.carts), active: input.active, version: 0, touched: new Set(), scope };
+  const first = turnMessage(state.carts, state.active, input.message, deps.index, scope);
+  state.amounts = new Set(amountsIn(first));
   const conversation: AgentInputItem[] = [
     ...input.history.slice(-limits.historyMessages).map((m): AgentInputItem => ({ kind: "message", role: m.role, content: m.content })),
-    { kind: "message", role: "user", content: turnMessage(state.carts, state.active, input.message, deps.index, scope) },
+    { kind: "message", role: "user", content: first },
   ];
 
   const usage: LlmUsage = { input_tokens: 0, cached_tokens: 0, output_tokens: 0 };
@@ -157,6 +159,7 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
     const t = Date.now();
     const result = await runTool(call.name, call.arguments, state, deps);
     toolCalls++;
+    for (const n of amountsIn(result.output)) state.amounts?.add(n);
     log({ event: "agent_step", trace_id, step: ++step, kind: "tool", name: call.name, ok: result.ok, ms: Date.now() - t, ...(result.ok ? {} : { error: result.output.slice(0, 200) }) });
     return result;
   };

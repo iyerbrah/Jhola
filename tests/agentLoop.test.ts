@@ -49,7 +49,7 @@ const toolResults = (input: AgentInputItem[]) => input.flatMap((i) => (i.kind ==
 describe("a turn that edits", () => {
   it("makes the visible cart vegetarian and reports exactly what changed", async () => {
     const { deps, events } = setup([
-      step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: ["chicken"] }], ["search_catalog", { text: "paneer", diet: "veg", max_price: null, category: null }]),
+      step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] }], ["search_catalog", { text: "paneer", diet: "veg", max_price: null, category: null }]),
       step(["swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" }], ["set_qty", { cart: 1, product_id: "p001", qty: 4 }]),
       finish("Swapped the chicken for 800 g paneer, so it's a paneer biryani now. New total ₹494."),
     ]);
@@ -61,14 +61,14 @@ describe("a turn that edits", () => {
     expect(res.reply).toContain("paneer biryani");
     expect(res.carts[0].items.map((i) => [i.product_id, i.qty])).toEqual([["p001", 4], ["p004", 1], ["p003", 1], ["p005", 1]]);
     expect(cartTotal(res.carts[0])).toBe(380 + 84 + 30);
-    expect(res.carts[0].requirements).toMatchObject({ diet: "veg", must_include: [] });
+    expect(res.carts[0].requirements).toMatchObject({ diet: "veg", must_include: ["paneer"] });
     expect(res.carts.slice(1)).toEqual(biryaniCarts().slice(1));
     expect(res.changes).toHaveLength(1);
     expect(res.changes[0]).toMatchObject({
       cart: 1,
       removed: [{ product_id: "p002", qty: 2 }],
       added: [{ product_id: "p001", qty: 4 }],
-      requirements: ["now vegetarian", "no longer needs chicken"],
+      requirements: ["now vegetarian", "no longer needs chicken", "now needs paneer"],
       total_before: 534,
       total_after: 494,
     });
@@ -81,7 +81,7 @@ describe("a turn that edits", () => {
 
   it("sends a refused finish back to the model, which then fixes the cart", async () => {
     const { deps, sent } = setup([
-      step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: ["chicken"] }], ["finish", { reply: "Done" }]),
+      step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] }], ["finish", { reply: "Done" }]),
       step(["swap_item", { cart: 1, product_id: "p002", new_product_id: "p007" }]),
       finish("Now vegetarian."),
     ]);
