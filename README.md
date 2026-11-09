@@ -3,6 +3,10 @@
 Type a shopping request in plain language, like *"chicken biryani for 4"*, *"cleaning supplies for a new flat"* or *"healthy snacks under ₹300"*. Jhola builds three different, ready-to-order carts from 2,743 real Indian groceries and household essentials, with quantities and totals worked out. Then change any cart by asking: *"make it vegetarian"*, *"I already have rice"*, *"keep it under ₹450"*.
 
 [![CI](https://github.com/iyerbrah/Jhola/actions/workflows/ci.yml/badge.svg)](https://github.com/iyerbrah/Jhola/actions/workflows/ci.yml)
+[![Eval check](https://github.com/iyerbrah/Jhola/actions/workflows/eval.yml/badge.svg)](https://github.com/iyerbrah/Jhola/actions/workflows/eval.yml)
+[![Deploy](https://github.com/iyerbrah/Jhola/actions/workflows/deploy.yml/badge.svg)](https://github.com/iyerbrah/Jhola/actions/workflows/deploy.yml)
+[![Live site](https://img.shields.io/badge/live-jhola.ramiyer.tech-1f2a5a)](https://jhola.ramiyer.tech/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-c98500)](LICENSE)
 
 **[Try the live demo →](https://jhola.ramiyer.tech/)** · [How it works](https://jhola.ramiyer.tech/how-it-works) · [Live stats](https://jhola.ramiyer.tech/stats) · Built by [Ram Iyer](https://github.com/iyerbrah)
 
@@ -266,6 +270,27 @@ Latency is reported but never fails a check, since GitHub's runners aren't the l
 - **Latency** depends on OpenAI's load and the distance to its servers: the same queries ran in 5 s on one day and 9 s on another.
 - **It's a demo:** one catalog, one store, no login, and checkout places no order.
 
+## Repository tour
+
+| Path | What's there |
+| --- | --- |
+| [`lib/buildCarts.ts`](lib/buildCarts.ts) | The cart builder: plan, parallel cart calls, code fixes, validation, one repair, pricing |
+| [`lib/prompt.ts`](lib/prompt.ts), [`lib/cartProducts.ts`](lib/cartProducts.ts) | The prompts, the kinds index, and which products each cart call sees |
+| [`lib/validate.ts`](lib/validate.ts), [`lib/tidy.ts`](lib/tidy.ts), [`lib/budget.ts`](lib/budget.ts), [`lib/diversify.ts`](lib/diversify.ts) | The rules every cart must pass, and the fixes code makes itself |
+| [`lib/agent/`](lib/agent/) | The cart editor agent: tools, loop and limits, search, scope, streaming API |
+| [`lib/db.ts`](lib/db.ts), [`lib/requestLog.ts`](lib/requestLog.ts), [`lib/stats.ts`](lib/stats.ts) | The Postgres schema, the request log, and the SQL behind `/stats` |
+| [`scripts/catalog/build.ts`](scripts/catalog/build.ts) | The catalog pipeline: kinds, quality checks, stable IDs, report |
+| [`app/`](app/), [`components/`](components/) | Pages, API routes and the UI |
+| [`evals/`](evals/) | Both evals, their scoring, baselines and every saved run |
+| [`tests/`](tests/) | 293 tests: fake-model unit tests, Postgres integration tests, pipeline fixtures |
+| [`deploy/`](deploy/) | Server setup, the deploy script, nginx and systemd config, and the runbook |
+| [`.github/workflows/`](.github/workflows/) | CI, the eval check on PRs, and deploy on merge |
+
+**More documentation:**
+- [deploy/README.md](deploy/README.md): running the server.
+- [docs/agent-plan.md](docs/agent-plan.md): the agent's design and what changed from it.
+- [SPEC.md](SPEC.md): the original product spec.
+
 ## Run locally
 
 You need Node.js 20 or newer (the live server uses Node 24).
@@ -314,6 +339,6 @@ The live site, [jhola.ramiyer.tech](https://jhola.ramiyer.tech), runs on an Ubun
 
 ## Data
 
-Product data comes from the Kaggle dataset ["BigBasket Products"](https://www.kaggle.com/datasets/chinmayshanbhag/big-basket-products) by Chinmay Shanbhag (CC0, public domain), plus about 50 hand-added staples with illustrative prices. Prices are a past snapshot. Jhola is a portfolio project and isn't affiliated with any retailer.
+The code is under the [MIT license](LICENSE). Product data comes from the Kaggle dataset ["BigBasket Products"](https://www.kaggle.com/datasets/chinmayshanbhag/big-basket-products) by Chinmay Shanbhag (CC0, public domain), plus about 50 hand-added staples with illustrative prices. Prices are a past snapshot. Jhola is a portfolio project and isn't affiliated with any retailer.
 
 The original product spec is in [SPEC.md](SPEC.md).
