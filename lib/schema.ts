@@ -15,7 +15,21 @@ export const CATEGORIES = [
   "bakery",
   "dry_fruits",
   "sauces_spreads",
+  // Not food: no diet tags, and diet rules don't apply to them.
+  "personal_care",
+  "cleaning_household",
+  "home_kitchen",
+  "baby_care",
+  "pet_care",
 ] as const;
+
+export const NON_FOOD_CATEGORIES = ["personal_care", "cleaning_household", "home_kitchen", "baby_care", "pet_care"] as const;
+const NON_FOOD = new Set<string>(NON_FOOD_CATEGORIES);
+
+/** Food is what diets apply to. Soap is never "not vegetarian". */
+export function isFood(p: { category: string }): boolean {
+  return !NON_FOOD.has(p.category);
+}
 
 export const UNITS = ["g", "ml", "pcs"] as const;
 

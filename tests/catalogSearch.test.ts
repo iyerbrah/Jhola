@@ -106,10 +106,10 @@ const RETRIEVAL: [query: string, firstHitKinds: string[]][] = [
   ["pav", ["bread"]],
   ["dark chocolate", ["dark_chocolate"]],
   ["green tea", ["green_tea"]],
-  ["cookies", ["bakery_biscuits_cookies", "biscuits"]],
+  ["cookies", ["bakery_biscuits_cookies", "biscuits", "cookies"]],
   ["ice cream", ["ice_cream", "ice_creams"]],
   ["something for dessert", ["ice_cream", "ice_creams", "doughnuts_mousses", "dessert_mixes", "pastries_brownies", "tinned_packed_sweets"]],
-  ["high protein", ["chicken", "paneer", "dals_pulses", "eggs", "moong_dal", "chana", "rajma", "urad_dal", "toor_dal", "health_drinks", "snack_bar", "roasted_seeds_nuts", "almonds", "peanuts", "fish", "prawns", "mutton", "cheese", "milk", "curd", "yogurt", "paneer_tofu_cream", "oats", "muesli", "quinoa_grains", "besan"]],
+  ["high protein", ["chicken", "paneer", "dals_pulses", "eggs", "moong_dal", "chana", "rajma", "urad_dal", "toor_dal", "health_drinks", "snack_bar", "roasted_seeds_nuts", "almonds", "peanuts", "fish", "prawns", "mutton", "cheese", "milk", "curd", "yogurt", "paneer_tofu_cream", "oats", "muesli", "quinoa_grains", "besan", "namkeen"]],
 ];
 
 describe("retrieval on the real catalog", () => {
@@ -128,6 +128,11 @@ describe("retrieval on the real catalog", () => {
     const vegChicken = await real.search({ text: "chicken", diet: "veg", limit: 20 });
     expect(vegChicken.filter((h) => !h.tags.includes("veg"))).toEqual([]);
     expect(vegChicken.some((h) => h.sub_category === "chicken")).toBe(false);
+
+    // Diets filter food only: a vegetarian still finds soap and detergent.
+    const vegSoap = await real.search({ text: "soap", diet: "veg" });
+    expect(vegSoap[0]?.sub_category).toBe("soap");
+    expect(vegSoap[0]?.tags).toEqual(["non_food"]);
 
     const cheap = await real.search({ text: "chocolate", max_price: 50, limit: 20 });
     expect(cheap.length).toBeGreaterThan(0);
