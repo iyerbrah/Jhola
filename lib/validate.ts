@@ -24,7 +24,7 @@ export function matchesKind(p: Product, kind: string): boolean {
 }
 
 /** A cart must contain every kind of product the shopper named ("chicken biryani" -> chicken). */
-function missingNamed(v: LlmVariant, mustInclude: string[], index: CatalogIndex): string[] {
+export function missingNamed(v: LlmVariant, mustInclude: string[], index: CatalogIndex): string[] {
   return mustInclude
     .filter((kind) => !v.items.some((it) => {
       const p = index.get(it.product_id);
@@ -34,7 +34,7 @@ function missingNamed(v: LlmVariant, mustInclude: string[], index: CatalogIndex)
 }
 
 /** Rule problems for one cart (budget, item count, items, duplicates). */
-function variantErrors(v: LlmVariant, c: Constraints, index: CatalogIndex): string[] {
+export function variantErrors(v: LlmVariant, c: Constraints, index: CatalogIndex): string[] {
   const errors: string[] = [];
   const seen = new Set<string>();
   for (const item of v.items) {
