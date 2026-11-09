@@ -12,6 +12,7 @@
     "catalog:build": "tsx scripts/build-catalog.ts",
     "catalog:check": "tsx scripts/check-coverage.ts",
     "try": "tsx scripts/try.ts",
+    "try:agent": "tsx scripts/try-agent.ts",
     "check:contrast": "tsx scripts/check-contrast.ts",
     "eval": "tsx scripts/eval.ts",
     "eval:ci": "tsx scripts/eval-ci.ts",
