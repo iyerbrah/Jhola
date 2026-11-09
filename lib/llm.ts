@@ -47,7 +47,8 @@ type Effort = "none" | "low" | "medium" | "high";
 
 let client: OpenAI | null = null;
 
-function getClient(): OpenAI {
+/** The shared OpenAI client. Also used by the cart editor agent (lib/agent/model.ts). */
+export function getClient(): OpenAI {
   if (!process.env.OPENAI_API_KEY) throw new LlmError("OPENAI_API_KEY is not set", "missing_key");
   // A normal call takes 1-5 s. buildCarts retries once itself, so the SDK doesn't.
   client ??= new OpenAI({ timeout: 12_000, maxRetries: 0 });
@@ -58,7 +59,7 @@ export function modelName(): string {
   return process.env.LLM_MODEL || "gpt-5.4-mini";
 }
 
-function isReasoningModel(model: string): boolean {
+export function isReasoningModel(model: string): boolean {
   return /^(gpt-5|gpt-6|o\d)/.test(model);
 }
 
