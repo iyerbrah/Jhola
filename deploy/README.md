@@ -8,7 +8,8 @@ Browser ──HTTPS──▶ nginx (ports 80/443, Let's Encrypt certificate)
                      ▼
                    Next.js on 127.0.0.1:3000 (systemd service "jhola", user "jhola")
                      ├──▶ OpenAI API
-                     └──▶ Upstash Redis (HTTPS)
+                     ├──▶ Upstash Redis (HTTPS): rate limits, answer cache
+                     └──▶ PostgreSQL on 127.0.0.1:5432: request log, feedback, /stats
 ```
 
 | What | Where |
@@ -137,11 +138,11 @@ sudo systemctl restart jhola
 
 The exception is `SITE_URL`: it's read at build time, so after changing it, run `deploy/deploy.sh` instead of only restarting.
 
-The file holds `SITE_URL`, `OPENAI_API_KEY`, `LLM_MODEL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_HOUR`, `DAILY_REQUEST_CAP` and `HISTORY_KEY`. [.env.example](../.env.example) explains each one.
+The file holds `SITE_URL`, `OPENAI_API_KEY`, `LLM_MODEL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_HOUR`, `DAILY_REQUEST_CAP`, `HISTORY_KEY`, `DATABASE_URL` and `VISITOR_SECRET`. [.env.example](../.env.example) explains each one.
 
 ### Rotate a key
 
-- **Upstash:** in [console.upstash.com](https://console.upstash.com), open the database and use **Reset Password**. That replaces the REST token; the URL stays the same. Copy the new token from **Connect → REST**, put it in the secrets file and restart. Until you do, the site keeps working but without limits, cache or history.
+- **Upstash:** in [console.upstash.com](https://console.upstash.com), open the database and use **Reset Password**. That replaces the REST token; the URL stays the same. Copy the new token from **Connect → REST**, put it in the secrets file and restart. Until you do, the site keeps working but without rate limits or the answer cache.
 - **OpenAI:** create the new key first, put it in the secrets file, restart, check a cart builds, then revoke the old key.
 
 ### Other checks
@@ -152,7 +153,8 @@ The file holds `SITE_URL`, `OPENAI_API_KEY`, `LLM_MODEL`, `UPSTASH_REDIS_REST_UR
 | Test certificate renewal | `sudo certbot renew --dry-run` |
 | See the certificate's expiry | `sudo certbot certificates` |
 | Install Ubuntu and Node.js updates | `sudo apt update && sudo apt upgrade`, then `sudo systemctl restart jhola` |
-| Read generations and their cost | open `https://jhola.ramiyer.tech/history?key=<HISTORY_KEY>` |
+| Read recent builds and their cost | open `https://jhola.ramiyer.tech/history?key=<HISTORY_KEY>` |
+| See volume, speed, cost and feedback | open `https://jhola.ramiyer.tech/stats` (public, totals only) |
 
 ## Setting up a server from scratch
 
@@ -231,7 +233,7 @@ DAILY_REQUEST_CAP=300
 HISTORY_KEY=
 ```
 
-Fill in the values with no quote marks. For `HISTORY_KEY`, `openssl rand -hex 16` prints a good one. Then lock the file down:
+Fill in the values with no quote marks (`DATABASE_URL` and `VISITOR_SECRET` are added in step 10). For `HISTORY_KEY`, `openssl rand -hex 16` prints a good one. Then lock the file down:
 
 ```bash
 sudo chmod 600 /opt/jhola/.env.production.local
