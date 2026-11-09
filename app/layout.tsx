@@ -9,7 +9,7 @@ const mukta = Mukta({ variable: "--font-mukta", weight: ["400", "500", "600", "7
 // it comes from /opt/jhola/.env.production.local (https://jhola.ramiyer.tech).
 const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
 const DESCRIPTION =
-  "Describe a dish, a meal or an occasion and get three ready-to-order carts built from 2,700+ real Indian products, from groceries to household essentials, with quantities and totals worked out.";
+  "Describe a dish, a meal or an occasion and get three ready-to-order carts built from 2,700+ real Indian groceries and household essentials, with quantities and totals worked out.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

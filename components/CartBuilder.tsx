@@ -151,7 +151,7 @@ export function CartBuilder({ catalogSize }: { catalogSize: number }) {
                   What&apos;s on the list today?
                 </h1>
                 <p className="rise mt-5 max-w-lg text-lg leading-relaxed text-on-ink-soft" style={{ "--i": 1 } as React.CSSProperties}>
-                  Describe a dish, a meal or an occasion. Jhola builds three ready-to-order carts from {catalogSize.toLocaleString("en-IN")} real products, from groceries to household essentials, with quantities and totals worked out.
+                  Describe a dish, a meal or an occasion. Jhola builds three ready-to-order carts from {catalogSize.toLocaleString("en-IN")} real groceries and household essentials, with quantities and totals worked out.
                 </p>
               </div>
               <ListPreview />
