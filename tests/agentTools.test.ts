@@ -133,6 +133,18 @@ describe("set_requirements", () => {
     expect((await run(s, "finish", { reply: "Swapped the chicken for paneer." })).finished).toBeTruthy();
   });
 
+  it("makes the replacement at least half the amount it replaces, however it's added", async () => {
+    const s = fresh();
+    // Cart 1 has 2 × 500 g chicken: the paneer must come to at least 500 g.
+    await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
+    expect(s.carts[0].requirements.min_amounts).toEqual([{ kind: "paneer", amount: 500, unit: "g" }]);
+    await run(s, "remove_item", { cart: 1, product_id: "p002" });
+    await run(s, "add_item", { cart: 1, product_id: "p001", qty: 1 });
+    expect((await run(s, "finish", { reply: "Done." })).output).toContain("Budget has 200 g of paneer; it needs at least 500 g to replace what was taken out");
+    await run(s, "set_qty", { cart: 1, product_id: "p001", qty: 3 });
+    expect((await run(s, "finish", { reply: "Done." })).finished).toBeTruthy();
+  });
+
   it("refuses a replacement the catalog doesn't stock (with the diet), and allows none when the shopper has it", async () => {
     const s = fresh();
     const bad = await run(s, "set_requirements", { cart: 1, diet: "vegan", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
