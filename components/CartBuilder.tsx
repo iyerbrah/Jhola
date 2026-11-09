@@ -249,6 +249,8 @@ export function CartBuilder() {
                     tier={TIERS[i] ?? TIERS[2]}
                     cart={c}
                     flash={flash.filter((k) => k.startsWith(`${i}:`)).map((k) => k.slice(k.indexOf(":") + 1))}
+                    requestId={res.meta.request_id}
+                    position={i}
                     onChange={(next) => setCarts((cs) => cs.map((x, j) => (j === i ? { ...next, requirements: x.requirements } : x)))}
                     onSwap={(item) => setSwapping({ cart: i, item })}
                     onChoose={() => setChosen(i)}
