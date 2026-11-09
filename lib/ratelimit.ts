@@ -23,10 +23,13 @@ export function redisFromEnv(): Redis | null {
 
 const secondsUntil = (resetMs: number) => Math.max(1, Math.ceil((resetMs - Date.now()) / 1000));
 
-/** Limits stored in Upstash, so counts survive restarts and deploys of the server. */
-export function createUpstashLimiter(redis: Redis, config: LimitConfig): Limiter & { reset(ip: string): Promise<void> } {
-  const perIp = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(config.perHour, "1 h"), prefix: "acb:rl:ip" });
-  const daily = new Ratelimit({ redis, limiter: Ratelimit.fixedWindow(config.perDay, "1 d"), prefix: "acb:rl:day" });
+/**
+ * Limits stored in Upstash, so counts survive restarts and deploys of the server.
+ * `prefix` keeps separate limiters (cart builds, agent turns) from sharing counts.
+ */
+export function createUpstashLimiter(redis: Redis, config: LimitConfig, prefix = "acb:rl"): Limiter & { reset(ip: string): Promise<void> } {
+  const perIp = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(config.perHour, "1 h"), prefix: `${prefix}:ip` });
+  const daily = new Ratelimit({ redis, limiter: Ratelimit.fixedWindow(config.perDay, "1 d"), prefix: `${prefix}:day` });
   return {
     async check(ip) {
       const a = await perIp.limit(ip);
