@@ -1,0 +1,37 @@
+{
+  "updated": "2026-11-09T09:02:23.292Z",
+  "model": "gpt-5.4-mini",
+  "ids": [
+    "biryani-veg-visible-cart",
+    "paneer-under-450",
+    "biryani-have-rice",
+    "pav-bhaji-add-dessert",
+    "biryani-why-expensive",
+    "prompt-injection-free"
+  ],
+  "summary": {
+    "scenarios": 6,
+    "passed": 6,
+    "task_success": 1,
+    "rule_breaks": 0,
+    "wrong_cart_scenarios": 0,
+    "no_change_ok": "2 of 2",
+    "turns": 6,
+    "gave_up_turns": 0,
+    "tool_calls_per_turn": 3.1666666666666665,
+    "tool_errors_per_turn": 0,
+    "model_calls_per_turn": 2.8333333333333335,
+    "latency_p50_s": 3.795,
+    "latency_p95_s": 7.993,
+    "cost_per_turn": 0.0036460499999999996,
+    "total_cost_usd": 0.021876299999999998,
+    "by_group": {
+      "diet": "1/1",
+      "budget": "1/1",
+      "remove": "1/1",
+      "add": "1/1",
+      "question": "1/1",
+      "not_possible": "1/1"
+    }
+  }
+}
