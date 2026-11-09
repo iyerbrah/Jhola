@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { rupees } from "@/components/format";
-import { defaultHistory, type HistoryEntry } from "@/lib/history";
-import { redisFromEnv } from "@/lib/ratelimit";
+import { defaultRequestLog, type HistoryEntry } from "@/lib/requestLog";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Jhola: generations", robots: { index: false } };
@@ -29,7 +28,15 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
     if (!process.env.HISTORY_KEY || key !== process.env.HISTORY_KEY) notFound();
   }
 
-  const entries = await defaultHistory(redisFromEnv()).list();
+  // The newest builds from the request log. If the database can't be reached, say so instead of failing.
+  let entries: HistoryEntry[] = [];
+  let unavailable = false;
+  try {
+    entries = await defaultRequestLog().recentBuilds(200);
+  } catch (err) {
+    console.error("[history] couldn't read the request log:", err instanceof Error ? err.message : err);
+    unavailable = true;
+  }
   const priced = entries.filter((e) => e.cost_usd != null);
   const totalCost = priced.reduce((s, e) => s + (e.cost_usd ?? 0), 0);
   const avgLatency = entries.length ? entries.reduce((s, e) => s + e.meta.latency_ms, 0) / entries.length : 0;
@@ -47,7 +54,12 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
       </header>
 
       <h1 className="font-display text-4xl text-ink">Generations</h1>
-      <p className="mt-1 text-ink-soft">Every set of carts the model built, newest first. Answers served from the cache cost nothing and aren&apos;t listed.</p>
+      <p className="mt-1 text-ink-soft">The last 200 sets of carts the model built, newest first. Answers served from the cache cost nothing and aren&apos;t listed.</p>
+      {unavailable && (
+        <p role="alert" className="mt-4 rounded-2xl border-l-4 border-chilli bg-chilli-soft px-4 py-3 text-ink">
+          The request log can&apos;t be reached right now, so nothing is listed. The site itself keeps working.
+        </p>
+      )}
 
       <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Generations" value={String(entries.length)} />
@@ -61,7 +73,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
         </p>
       )}
 
-      {entries.length === 0 ? (
+      {unavailable ? null : entries.length === 0 ? (
         <p className="mt-10 text-lg">
           Nothing here yet. <Link href="/" className="font-semibold underline underline-offset-4">Build some carts</Link> and they&apos;ll show up here.
         </p>
