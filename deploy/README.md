@@ -78,13 +78,29 @@ scp deploy/server/jhola-deploy deploy/server/setup-github-deploy.sh ~/.ssh/jhola
 ssh -t ram@jhola.ramiyer.tech 'sudo bash setup-github-deploy.sh jhola_deploy.pub'
 ```
 
+### Apply an nginx change
+
+Deploys never change nginx, so a change to [nginx/jhola.conf](nginx/jhola.conf) has to be copied into the live file by hand. The live file also has certbot's HTTPS lines, so edit it rather than replacing it:
+
+```bash
+sudo nano /etc/nginx/sites-available/jhola
+```
+
+Make the same change there: a new `limit_req_zone` line goes next to the existing one at the top, and a new `location` block goes inside the `server` block that has `listen 443`, above `location / {`. Save with Ctrl+O, Enter, Ctrl+X, then check and reload:
+
+```bash
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+`nginx -t` must say `syntax is ok` and `test is successful` before the reload; if it doesn't, the live site keeps running on the old config. Fix the file and try again.
+
 ### Watch the logs
 
 ```bash
 sudo journalctl -u jhola -f
 ```
 
-Each cart request logs one `build_carts` line with its query, time, tokens and whether it came from the cache. Ctrl+C stops watching.
+Each cart request logs one `build_carts` line with its query, time, tokens and whether it came from the cache. Each agent turn logs one `agent_step` line per model or tool call and one `agent_turn` line, all sharing a `trace_id`. To follow one turn: `sudo journalctl -u jhola | grep <trace_id>`. Ctrl+C stops watching.
 
 ### Change a secret or setting
 
