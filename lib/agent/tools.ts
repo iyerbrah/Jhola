@@ -7,10 +7,11 @@
  */
 import { z } from "zod";
 import type { CatalogIndex } from "../catalog";
+import { fitToBudget } from "../budget";
 import { cartTotal, MAX_QTY, removeItem, setQty, swapItem } from "../cartState";
 import { isSameKind } from "../kind";
 import { DIET_LABELS, DIETS } from "../requirements";
-import { CATEGORIES, packLabel, type Product } from "../schema";
+import { CATEGORIES, packLabel, type LlmVariant, type Product } from "../schema";
 import { checkCart, MAX_ITEMS, toCartItem, type AgentCart } from "./carts";
 import type { CatalogSearch, SearchHit } from "./search";
 
@@ -77,6 +78,12 @@ export const TOOL_SPECS = [
     parameters: obj({ cart: cartArg, product_id: productArg, qty: qtyArg }),
   },
   {
+    name: "cheapen",
+    description:
+      "Let code make a cart cheaper with the smallest changes that are enough: cheaper packs or brands of the same kind, or one pack fewer. It never removes a product and keeps the cart's diet. With budget_inr it reaches that total or, if it can't, changes nothing and says the lowest total it can reach. With null it cuts about 15%.",
+    parameters: obj({ cart: cartArg, budget_inr: { type: ["integer", "null"], description: "Target total in rupees, or null for about 15% cheaper." } }),
+  },
+  {
     name: "set_requirements",
     description:
       "Record a new requirement the shopper stated for a cart, so it's checked from now on. Call it before editing for a diet or a budget.",
@@ -128,6 +135,7 @@ const ARGS = {
     budget_inr: z.number().int().min(0).max(1_000_000).nullable(),
     drop_must_include: z.array(z.string().max(40)).max(5),
   }),
+  cheapen: z.object({ cart, budget_inr: z.number().int().positive().nullable() }),
   check_rules: z.object({ cart }),
   finish: z.object({ reply: z.string() }),
 } satisfies Record<ToolName, z.ZodType>;
@@ -214,6 +222,45 @@ function changed(state: AgentState, i: number, cartNow: AgentCart, deps: ToolDep
 
 const isResult = (x: unknown): x is ToolResult => typeof x === "object" && x !== null && "output" in x;
 
+/**
+ * The cart builder's own budget fitting (lib/budget.ts) run on an edited cart: ordered lines can be
+ * swapped for cheaper packs of the same kind or lose a pack; unticked optional lines are left alone.
+ * Swaps only consider products with the cart's diet. Returns null if the budget can't be reached.
+ */
+export function fitCart(c: AgentCart, budget: number, deps: ToolDeps): AgentCart | null {
+  const diet = c.requirements.diet;
+  const products = diet ? deps.products.filter((p) => p.tags.includes(diet)) : deps.products;
+  const ordered = c.items.map((it, i) => ({ it, i })).filter(({ it }) => it.included);
+  const variant: LlmVariant = {
+    name: c.name,
+    reason: c.reason,
+    model_total_inr: 0,
+    items: ordered.map(({ it }) => ({ product_id: it.product_id, need: 0, qty: it.qty, optional: false, note: "" })),
+  };
+  const fitted = fitToBudget(variant, budget, deps.index, products);
+  if (!fitted) return null;
+  const items = [...c.items];
+  ordered.forEach(({ it, i }, k) => {
+    const next = fitted.items[k];
+    const p = deps.index.get(next.product_id);
+    if (!p) return;
+    items[i] = next.product_id === it.product_id ? { ...it, qty: next.qty, line_total: it.price * next.qty } : toCartItem(p, next.qty, it.optional, it.included, it.note);
+  });
+  return { ...c, items };
+}
+
+/** The lowest total fitCart can reach, trying targets from 95% down to 30% of the current total. */
+function lowestFit(c: AgentCart, deps: ToolDeps): number {
+  const total = cartTotal(c);
+  let lowest = total;
+  for (let f = 0.95; f >= 0.3; f -= 0.05) {
+    const fitted = fitCart(c, Math.floor(total * f), deps);
+    if (!fitted) break;
+    lowest = cartTotal(fitted);
+  }
+  return lowest;
+}
+
 /** Runs one tool call. Never throws for bad input: problems come back as an error result for the model. */
 export async function runTool(name: string, rawArgs: string, state: AgentState, deps: ToolDeps): Promise<ToolResult> {
   if (!(name in ARGS)) return fail(`there is no tool called ${name}.`);
@@ -285,6 +332,29 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
       if (!it) return fail(`${a.product_id} isn't in cart ${a.cart}. Use add_item to add it.`);
       return changed(state, i, setQty(c, a.product_id, a.qty), deps, `Set ${it.name} to ${a.qty}.`);
     }
+    case "cheapen": {
+      const a = args as z.infer<typeof ARGS.cheapen>;
+      const i = editableCart(a.cart, state);
+      if (isResult(i)) return i;
+      const c = state.carts[i];
+      const before = cartTotal(c);
+      if (a.budget_inr != null) {
+        if (before <= a.budget_inr) return ok(`Cart ${a.cart} is already ₹${before}, at or under ₹${a.budget_inr}. Nothing changed.`);
+        const fitted = fitCart(c, a.budget_inr, deps);
+        if (!fitted) {
+          const lowest = lowestFit(c, deps);
+          return fail(
+            `cheaper packs and brands can't get cart ${a.cart} to ₹${a.budget_inr}: the lowest they reach is ₹${lowest}. Nothing changed. Remove items the shopper can do without, or tell them the lowest realistic total.`,
+          );
+        }
+        return changed(state, i, fitted, deps, `Cheaper packs and brands: ₹${before} → ₹${cartTotal(fitted)}.`);
+      }
+      for (const f of [0.85, 0.9, 0.95]) {
+        const fitted = fitCart(c, Math.floor(before * f), deps);
+        if (fitted) return changed(state, i, fitted, deps, `Cheaper packs and brands: ₹${before} → ₹${cartTotal(fitted)}.`);
+      }
+      return fail(`there are no cheaper packs or brands for cart ${a.cart}'s items. Nothing changed. To go cheaper, remove extras the dish can do without.`);
+    }
     case "set_requirements": {
       const a = args as z.infer<typeof ARGS.set_requirements>;
       const i = editableCart(a.cart, state);
@@ -344,6 +414,8 @@ export function statusFor(name: string, rawArgs: string, index: CatalogIndex): s
       return `Changing ${nameOf(a.product_id)}`;
     case "set_requirements":
       return "Updating what the cart must meet";
+    case "cheapen":
+      return "Finding cheaper packs";
     case "check_rules":
       return "Checking the cart";
     default:

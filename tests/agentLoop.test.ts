@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { runAgentTurn, type AgentDeps, type AgentTurnInput } from "@/lib/agent/loop";
+import { LIMITS, runAgentTurn, type AgentDeps, type AgentTurnInput } from "@/lib/agent/loop";
 import type { AgentInputItem, AgentModel, ModelStep } from "@/lib/agent/model";
 import { cartTotal } from "@/lib/cartState";
 import { LlmError } from "@/lib/llm";
@@ -124,23 +124,23 @@ describe("a turn that edits", () => {
 });
 
 describe("limits: a turn that hits one changes nothing", () => {
-  it("stops after 8 tool calls and returns the carts it started with", async () => {
-    const { deps } = setup([
-      step(["remove_item", { cart: 1, product_id: "p003" }], ...["a", "b", "c", "d"].map((t): [string, Record<string, unknown>] => ["search_catalog", { text: t, diet: null, max_price: null, category: null }])),
-      step(...["e", "f", "g", "h"].map((t): [string, Record<string, unknown>] => ["search_catalog", { text: t, diet: null, max_price: null, category: null }])),
-    ]);
+  it(`stops after ${LIMITS.maxToolCalls} tool calls and returns the carts it started with`, async () => {
+    const searches = (from: number, n: number) =>
+      Array.from({ length: n }, (_, k): [string, Record<string, unknown>] => ["search_catalog", { text: `item ${from + k}`, diet: null, max_price: null, category: null }]);
+    const half = Math.ceil(LIMITS.maxToolCalls / 2);
+    const { deps } = setup([step(["remove_item", { cart: 1, product_id: "p003" }], ...searches(0, half)), step(...searches(half, LIMITS.maxToolCalls))]);
     const res = await runAgentTurn(turn("do lots"), deps);
     expect(res).toMatchObject({ status: "gave_up", stop_reason: "tool_limit", changes: [] });
     expect(res.carts).toEqual(biryaniCarts());
-    expect(res.meta.tool_calls).toBe(8);
+    expect(res.meta.tool_calls).toBe(LIMITS.maxToolCalls);
     expect(res.reply).toContain("left your carts as they were");
   });
 
-  it("stops after 5 model calls", async () => {
-    const { deps } = setup(["a", "b", "c", "d", "e", "f"].map((t) => search(t)));
+  it(`stops after ${LIMITS.maxModelCalls} model calls`, async () => {
+    const { deps } = setup(Array.from({ length: LIMITS.maxModelCalls + 1 }, (_, k) => search(`thing ${k}`)));
     const res = await runAgentTurn(turn("browse"), deps);
     expect(res).toMatchObject({ status: "gave_up", stop_reason: "model_limit" });
-    expect(res.meta.model_calls).toBe(5);
+    expect(res.meta.model_calls).toBe(LIMITS.maxModelCalls);
   });
 
   it("warns once about a repeated call, then stops if it happens again", async () => {
