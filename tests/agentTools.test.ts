@@ -183,6 +183,32 @@ describe("cheapen", () => {
   });
 });
 
+describe("fit_diet", () => {
+  it("swaps by kind where it can and lists what's left for the agent", async () => {
+    const s = fresh();
+    await run(s, "set_requirements", { cart: 1, diet: "jain", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
+    const r = await run(s, "fit_diet", { cart: 1 });
+    // Onion has no Jain twin; chicken has no veg twin of its kind. Rice and salt are already Jain.
+    expect(r.output).toContain("Nothing to swap by kind in cart 1.");
+    expect(r.output).toContain("No same-kind Jain option for: p002 (Chicken Curry Cut), p003 (Onion).");
+  });
+
+  it("swaps an item for the same kind with the diet, keeping the quantity", async () => {
+    const s = fresh();
+    // Old Paneer is veg but not Jain. Its Jain twins are Malai Paneer (₹72) and Fresh Paneer (₹95): Malai is closer to ₹80.
+    s.carts[0] = { ...s.carts[0], items: [toCartItem(index.get("p006")!, 2, false, true)], requirements: { ...none, diet: "jain" } };
+    const r = await run(s, "fit_diet", { cart: 1 });
+    expect(r.output).toContain("Swapped for Jain: Old Paneer → Malai Paneer.");
+    expect(s.carts[0].items[0]).toMatchObject({ product_id: "p007", qty: 2 });
+  });
+
+  it("needs a diet first, and respects the scope", async () => {
+    expect((await run(fresh(), "fit_diet", { cart: 1 })).output).toContain("has no diet yet. Set it with set_requirements first.");
+    const s = { ...fresh(), scope: new Set([0]) };
+    expect((await run(s, "fit_diet", { cart: 2 })).output).toContain("the shopper didn't ask to change cart 2");
+  });
+});
+
 describe("check_rules and finish", () => {
   it("check_rules lists problems or says the cart passes", async () => {
     const s = fresh();
