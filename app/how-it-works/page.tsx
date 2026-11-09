@@ -92,7 +92,7 @@ export default function HowItWorks() {
           </header>
           <h1 className="rise mt-8 max-w-3xl font-display text-5xl leading-[1.05] text-on-ink sm:text-6xl">The model picks. Code counts.</h1>
           <p className="rise mt-5 max-w-2xl text-lg leading-relaxed text-on-ink-soft" style={{ "--i": 1 } as React.CSSProperties}>
-            Jhola turns one sentence into three ready-to-order carts from {catalog.length.toLocaleString("en-IN")} real Indian products, from groceries to household essentials. A
+            Jhola turns one sentence into three ready-to-order carts from {catalog.length.toLocaleString("en-IN")} real Indian groceries and household essentials. A
             language model chooses what goes in each cart; ordinary code checks every choice and does all the maths, so the app never shows an invented
             product or price.
           </p>
