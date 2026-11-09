@@ -6,14 +6,17 @@
  *  - the kinds of the named ingredients every cart must contain, and of a counted item kind;
  *  - as a safety net, the kind of the best search match for each shopping-list line, in case the plan
  *    left one out.
- * The cart call sees up to PER_KIND in-stock products of each kind, spread from cheapest to priciest
- * per gram, ml or piece, so a budget cart and a premium cart both have something to pick.
+ * The cart call sees up to PER_KIND in-stock products of each kind: the CHEAPEST packs by price, and a
+ * spread from cheapest to priciest per gram, ml or piece, so a budget cart and a premium cart both have
+ * something to pick.
  */
 import { createMemorySearch, type CatalogSearch } from "./agent/search";
 import type { Plan, PlanVariant, Product } from "./schema";
 import { matchesKind } from "./validate";
 
 export const PER_KIND = 16;
+/** Of those, the cheapest packs by price, whatever their size. */
+export const CHEAPEST = 3;
 export const MAX_KINDS = 24;
 
 const searches = new WeakMap<Product[], CatalogSearch>();
@@ -79,7 +82,11 @@ export async function productsForCart(variant: PlanVariant, plan: Plan, products
   const out = new Map<string, Product[]>();
   for (const k of kinds) {
     const inKind = products.filter((p) => p.in_stock && p.sub_category === k).sort((a, b) => unitPrice(a) - unitPrice(b) || a.price - b.price);
-    out.set(k, spread(inKind, PER_KIND));
+    // The cheapest per gram is often a big pack, so a tight budget also needs the cheapest packs outright.
+    const cheapest = [...inKind].sort((a, b) => a.price - b.price).slice(0, CHEAPEST);
+    const rest = inKind.filter((p) => !cheapest.includes(p));
+    const picks = new Set([...cheapest, ...spread(rest, PER_KIND - cheapest.length)]);
+    out.set(k, inKind.filter((p) => picks.has(p)));
   }
   return out;
 }

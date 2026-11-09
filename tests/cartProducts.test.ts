@@ -50,7 +50,7 @@ describe("the two-step prompt on the real catalog", () => {
   it("indexes every in-stock kind once", () => {
     const kinds = new Set(catalog.filter((p) => p.in_stock).map((p) => p.sub_category));
     expect(kindIndex(catalog).split("\n")).toHaveLength(kinds.size);
-    expect(kindIndex(catalog)).toMatch(/^paneer \(dairy\): \d+, ₹\d+-\d+; e\.g\. /m);
+    expect(kindIndex(catalog)).toMatch(/^paneer \(dairy\): \d+, ₹\d+-\d+, typically ₹\d+; e\.g\. /m);
   });
 
   it("keeps the fixed prompt and a cart's products small", async () => {
@@ -66,5 +66,16 @@ describe("the two-step prompt on the real catalog", () => {
   it("finds household kinds from a household shopping list", async () => {
     const kinds = await kindsForCart(variant("floor cleaner 1 L; dishwash liquid; toilet cleaner; detergent powder 1 kg", []), plan(), catalog);
     expect(kinds).toEqual(expect.arrayContaining(["floor_cleaner", "dishwash", "toilet_cleaner", "detergent"]));
+  });
+});
+
+describe("cheap packs for tight budgets", () => {
+  it("always shows a kind's cheapest packs, even when big packs are cheaper per gram", async () => {
+    // 30 big bags that are cheap per gram, and one small pack that is the cheapest outright.
+    const bags: Product[] = Array.from({ length: 30 }, (_, i) => ({ ...products[0], id: `p${600 + i}`, name: `Bag ${i}`, pack_size: 5000, price: 300 + i }));
+    const small = { ...products[0], id: "p700", name: "Small Pack", pack_size: 50, price: 25 };
+    const shown = (await productsForCart(variant("paneer", ["paneer"]), plan(), [...bags, small])).get("paneer")!;
+    expect(shown).toHaveLength(PER_KIND);
+    expect(shown.map((p) => p.id)).toContain("p700");
   });
 });

@@ -4,7 +4,7 @@ import { packLabel, type Cart, type Plan, type PlanVariant, type Product } from 
 
 /**
  * One line per kind of product the store has in stock, for the plan call:
- * "paneer (dairy): 14, ₹72-420; e.g. Malai Fresh Paneer, Paneer".
+ * "paneer (dairy): 3, ₹72-255, typically ₹112; e.g. Malai Fresh Paneer, Paneer".
  * The examples show what a kind holds when its name alone doesn't ("face" is make-up).
  */
 export function kindIndex(products: Product[]): string {
@@ -13,12 +13,13 @@ export function kindIndex(products: Product[]): string {
   return [...kinds]
     .sort(([a, pa], [b, pb]) => pa[0].category.localeCompare(pb[0].category) || a.localeCompare(b))
     .map(([kind, ps]) => {
-      const prices = ps.map((p) => p.price);
+      const prices = ps.map((p) => p.price).sort((a, b) => a - b);
+      const typical = prices[Math.floor(prices.length / 2)];
       // Two short example names: the cheapest and the priciest, cut at a word boundary.
       const short = (n: string) => (n.length <= 28 ? n : n.slice(0, 28).replace(/\s+\S*$/, ""));
       const names = [...new Set([...ps].sort((a, b) => a.price - b.price).map((p) => short(p.name.split(" - ")[0])))];
       const examples = [names[0], names.at(-1)].filter((n, i, all) => n && all.indexOf(n) === i);
-      return `${kind} (${ps[0].category}): ${ps.length}, ₹${Math.min(...prices)}-${Math.max(...prices)}; e.g. ${examples.join(", ")}`;
+      return `${kind} (${ps[0].category}): ${ps.length}, ₹${prices[0]}-${prices.at(-1)}, typically ₹${typical}; e.g. ${examples.join(", ")}`;
     })
     .join("\n");
 }
@@ -53,7 +54,7 @@ export function buildInstructions(products: Product[] = catalog): string {
 UNIT HINTS (rough conversions):
 ${JSON.stringify(unitHints)}
 
-KINDS (kind (category): how many products, price range in ₹; examples):
+KINDS (kind (category): how many products, price range and typical price in ₹; examples):
 ${kindIndex(products)}`;
 }
 
@@ -71,7 +72,7 @@ STEP 1 (plan). Decide what to build; no product IDs yet.
 - constraints: budget_inr and item_count only if the shopper gave them (a count of distinct products, like "3 different green teas" -> 3); item_kind = the matching kind (e.g. "dark_chocolate") or null.
 - variants: exactly 3 genuinely different carts, listed cheapest to most expensive. Differ by price tier (Budget / Classic / Premium), by style (from scratch vs. a shortcut with a ready mix), or, for open requests like "breakfast ideas" or "snacks", by a different dish or theme in each cart. Never the same dish twice.
   - Keep each cart focused: at most 12 required lines and 4 optional lines. For big requests ("groceries for a week"), choose bigger packs rather than more lines.
-  - If a budget is given, size every shopping list so its cart lands at or below about 90% of the budget (estimate from catalog prices), leaving room for rounding.
+  - If a budget is given, size every shopping list so its cart lands at or below about 90% of the budget (estimate from the typical prices in KINDS), leaving room for rounding.
   - name: 2-3 words. reason: one short line.
   - shopping_list: what this cart needs with amounts, using things the KINDS have, separated by semicolons, and "(optional)" after pantry staples. Example: "paneer 400 g; tomato 500 g; onion 300 g; fresh cream 200 ml; butter 50 g; ginger-garlic paste; kasuri methi; salt (optional); turmeric (optional)".
   - kinds: every kind from the KINDS list this shopping list needs, by its exact name, at least one per line. Example: ["paneer", "tomato", "onion", "cream", "butter", "ginger_garlic_paste", "kasuri_methi", "salt", "turmeric"].`;
@@ -93,7 +94,7 @@ export function cartMessage(query: string, plan: Plan, variant: PlanVariant, tie
   const spend =
     budget != null
       ? `
-Spend limit for this cart: aim for about ₹${target} for the required items, and never more than ₹${budget}. A pricier tier means better products within this limit, not a bigger total.`
+Spend limit for this cart: aim for about ₹${target} for the required items, and never more than ₹${budget}. A pricier tier means better products within this limit, not a bigger total. If the list can't fit the limit even with the cheapest products, leave out its least essential lines rather than go over.`
       : "";
   return `${queryTag(query)}
 
