@@ -65,6 +65,14 @@ describe("agent eval checks", () => {
     expect(runCheck({ lacks: [1, ["=rice", "=basmati_rice"]] }, start, withPoha, "", idx)).toEqual([]);
   });
 
+  it("replaces_amount compares the replacement's weight with what it replaced", () => {
+    // Cart 1 starts with 2 × 500 g chicken. 2 × 200 g paneer is 40%; 4 × 200 g is 80%.
+    const swap = (qty: number) => [{ ...setQty(swapItem(start[0], "p002", paneer), "p001", qty) }, start[1], start[2]];
+    expect(runCheck({ replaces_amount: [1, "chicken", ["paneer"], 0.6] }, start, swap(2), "", index)).toEqual(["cart 1 replaced 1000 g of chicken with 400 g; wanted at least 600 g"]);
+    expect(runCheck({ replaces_amount: [1, "chicken", ["paneer"], 0.6] }, start, swap(4), "", index)).toEqual([]);
+    expect(runCheck({ replaces_amount: [2, "mutton", ["paneer"], 0.6] }, start, start, "", index)).toEqual(["cart 2 started with no mutton"]);
+  });
+
   it("checks recorded requirements and the reply", () => {
     expect(runCheck({ requirement: [1, "diet", "veg"] }, start, veg, "", index)).toEqual([]);
     expect(runCheck({ requirement: [2, "diet", "veg"] }, start, veg, "", index)).toEqual(["cart 2 diet is none, not veg"]);

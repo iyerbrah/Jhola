@@ -130,7 +130,9 @@ The same rule as the cart builder: **the model decides, code checks.**
 - Which carts it may change is decided in code from the shopper's words: the visible cart, unless they name another or say "all".
 - `finish` is refused while a changed cart breaks a rule (stock, budget, diet, the dish's main ingredient, item counts).
 - `finish` also refuses a reply that mentions a rupee amount the agent was never shown, so it can't claim a total it didn't reach.
-- Limits of 12 tool calls, 6 model calls and 25 s per turn. A turn that hits one leaves the carts as they were.
+- Swaps keep about the same amount, and a replaced main ingredient must be replaced by at least half its weight.
+- When the model marks its last edit `done` and code confirms every rule passes, code ends the turn and writes the reply from the carts, saving a model call. After any refused call the model writes the reply, so it can say what couldn't be done.
+- Limits of 16 tool calls, 6 model calls and 25 s per turn. A turn that hits one leaves the carts as they were.
 
 `npm run eval:agent` plays 27 scripted conversations from saved carts (diet, budget, things the shopper has, adding, swaps and quantities, questions, impossible requests including a prompt injection, and two-turn chats) and checks the final carts in code.
 
@@ -143,8 +145,15 @@ The same rule as the cart builder: **the model decides, code checks.**
 | A dropped ingredient must name its replacement; replies can't state amounts the agent wasn't shown | 81% | 0 | 2 | 4.1 / 11.6 s | $0.0050 |
 | Diet changes can't skip the replacement; fewer rounds per turn | 85% | 0 | 3 | 4.0 / 13.2 s | $0.0058 |
 | `fit_diet` tool: code swaps items to fit a diet by kind, the model handles the rest | **93% (25/27)**, twice | 0 | 1 | 4.1 / 11.3 s | $0.0041 |
+| *The eval starts checking amounts: a replaced main ingredient must be at least 40% of its weight* | 81% | 0 | 3 | 4.5 / 11.8 s | $0.0048 |
+| Swaps keep about the same amount in code (900 g chicken → 5 × 200 g paneer) | 89% | 0 | 2 | 4.3 / 11.1 s | $0.0050 |
+| *Tried and dropped: asking the model to call `finish` with its last edits (no change, 2.7 model calls per turn)* | 89% | 0 | 2 | 4.0 / 10.5 s | $0.0053 |
+| A turn ends in code once its edits pass every rule, instead of a model call for `finish` | 89% | 0 | 1 | 3.3 / 9.0 s | $0.0032 |
+| `cheapen` records the budget it reaches | 93% | 0 | 0 | 3.3 / 11.3 s | $0.0036 |
+| A replacement must be at least half the amount it replaces (a rule `finish` checks) | 85% | 0 | 2 | 3.6 / 12.6 s | $0.0032 |
+| The model marks its last edit `done` (code ending turns had cut off "atta and moong dal"); code writes the reply only for a clean turn | **89–93%** over two runs | 0–1 | 1 | **2.3** / 11.6–14.4 s | $0.0028–0.0037 |
 
-Across every run: **0 rule breaks** in changed carts, and questions, a laptop charger and the prompt injection changed nothing. As with the cart builder, the biggest gains came from moving mechanical work (budget fitting, diet swaps, which carts may change) out of the model and into code. Two fixes to the eval's own checks landed mid-way (curly apostrophes before the fifth row, "couldn't" before the sixth), so from those rows on, the impossible-budget reply is scored more fairly than in the rows above. Still open: the agent won't remove items from a grocery list to meet a budget without asking first, and p95 latency is over the 10 s goal.
+Across every run: **0 rule breaks** in changed carts, and questions, a laptop charger and the prompt injection changed nothing. The second round of changes halved the median turn (about 4.2 s → 2.3 s) and cut cost per turn by a third, mostly by not spending a model call on `finish` when code can confirm the edits are done. One OpenAI test call takes over a second even for "Say OK", so fewer model calls is the speed lever; OpenAI's priority tier was within noise in one eval run (`LLM_AGENT_SERVICE_TIER`, off by default). One run in this round isn't in the table: every turn running at that moment stalled for 83 s at the same time (the process was paused), and a rerun was clean. As with the cart builder, the biggest gains came from moving mechanical work (budget fitting, diet swaps, which carts may change) out of the model and into code. Two fixes to the eval's own checks landed mid-way (curly apostrophes before the fifth row, "couldn't" before the sixth), so from those rows on, the impossible-budget reply is scored more fairly than in the rows above. Still open: grocery-list budgets (it trims optional extras but stops before staples, and now says so), the impossible-budget case (about half the runs it trims the pav bhaji instead of saying no), and p95 latency (11–14 s, over the 10 s goal: the slowest turns are diet changes that still take 5–6 model calls).
 
 ## Run locally
 

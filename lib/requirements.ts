@@ -20,6 +20,14 @@ export const RequirementsSchema = z.object({
   /** Kinds of product every cart must contain, e.g. ["chicken"] for "chicken biryani". */
   must_include: z.array(z.string().max(40)).max(5),
   diet: z.enum(DIETS).nullable(),
+  /**
+   * Least amounts of a kind the cart must hold, set when a main ingredient is replaced
+   * (900 g of chicken -> at least 450 g of paneer), so a replacement can't be a token amount.
+   */
+  min_amounts: z
+    .array(z.object({ kind: z.string().max(40), amount: z.number().positive().max(100_000), unit: z.enum(["g", "ml", "pcs"]) }))
+    .max(5)
+    .optional(),
 });
 
 export type Requirements = z.infer<typeof RequirementsSchema>;

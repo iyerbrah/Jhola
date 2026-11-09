@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { diffCarts } from "@/lib/agent/changes";
-import { cartView, runTool, statusFor, TOOL_SPECS, type AgentState } from "@/lib/agent/tools";
+import { cartView, packsForSameAmount, runTool, statusFor, TOOL_SPECS, type AgentState } from "@/lib/agent/tools";
 import { cartTotal } from "@/lib/cartState";
 import { toCartItem } from "@/lib/agent/carts";
 import { biryaniCarts, deps, index, none } from "./agentFixtures";
@@ -78,15 +78,27 @@ describe("editing tools", () => {
     expect(s.carts).toEqual(biryaniCarts());
   });
 
-  it("swap_item keeps the quantity and the optional flag; set_qty and remove_item edit in place", async () => {
+  it("swap_item keeps about the same amount; set_qty and remove_item edit in place", async () => {
     const s = fresh();
-    await run(s, "swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" });
-    expect(s.carts[0].items[0]).toMatchObject({ product_id: "p001", name: "Fresh Paneer", qty: 2, line_total: 190 });
+    // 2 × 500 g chicken = 1 kg -> 5 × 200 g paneer.
+    const r = await run(s, "swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" });
+    expect(r.output).toContain("Swapped Chicken Curry Cut for Fresh Paneer: 2 × 500 g → 5 × 200 g, about the same amount.");
+    expect(s.carts[0].items[0]).toMatchObject({ product_id: "p001", name: "Fresh Paneer", qty: 5, line_total: 475 });
     await run(s, "set_qty", { cart: 1, product_id: "p001", qty: 4 });
     expect(s.carts[0].items[0]).toMatchObject({ qty: 4, line_total: 380 });
     await run(s, "remove_item", { cart: 1, product_id: "p003" });
     expect(s.carts[0].items.map((i) => i.product_id)).toEqual(["p001", "p004", "p005"]);
     expect(s.carts[0].requirements.must_include).toEqual(["chicken"]);
+  });
+});
+
+describe("packsForSameAmount", () => {
+  const p = (id: string) => index.get(id)!;
+  it("matches the amount across pack sizes, within 1-10 packs, and gives up across units", () => {
+    expect(packsForSameAmount(p("p002"), 2, p("p001"))).toBe(5); // 1 kg -> 5 × 200 g
+    expect(packsForSameAmount(p("p001"), 1, p("p002"))).toBe(1); // 200 g -> one 500 g pack, never 0
+    expect(packsForSameAmount(p("p002"), 10, p("p001"))).toBe(10); // 5 kg would be 25 packs: capped
+    expect(packsForSameAmount(p("p004"), 1, { ...p("p004"), id: "x", unit: "pcs", pack_size: 6 })).toBeNull();
   });
 });
 
@@ -121,6 +133,27 @@ describe("set_requirements", () => {
     expect((await run(s, "finish", { reply: "Swapped the chicken for paneer." })).finished).toBeTruthy();
   });
 
+  it("makes the replacement at least half the amount it replaces, however it's added", async () => {
+    const s = fresh();
+    // Cart 1 has 2 × 500 g chicken: the paneer must come to at least 500 g.
+    await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
+    expect(s.carts[0].requirements.min_amounts).toEqual([{ kind: "paneer", amount: 500, unit: "g" }]);
+    await run(s, "remove_item", { cart: 1, product_id: "p002" });
+    await run(s, "add_item", { cart: 1, product_id: "p001", qty: 1 });
+    expect((await run(s, "finish", { reply: "Done." })).output).toContain("Budget has 200 g of paneer; it needs at least 500 g to replace what was taken out");
+    await run(s, "set_qty", { cart: 1, product_id: "p001", qty: 3 });
+    expect((await run(s, "finish", { reply: "Done." })).finished).toBeTruthy();
+  });
+
+  it("doesn't ask for an amount in a unit the replacement isn't sold in", async () => {
+    const s = fresh();
+    // Pretend the chicken is sold by the piece: paneer (by weight) can't be compared with it.
+    s.carts[0] = { ...s.carts[0], items: s.carts[0].items.map((i) => (i.product_id === "p002" ? { ...i, product_id: "p002" } : i)) };
+    const byPiece = { ...deps, index: new Map([...index, ["p002", { ...index.get("p002")!, unit: "pcs" as const, pack_size: 6 }]]) };
+    await runTool("set_requirements", JSON.stringify({ cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] }), s, byPiece);
+    expect(s.carts[0].requirements.min_amounts ?? []).toEqual([]);
+  });
+
   it("refuses a replacement the catalog doesn't stock (with the diet), and allows none when the shopper has it", async () => {
     const s = fresh();
     const bad = await run(s, "set_requirements", { cart: 1, diet: "vegan", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] });
@@ -151,13 +184,15 @@ describe("cheapen", () => {
     expect(r.ok).toBe(true);
     expect(r.output).toContain("Cheaper packs and brands: ₹855 → ₹645.");
     expect(s.carts[2].items.find((i) => i.product_id === "p002")?.qty).toBe(2);
+    expect(s.carts[2].requirements.budget_inr).toBe(800);
     expect([...s.touched]).toEqual([2]);
   });
 
-  it("cuts about 15% when there's no budget", async () => {
+  it("cuts about 15% when there's no budget, without recording one", async () => {
     const s = fresh();
     await run(s, "cheapen", { cart: 3, budget_inr: null });
     expect(cartTotal(s.carts[2])).toBeLessThanOrEqual(Math.floor(855 * 0.85));
+    expect(s.carts[2].requirements.budget_inr).toBeNull();
   });
 
   it("changes nothing when the budget can't be reached, and says the lowest it can do", async () => {
