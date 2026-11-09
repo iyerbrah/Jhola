@@ -112,6 +112,8 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
   let step = 0;
   /** Results by call (name, arguments, cart version), for answering repeats without running them again. */
   const results = new Map<string, { output: string; repeats: number }>();
+  /** Any call refused this turn (e.g. cheapen couldn't reach a budget): the model then writes the reply. */
+  let turnHadError = false;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), limits.deadlineMs);
   const cancel = () => controller.abort();
@@ -241,12 +243,14 @@ export async function runAgentTurn(input: AgentTurnInput, deps: AgentDeps): Prom
         }
         const result = await runCall(call);
         if (result.finished) return end("finished", result.finished.reply);
-        if (!result.ok) step.failed = true;
+        if (!result.ok) step.failed = turnHadError = true;
         results.set(key, { output: result.output, repeats: 0 });
         conversation.push({ kind: "tool_result", call_id: call.call_id, output: result.output });
       }
-      // The model says the request is done and code can confirm it: end now instead of paying a model call for "finish".
-      if (step.edited && step.saysDone && !step.looked && !step.failed && editsComplete(state, deps.index)) return end("finished", codeReply(input.carts, state), "code");
+      // The model says the request is done and code can confirm it: end now instead of paying a model call
+      // for "finish". Only for a clean turn: after any refused call there's something to explain, and a
+      // code-written "Done." could hide that the request wasn't fully met.
+      if (step.edited && step.saysDone && !step.looked && !turnHadError && editsComplete(state, deps.index)) return end("finished", codeReply(input.carts, state), "code");
     }
   } finally {
     clearTimeout(timer);
