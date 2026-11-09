@@ -130,6 +130,13 @@ describe("set_requirements", () => {
     expect(s.carts[0].requirements.must_include).toEqual([]);
   });
 
+  it("needs a replacement when a diet change drops an ingredient", async () => {
+    const s = fresh();
+    const r = await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: null }] });
+    expect(r.output).toContain("this is a diet change, so the dish needs something in place of chicken");
+    expect(s.carts[0].requirements).toMatchObject({ diet: null, must_include: ["chicken"] });
+  });
+
   it("refuses to drop an ingredient the cart doesn't require", async () => {
     const r = await run(fresh(), "set_requirements", { cart: 1, diet: null, budget_inr: null, drop_must_include: [{ kind: "mutton", replaced_by: null }] });
     expect(r.output).toContain("cart 1 doesn't require mutton. It requires: chicken");
