@@ -1,7 +1,7 @@
 "use client";
 
-import { catalog } from "@/lib/catalog";
 import { cartTotal, removeItem, setQty, swapOptions, toggleOptional, type CartItem, type EditableCart } from "@/lib/cartState";
+import type { Product } from "@/lib/schema";
 import { Feedback } from "./Feedback";
 import { rupees } from "./format";
 import { ItemRow } from "./ItemRow";
@@ -19,9 +19,11 @@ type Props = {
   /** The build's request_id and this cart's place in it, for 👍/👎. */
   requestId?: string;
   position?: number;
+  /** The catalog once it has loaded, to hide Swap on items with no alternative. Until then Swap shows. */
+  products?: Product[] | null;
 };
 
-export function CartCard({ id, tier, cart, onChange, onSwap, onChoose, flash = [], requestId, position = 0 }: Props) {
+export function CartCard({ id, tier, cart, onChange, onSwap, onChoose, flash = [], requestId, position = 0, products = null }: Props) {
   const required = cart.items.filter((it) => !it.optional);
   const optional = cart.items.filter((it) => it.optional);
   const total = cartTotal(cart);
@@ -56,7 +58,7 @@ export function CartCard({ id, tier, cart, onChange, onSwap, onChoose, flash = [
                 key={it.product_id}
                 item={it}
                 flash={flash.includes(it.product_id)}
-                canSwap={swapOptions(cart, it, catalog).length > 0}
+                canSwap={!products || swapOptions(cart, it, products).length > 0}
                 onQty={(q) => onChange(setQty(cart, it.product_id, q))}
                 onRemove={() => onChange(removeItem(cart, it.product_id))}
                 onSwap={() => onSwap(it)}

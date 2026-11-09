@@ -23,6 +23,7 @@ export const STARTING_CARTS: Record<string, string> = {
   dark_chocolate_gift: "gift an assortment of 4 dark chocolate variants, budget 1000 rs",
   pav_bhaji: "pav bhaji for 5",
   egg_curry: "egg curry for 3",
+  biryani_and_cleaning: "chicken biryani for 4, plus dishwash liquid and floor cleaner",
 };
 
 async function main() {

@@ -51,6 +51,16 @@
       { "requirement": [2, "budget_inr", 450] },
       { "contains_any": [2, ["paneer"]] }
     ] },
+  { "id": "biryani-cleaning-veg", "group": "diet", "carts": "biryani_and_cleaning", "active": 1,
+    "turns": ["make it vegetarian"],
+    "checks": [
+      { "only_changed": [1] },
+      { "diet": [1, "veg"] },
+      { "contains_any": [1, ["paneer", "tofu", "soya", "mushroom", "chana", "rajma", "peas", "carrot", "beans", "cauliflower", "potato", "vegetable"]] },
+      { "contains_any": [1, ["dishwash"]] },
+      { "contains_any": [1, ["floor cleaner"]] }
+    ]
+  },
   { "id": "biryani-cheaper", "group": "budget", "carts": "chicken_biryani", "active": 2,
     "turns": ["make it cheaper"],
     "checks": [
@@ -135,6 +145,14 @@
       { "contains_any": [1, ["bread", "pav"]] }, { "contains_any": [2, ["bread", "pav"]] }, { "contains_any": [3, ["bread", "pav"]] }
     ] },
 
+  { "id": "paneer-add-toothpaste", "group": "add", "carts": "paneer_butter_masala", "active": 1,
+    "turns": ["also add a toothpaste"],
+    "checks": [
+      { "only_changed": [1] },
+      { "contains_any": [1, ["toothpaste"]] },
+      { "contains_any": [1, ["paneer"]] }
+    ]
+  },
   { "id": "biryani-double-chicken", "group": "swap_qty", "carts": "chicken_biryani", "active": 1,
     "turns": ["double the chicken"],
     "checks": [
