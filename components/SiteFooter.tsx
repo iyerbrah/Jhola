@@ -18,6 +18,9 @@ export function SiteFooter() {
           <Link href="/how-it-works" className="font-semibold text-ink underline underline-offset-4">
             How it works
           </Link>
+          <Link href="/stats" className="font-semibold text-ink underline underline-offset-4">
+            Live stats
+          </Link>
           <a href={REPO_URL} className="font-semibold text-ink underline underline-offset-4">
             Source on GitHub
           </a>

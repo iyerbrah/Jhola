@@ -4,6 +4,7 @@
  */
 import type { CatalogIndex } from "@/lib/catalog";
 import type { BuildCartsResponse, PricedVariant } from "@/lib/schema";
+import { percentile } from "@/lib/percentile";
 import { jaccard, MAX_JACCARD } from "@/lib/validate";
 
 type Status = BuildCartsResponse["status"];
@@ -127,12 +128,7 @@ export function scoreCase(c: EvalCase, res: BuildCartsResponse, index: CatalogIn
   };
 }
 
-/** Value at the given percentile (0-100), nearest-rank. */
-export function percentile(values: number[], p: number): number {
-  if (!values.length) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
-  return sorted[Math.min(sorted.length - 1, Math.max(0, Math.ceil((p / 100) * sorted.length) - 1))];
-}
+export { percentile };
 
 export type Summary = {
   cases: number;
