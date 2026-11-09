@@ -23,6 +23,8 @@ export type AgentState = {
   version: number;
   /** Carts changed this turn (items or requirements). Only these must pass every rule to finish. */
   touched: Set<number>;
+  /** Carts this turn may change (see lib/agent/scope.ts). Omitted = all. */
+  scope?: Set<number>;
 };
 
 export type ToolDeps = { index: CatalogIndex; products: Product[]; search: CatalogSearch };
@@ -142,7 +144,7 @@ export function hitLine(h: SearchHit): string {
 const productLine = (p: Product) => hitLine({ id: p.id, name: p.name, brand: p.brand, pack: packLabel(p), price: p.price, sub_category: p.sub_category, tags: p.tags, in_stock: p.in_stock });
 
 /** A cart as compact text: requirements, total and one line per item with its diet tags. */
-export function cartView(c: AgentCart, i: number, index: CatalogIndex, active?: number): string {
+export function cartView(c: AgentCart, i: number, index: CatalogIndex, active?: number, editable?: boolean): string {
   const r = c.requirements;
   const reqs = [
     `diet: ${r.diet ? DIET_LABELS[r.diet] : "none"}`,
@@ -156,7 +158,8 @@ export function cartView(c: AgentCart, i: number, index: CatalogIndex, active?: 
     const flags = [it.optional ? (it.included ? "optional, ticked" : "optional, not ticked") : "", p && !p.in_stock ? "OUT OF STOCK" : ""].filter(Boolean).join(", ");
     return `- ${it.product_id} | ${it.name} | ${it.brand} | ${it.pack_label} | ₹${it.price} × ${it.qty} = ₹${it.line_total} | ${it.sub_category} | ${tags}${flags ? ` | ${flags}` : ""}`;
   });
-  const head = `Cart ${i + 1} "${c.name}"${active === i ? " (the shopper is looking at this one)" : ""}: total ₹${cartTotal(c)}`;
+  const notes = [active === i ? "the shopper is looking at this one" : "", editable === true ? "you can change it" : editable === false ? "look only: don't change it" : ""].filter(Boolean);
+  const head = `Cart ${i + 1} "${c.name}"${notes.length ? ` (${notes.join("; ")})` : ""}: total ₹${cartTotal(c)}`;
   return [head, `Requirements: ${reqs}`, ...(lines.length ? lines : ["(empty)"])].join("\n");
 }
 
@@ -165,6 +168,18 @@ export function cartView(c: AgentCart, i: number, index: CatalogIndex, active?: 
 function cartIndex(n: number, state: AgentState): number | ToolResult {
   if (n < 1 || n > state.carts.length) return fail(`there ${state.carts.length === 1 ? "is only cart 1" : `are only carts 1 to ${state.carts.length}`}.`);
   return n - 1;
+}
+
+const cartList = (s: Set<number>) => [...s].sort().map((i) => i + 1).join(" and ");
+
+/** A cart this turn may change: in range and in scope. */
+function editableCart(n: number, state: AgentState): number | ToolResult {
+  const i = cartIndex(n, state);
+  if (isResult(i)) return i;
+  if (state.scope && !state.scope.has(i)) {
+    return fail(`the shopper didn't ask to change cart ${n}. Change only cart ${cartList(state.scope)}; they'll name another cart if they want it changed.`);
+  }
+  return i;
 }
 
 function qtyError(q: number): ToolResult | null {
@@ -224,7 +239,7 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
     }
     case "add_item": {
       const a = args as z.infer<typeof ARGS.add_item>;
-      const i = cartIndex(a.cart, state);
+      const i = editableCart(a.cart, state);
       if (isResult(i)) return i;
       const c = state.carts[i];
       const bad = qtyError(a.qty);
@@ -238,7 +253,7 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
     }
     case "remove_item": {
       const a = args as z.infer<typeof ARGS.remove_item>;
-      const i = cartIndex(a.cart, state);
+      const i = editableCart(a.cart, state);
       if (isResult(i)) return i;
       const c = state.carts[i];
       const it = c.items.find((x) => x.product_id === a.product_id);
@@ -247,7 +262,7 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
     }
     case "swap_item": {
       const a = args as z.infer<typeof ARGS.swap_item>;
-      const i = cartIndex(a.cart, state);
+      const i = editableCart(a.cart, state);
       if (isResult(i)) return i;
       const c = state.carts[i];
       const it = c.items.find((x) => x.product_id === a.product_id);
@@ -261,7 +276,7 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
     }
     case "set_qty": {
       const a = args as z.infer<typeof ARGS.set_qty>;
-      const i = cartIndex(a.cart, state);
+      const i = editableCart(a.cart, state);
       if (isResult(i)) return i;
       const c = state.carts[i];
       const bad = qtyError(a.qty);
@@ -272,7 +287,7 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
     }
     case "set_requirements": {
       const a = args as z.infer<typeof ARGS.set_requirements>;
-      const i = cartIndex(a.cart, state);
+      const i = editableCart(a.cart, state);
       if (isResult(i)) return i;
       const c = state.carts[i];
       const unknown = a.drop_must_include.filter((k) => !c.requirements.must_include.includes(k));
