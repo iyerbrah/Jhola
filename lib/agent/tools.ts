@@ -95,6 +95,12 @@ export const TOOL_SPECS = [
     parameters: obj({ cart: cartArg, budget_inr: { type: ["integer", "null"], description: "Target total in rupees, or null for about 15% cheaper." } }),
   },
   {
+    name: "fit_diet",
+    description:
+      "Let code swap every item in a cart that breaks the cart's diet for the closest in-stock product of the same kind that fits it (same quantity). Lists the items with no same-kind option, which you then swap for something else or remove. Set the diet with set_requirements first (it can be in the same step, before this call).",
+    parameters: obj({ cart: cartArg }),
+  },
+  {
     name: "set_requirements",
     description:
       "Record a new requirement the shopper stated for a cart, so it's checked from now on. Call it before editing for a diet or a budget.",
@@ -153,6 +159,7 @@ const ARGS = {
     drop_must_include: z.array(z.object({ kind: z.string().max(40), replaced_by: z.string().max(40).nullable() })).max(5),
   }),
   cheapen: z.object({ cart, budget_inr: z.number().int().positive().nullable() }),
+  fit_diet: z.object({ cart }),
   check_rules: z.object({ cart }),
   finish: z.object({ reply: z.string() }),
 } satisfies Record<ToolName, z.ZodType>;
@@ -266,6 +273,31 @@ export function fitCart(c: AgentCart, budget: number, deps: ToolDeps): AgentCart
   return { ...c, items };
 }
 
+/**
+ * Swaps each ordered item without the cart's diet tag for the in-stock product of the same kind that
+ * has it, closest in pack size, then price. Returns the new cart and the items with no such product.
+ */
+export function fitDiet(c: AgentCart, deps: ToolDeps): { cart: AgentCart; swapped: [Product, Product][]; left: Product[] } {
+  const diet = c.requirements.diet;
+  let cart = c;
+  const swapped: [Product, Product][] = [];
+  const left: Product[] = [];
+  if (!diet) return { cart, swapped, left };
+  for (const it of c.items) {
+    const p = deps.index.get(it.product_id);
+    if (!it.included || !p || p.tags.includes(diet)) continue;
+    const inCart = new Set(cart.items.map((x) => x.product_id));
+    const alt = deps.products
+      .filter((x) => x.in_stock && !inCart.has(x.id) && x.tags.includes(diet) && isSameKind(p, x))
+      .sort((a, b) => Math.abs(Math.log(a.pack_size / p.pack_size)) - Math.abs(Math.log(b.pack_size / p.pack_size)) || Math.abs(a.price - p.price) - Math.abs(b.price - p.price))[0];
+    if (alt) {
+      cart = swapItem(cart, p.id, alt);
+      swapped.push([p, alt]);
+    } else left.push(p);
+  }
+  return { cart, swapped, left };
+}
+
 /** The lowest total fitCart can reach, trying targets from 95% down to 30% of the current total. */
 function lowestFit(c: AgentCart, deps: ToolDeps): number {
   const total = cartTotal(c);
@@ -372,6 +404,21 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
       }
       return fail(`there are no cheaper packs or brands for cart ${a.cart}'s items. Nothing changed. To go cheaper, remove extras the dish can do without.`);
     }
+    case "fit_diet": {
+      const a = args as z.infer<typeof ARGS.fit_diet>;
+      const i = editableCart(a.cart, state);
+      if (isResult(i)) return i;
+      const c = state.carts[i];
+      const diet = c.requirements.diet;
+      if (!diet) return fail(`cart ${a.cart} has no diet yet. Set it with set_requirements first.`);
+      const { cart: next, swapped, left } = fitDiet(c, deps);
+      const leftText = left.length
+        ? `\nNo same-kind ${DIET_LABELS[diet]} option for: ${left.map((p) => `${p.id} (${p.name})`).join(", ")}. Swap these for something else that fits the dish, or remove them.`
+        : "";
+      if (!swapped.length) return ok(`Nothing to swap by kind in cart ${a.cart}.${leftText || ` Every ordered item is already ${DIET_LABELS[diet]}.`}`);
+      const result = changed(state, i, next, deps, `Swapped for ${DIET_LABELS[diet]}: ${swapped.map(([p, alt]) => `${p.name} → ${alt.name}`).join("; ")}.`);
+      return ok(`${result.output}${leftText}`);
+    }
     case "set_requirements": {
       const a = args as z.infer<typeof ARGS.set_requirements>;
       const i = editableCart(a.cart, state);
@@ -461,6 +508,8 @@ export function statusFor(name: string, rawArgs: string, index: CatalogIndex): s
       return "Updating what the cart must meet";
     case "cheapen":
       return "Finding cheaper packs";
+    case "fit_diet":
+      return "Swapping items to fit the diet";
     case "check_rules":
       return "Checking the cart";
     default:
