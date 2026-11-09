@@ -9,11 +9,13 @@ type Props = {
   onQty: (qty: number) => void;
   onRemove: () => void;
   onSwap: () => void;
+  /** Just changed by the cart helper: highlight it for a moment. */
+  flash?: boolean;
 };
 
-export function ItemRow({ item, canSwap, onQty, onRemove, onSwap }: Props) {
+export function ItemRow({ item, canSwap, onQty, onRemove, onSwap, flash = false }: Props) {
   return (
-    <li className="py-3">
+    <li className={`py-3 ${flash ? "flash" : ""}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-semibold leading-snug text-ink">{item.name}</p>
