@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-09T09:02:23.292Z",
+  "updated": "2026-11-09T10:42:25.490Z",
   "model": "gpt-5.4-mini",
   "ids": [
     "biryani-veg-visible-cart",
@@ -18,13 +18,13 @@
     "no_change_ok": "2 of 2",
     "turns": 6,
     "gave_up_turns": 0,
-    "tool_calls_per_turn": 3.1666666666666665,
+    "tool_calls_per_turn": 2.5,
     "tool_errors_per_turn": 0,
-    "model_calls_per_turn": 2.8333333333333335,
-    "latency_p50_s": 3.795,
-    "latency_p95_s": 7.993,
-    "cost_per_turn": 0.0036460499999999996,
-    "total_cost_usd": 0.021876299999999998,
+    "model_calls_per_turn": 2.3333333333333335,
+    "latency_p50_s": 4.179,
+    "latency_p95_s": 6.899,
+    "cost_per_turn": 0.003259675,
+    "total_cost_usd": 0.01955805,
     "by_group": {
       "diet": "1/1",
       "budget": "1/1",
