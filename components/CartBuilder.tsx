@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { catalog } from "@/lib/catalog";
 import type { AgentCart } from "@/lib/agent/carts";
 import { cartTotal, swapItem, swapOptions, toEditable, type CartItem } from "@/lib/cartState";
 import type { BuildCartsResponse } from "@/lib/schema";
@@ -13,6 +12,7 @@ import { QueryInput } from "./QueryInput";
 import { SiteFooter } from "./SiteFooter";
 import { Summary } from "./Summary";
 import { SwapSheet } from "./SwapSheet";
+import { useCatalog } from "./useCatalog";
 
 type Phase =
   | { kind: "idle" }
@@ -23,9 +23,9 @@ type Phase =
 /** Carts are sorted cheapest first: leaf, marigold, indigo. */
 const TIERS = ["var(--color-leaf)", "var(--color-marigold)", "var(--color-ink)"];
 
-const LOADING_LINES = ["Reading your request", "Planning three different carts", `Picking packs from ${catalog.length} products`, "Checking prices and stock"];
+const loadingLines = (size: number) => ["Reading your request", "Planning three different carts", `Picking packs from ${size.toLocaleString("en-IN")} products`, "Checking prices and stock"];
 
-export function CartBuilder() {
+export function CartBuilder({ catalogSize }: { catalogSize: number }) {
   const [input, setInput] = useState("");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   // Each cart keeps what it was built to satisfy, so the cart helper can check its edits against it.
@@ -41,6 +41,7 @@ export function CartBuilder() {
   const [buildId, setBuildId] = useState(0);
   /** Lines the cart helper just changed ("cart:product"), highlighted for a moment. */
   const [flash, setFlash] = useState<string[]>([]);
+  const products = useCatalog(carts.length > 0);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function applyAgentCarts(next: AgentCart[], changed: string[]) {
@@ -150,7 +151,7 @@ export function CartBuilder() {
                   What&apos;s on the list today?
                 </h1>
                 <p className="rise mt-5 max-w-lg text-lg leading-relaxed text-on-ink-soft" style={{ "--i": 1 } as React.CSSProperties}>
-                  Describe a dish, a meal or an occasion. Jhola builds three ready-to-order carts from {catalog.length.toLocaleString("en-IN")} real grocery products, with quantities and totals worked out.
+                  Describe a dish, a meal or an occasion. Jhola builds three ready-to-order carts from {catalogSize.toLocaleString("en-IN")} real products, from groceries to household essentials, with quantities and totals worked out.
                 </p>
               </div>
               <ListPreview />
@@ -168,7 +169,7 @@ export function CartBuilder() {
 
         <main className="pt-8">
 
-        {phase.kind === "loading" && <Loading />}
+        {phase.kind === "loading" && <Loading size={catalogSize} />}
 
         {phase.kind === "error" && <ErrorState phase={phase} onRetry={() => run(phase.query)} />}
 
@@ -251,6 +252,7 @@ export function CartBuilder() {
                     flash={flash.filter((k) => k.startsWith(`${i}:`)).map((k) => k.slice(k.indexOf(":") + 1))}
                     requestId={res.meta.request_id}
                     position={i}
+                    products={products}
                     onChange={(next) => setCarts((cs) => cs.map((x, j) => (j === i ? { ...next, requirements: x.requirements } : x)))}
                     onSwap={(item) => setSwapping({ cart: i, item })}
                     onChoose={() => setChosen(i)}
@@ -269,7 +271,7 @@ export function CartBuilder() {
 
       <SwapSheet
         item={swapping?.item ?? null}
-        options={swapping && swapCart ? swapOptions(swapCart, swapping.item, catalog) : []}
+        options={swapping && swapCart && products ? swapOptions(swapCart, swapping.item, products) : null}
         onClose={() => setSwapping(null)}
         onPick={(p) => {
           if (!swapping) return;
@@ -282,16 +284,17 @@ export function CartBuilder() {
   );
 }
 
-function Loading() {
+function Loading({ size }: { size: number }) {
+  const lines = loadingLines(size);
   const [line, setLine] = useState(0);
   useEffect(() => {
-    const t = setInterval(() => setLine((l) => Math.min(l + 1, LOADING_LINES.length - 1)), 1600);
+    const t = setInterval(() => setLine((l) => Math.min(l + 1, lines.length - 1)), 1600);
     return () => clearInterval(t);
-  }, []);
+  }, [lines.length]);
   return (
     <section aria-busy="true" aria-label="Building your carts">
       <p role="status" className="mb-2 text-ink-soft">
-        {LOADING_LINES[line]}…
+        {lines[line]}…
       </p>
       <div className="-mx-4 flex gap-4 overflow-hidden px-4 lg:mx-0 lg:grid lg:grid-cols-3 lg:px-0">
         {[0, 1, 2].map((i) => (

@@ -5,7 +5,8 @@ import type { CartItem } from "@/lib/cartState";
 import { rupees } from "./format";
 import { Sheet } from "./Sheet";
 
-type Props = { item: CartItem | null; options: Product[]; onPick: (p: Product) => void; onClose: () => void };
+/** options is null while the catalog is still downloading. */
+type Props = { item: CartItem | null; options: Product[] | null; onPick: (p: Product) => void; onClose: () => void };
 
 export function SwapSheet({ item, options, onPick, onClose }: Props) {
   return (
@@ -15,8 +16,14 @@ export function SwapSheet({ item, options, onPick, onClose }: Props) {
           <p className="text-ink-soft">
             Now: {item.brand}, {item.pack_label} at <span className="num">{rupees(item.price)}</span>
           </p>
+          {options === null && (
+            <p role="status" className="mt-3 text-ink-soft">
+              Loading other options…
+            </p>
+          )}
+          {options?.length === 0 && <p className="mt-3 text-ink-soft">Nothing else of this kind is in stock.</p>}
           <ul className="mt-3 divide-y divide-line">
-            {options.map((p) => {
+            {(options ?? []).map((p) => {
               const diff = p.price - item.price;
               return (
                 <li key={p.id}>

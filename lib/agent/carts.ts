@@ -60,6 +60,8 @@ export function toCartItem(p: Product, qty: number, optional: boolean, included:
     included: optional ? included : true,
     note,
     sub_category: p.sub_category,
+    category: p.category,
+    tags: p.tags,
   };
 }
 

@@ -129,6 +129,9 @@ export type PricedItem = {
   optional: boolean;
   note: string;
   sub_category: string;
+  /** From the catalog, so the browser can tell food from non-food and read diet tags without loading the catalog. */
+  category: Category;
+  tags: string[];
 };
 
 export type PricedVariant = {
