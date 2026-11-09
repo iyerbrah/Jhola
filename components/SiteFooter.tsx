@@ -27,7 +27,7 @@ export function SiteFooter() {
         </nav>
       </div>
       <p className="mt-4 max-w-3xl">
-        Product data from the Kaggle &quot;BigBasket Entire Product List&quot; dataset (CC BY-NC-SA 4.0), plus a few hand-added staples. Prices are an
+        Product data from the Kaggle &quot;BigBasket Products&quot; dataset by Chinmay Shanbhag (CC0, public domain), plus a few hand-added staples. Prices are an
         illustrative snapshot, not live prices. Jhola is a portfolio demo: it is not affiliated with any retailer, and no orders are placed.
       </p>
     </footer>
