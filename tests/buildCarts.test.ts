@@ -53,6 +53,13 @@ const goodCarts = () => ({ Classic: [toCart(classic)], Budget: [toCart(budget)],
 const deps = (llm: LlmClient) => ({ llm, products, instructions: "test" });
 
 describe("buildCarts", () => {
+  it("returns the requirements every cart was built to, for later edits", async () => {
+    const p = plan({ constraints: { budget_inr: 900, item_count: null, item_kind: null }, must_include: ["paneer"] });
+    const { llm } = fakeLlm([p], goodCarts());
+    const res = await buildCarts("paneer butter masala for 4 under 900", deps(llm));
+    expect(res.requirements).toEqual({ budget_inr: 900, item_count: null, item_kind: null, must_include: ["paneer"], diet: null });
+  });
+
   it("plans, builds 3 carts in parallel and prices them", async () => {
     const { llm, calls } = fakeLlm([plan()], goodCarts());
     const res = await buildCarts("paneer butter masala for 4", deps(llm));

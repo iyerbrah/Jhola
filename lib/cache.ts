@@ -3,7 +3,7 @@ import type { Redis } from "@upstash/redis";
 import type { BuildCartsResponse } from "./schema";
 
 /** Bump this when the prompt, catalog or pipeline changes, so old answers aren't reused. */
-export const CACHE_VERSION = "v17"; // v17: unit mix-up guard, dish-suitable budget picks
+export const CACHE_VERSION = "v18"; // v18: answers carry their requirements (for the cart editor agent)
 // Prices are a fixed snapshot and any catalog or prompt change bumps CACHE_VERSION, so answers can live a month.
 const TTL_SECONDS = 30 * 24 * 3600;
 

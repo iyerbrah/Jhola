@@ -10,6 +10,7 @@ const response = (variants: LlmVariant[], overrides: Partial<BuildCartsResponse>
   assumptions: [],
   suggestions: [],
   variants: priceVariants(variants, index),
+  requirements: { budget_inr: null, item_count: null, item_kind: null, must_include: [], diet: null },
   meta: { latency_ms: 4000, model: "fake", repaired: false, input_tokens: 0, cached_tokens: 0, output_tokens: 0 },
   ...overrides,
 });
