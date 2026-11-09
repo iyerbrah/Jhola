@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { catalog } from "@/lib/catalog";
-import { cartTotal, swapItem, swapOptions, toEditable, type CartItem, type EditableCart } from "@/lib/cartState";
+import type { AgentCart } from "@/lib/agent/carts";
+import { cartTotal, swapItem, swapOptions, toEditable, type CartItem } from "@/lib/cartState";
 import type { BuildCartsResponse } from "@/lib/schema";
 import { CartCard } from "./CartCard";
+import { CartChat } from "./CartChat";
 import { rupees } from "./format";
 import { QueryInput } from "./QueryInput";
 import { SiteFooter } from "./SiteFooter";
@@ -26,7 +28,8 @@ const LOADING_LINES = ["Reading your request", "Planning three different carts",
 export function CartBuilder() {
   const [input, setInput] = useState("");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
-  const [carts, setCarts] = useState<EditableCart[]>([]);
+  // Each cart keeps what it was built to satisfy, so the cart helper can check its edits against it.
+  const [carts, setCarts] = useState<AgentCart[]>([]);
   const [swapping, setSwapping] = useState<{ cart: number; item: CartItem } | null>(null);
   const [chosen, setChosen] = useState<number | null>(null);
   const [active, setActive] = useState(0);
@@ -34,6 +37,18 @@ export function CartBuilder() {
   const rowRef = useRef<HTMLDivElement>(null);
   const stripRef = useRef<HTMLElement>(null);
   const requestId = useRef(0);
+  /** Which build the chat belongs to: new carts start a new chat. */
+  const [buildId, setBuildId] = useState(0);
+  /** Lines the cart helper just changed ("cart:product"), highlighted for a moment. */
+  const [flash, setFlash] = useState<string[]>([]);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function applyAgentCarts(next: AgentCart[], changed: string[]) {
+    setCarts(next);
+    setFlash(changed);
+    if (flashTimer.current) clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setFlash([]), 2600);
+  }
 
   async function run(query: string) {
     const id = ++requestId.current;
@@ -50,7 +65,9 @@ export function CartBuilder() {
       if (id !== requestId.current) return; // a newer request replaced this one
       if (r.ok) {
         setPhase({ kind: "done", query, res: body });
-        setCarts((body as BuildCartsResponse).variants.map(toEditable));
+        const built = body as BuildCartsResponse;
+        setCarts(built.variants.map((v) => ({ ...toEditable(v), requirements: built.requirements })));
+        setBuildId(id);
       } else {
         setPhase({ kind: "error", query, status: r.status, message: body.error ?? "Something went wrong.", retryAfter: body.retry_after });
       }
@@ -231,13 +248,16 @@ export function CartBuilder() {
                     id={`cart-${i}`}
                     tier={TIERS[i] ?? TIERS[2]}
                     cart={c}
-                    onChange={(next) => setCarts((cs) => cs.map((x, j) => (j === i ? next : x)))}
+                    flash={flash.filter((k) => k.startsWith(`${i}:`)).map((k) => k.slice(k.indexOf(":") + 1))}
+                    onChange={(next) => setCarts((cs) => cs.map((x, j) => (j === i ? { ...next, requirements: x.requirements } : x)))}
                     onSwap={(item) => setSwapping({ cart: i, item })}
                     onChoose={() => setChosen(i)}
                   />
                 </div>
               ))}
             </div>
+
+            <CartChat key={buildId} carts={carts} active={active} tiers={TIERS} onCarts={applyAgentCarts} />
           </section>
         )}
         </main>
