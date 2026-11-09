@@ -113,6 +113,13 @@ describe("set_requirements", () => {
     expect([...s.touched]).toEqual([0]);
   });
 
+  it("renames the dropped ingredient in the cart's description", async () => {
+    const s = fresh();
+    s.carts[0] = { ...s.carts[0], reason: "Simple home-style Chicken biryani." };
+    await run(s, "set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "Paneer" }] });
+    expect(s.carts[0].reason).toBe("Simple home-style paneer biryani.");
+  });
+
   it("clears a diet with \"any\" and a budget with 0, and leaves nulls alone", async () => {
     const s = fresh();
     await run(s, "set_requirements", { cart: 2, diet: "vegan", budget_inr: 500, drop_must_include: [] });
@@ -194,6 +201,18 @@ describe("cheapen", () => {
     const r = await run(s, "cheapen", { cart: 3, budget_inr: 700 });
     expect(r.ok).toBe(false);
     expect(s.carts[2].items.find((i) => i.product_id === "p002")?.qty).toBe(3);
+  });
+
+  it("records a budget it couldn't reach once removals bring the cart under it", async () => {
+    // Premium is ₹855; cheaper packs can't reach ₹700 without cutting the chicken, so the agent removes extras.
+    const s = fresh();
+    expect((await run(s, "cheapen", { cart: 3, budget_inr: 700 })).ok).toBe(false);
+    expect(s.carts[2].requirements.budget_inr).toBeNull();
+    await run(s, "remove_item", { cart: 3, product_id: "p009", done: false }); // premium rice: ₹718, still over
+    expect(s.carts[2].requirements.budget_inr).toBeNull();
+    const r = await run(s, "remove_item", { cart: 3, product_id: "p008", done: false }); // masala: ₹660
+    expect(r.output).toContain("The ₹700 budget is met and recorded.");
+    expect(s.carts[2].requirements.budget_inr).toBe(700);
   });
 
   it("cuts what it can when there's no budget, without recording one", async () => {

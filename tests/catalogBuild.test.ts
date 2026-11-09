@@ -22,7 +22,7 @@ describe("catalog pipeline: kinds", () => {
   it.each([
     ["Palakkad Red Matta Boiled Rice", "atta_rice_dal", "rice"], // was spinach ("palak" inside "Palakkad")
     ["Idli Rice", "atta_rice_dal", "idli_rice"], // was a beverage ("steam" contains "tea")
-    ["Chicken Seekh Kabab Malai N Cheese", "eggs_meat", "chicken"], // was cheese
+    ["Chicken Seekh Kabab Malai N Cheese", "eggs_meat", "ready_to_cook_meat"], // was cheese; not a plain cut either
     ["Rice - Flour", "atta_rice_dal", "flour"], // was rice
     ["Paneer - Premium Fresh", "dairy", "paneer"],
   ])("%s is %s / %s", (name, category, kind) => {
