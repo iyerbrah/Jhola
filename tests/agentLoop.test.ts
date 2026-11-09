@@ -167,6 +167,19 @@ describe("ending the turn in code", () => {
     expect(res.carts[0].items.map((i) => i.product_id)).toEqual(["p002", "p005"]);
   });
 
+  it("lets the model write the reply after any refused call, so it can explain what couldn't be done", async () => {
+    // cheapen can't reach ₹100, so the model removes things instead; code mustn't then say just "Done."
+    const { deps, sent } = setup([
+      step(["cheapen", { cart: 1, budget_inr: 100, done: false }]),
+      step(["remove_item", { cart: 1, product_id: "p003", done: true }]),
+      finish("₹100 isn't possible for this biryani; the lowest is ₹324, so I only removed the onion."),
+    ]);
+    const res = await runAgentTurn(turn("under ₹100"), deps);
+    expect(sent).toHaveLength(3);
+    expect(res.meta.finished_by).toBe("model");
+    expect(res.reply).toContain("isn't possible");
+  });
+
   it("lets the model finish a question itself", async () => {
     const { deps } = setup([finish("The chicken is most of it.")]);
     expect((await runAgentTurn(turn("why so expensive?"), deps)).meta.finished_by).toBe("model");
