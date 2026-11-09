@@ -32,11 +32,11 @@ function latestEval(): { summary: Summary; date: string; cases: number } | null 
 const STEPS = [
   {
     title: "Plan",
-    body: "One model call reads the request and decides three genuinely different carts (by price tier, cooking style or dish), each as a plain shopping list with amounts: “paneer 400 g; tomato 500 g…”. It also reads any budget, item count or main ingredient every cart must have, and says no to things that aren't groceries.",
+    body: "One model call reads the request and decides three genuinely different carts (by price tier, cooking style or dish), each as a plain shopping list with amounts: “paneer 400 g; tomato 500 g…”. It sees only a short index of the kinds of product the store stocks, not every product, and names the kinds each cart needs. It also reads any budget, item count or main ingredient every cart must have, and says no to things the store doesn't sell.",
   },
   {
     title: "Pick products, three at once",
-    body: "Three model calls run in parallel, one per cart, each mapping its list to catalog product IDs and how much of each is needed. A budget turns into a spend limit for each cart.",
+    body: "Three model calls run in parallel, one per cart. Each sees only the products of the kinds its list needs, from cheapest to priciest, and maps its list to product IDs and how much of each is needed. A budget turns into a spend limit for each cart.",
   },
   {
     title: "Code does the maths",
@@ -92,7 +92,7 @@ export default function HowItWorks() {
           </header>
           <h1 className="rise mt-8 max-w-3xl font-display text-5xl leading-[1.05] text-on-ink sm:text-6xl">The model picks. Code counts.</h1>
           <p className="rise mt-5 max-w-2xl text-lg leading-relaxed text-on-ink-soft" style={{ "--i": 1 } as React.CSSProperties}>
-            Jhola turns one sentence into three ready-to-order grocery carts from {catalog.length.toLocaleString("en-IN")} real Indian grocery products. A
+            Jhola turns one sentence into three ready-to-order carts from {catalog.length.toLocaleString("en-IN")} real Indian groceries and household essentials. A
             language model chooses what goes in each cart; ordinary code checks every choice and does all the maths, so the app never shows an invented
             product or price.
           </p>

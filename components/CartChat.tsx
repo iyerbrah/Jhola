@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import type { AgentCart } from "@/lib/agent/carts";
 import type { CartChange } from "@/lib/agent/changes";
 import { agentRequest, chatHistory, describeChange, describeRequirements, sendAgentTurn, suggestionsFor } from "@/lib/agent/client";
-import { catalogIndex } from "@/lib/catalog";
 import { Feedback } from "./Feedback";
 import { rupees } from "./format";
 
@@ -90,7 +89,7 @@ export function CartChat({ carts, active, tiers, onCarts, buildId }: Props) {
   const latest = [...turns].reverse().find((t) => t.changes?.length);
   const canUndo = (t: Turn) => t === latest && !t.undone && t.after === JSON.stringify(carts);
   const cart = carts[target];
-  const chips = cart ? suggestionsFor(cart, catalogIndex) : [];
+  const chips = cart ? suggestionsFor(cart) : [];
 
   return (
     <section aria-label="Change a cart" className="mt-2 max-w-3xl rounded-3xl border-2 border-ink bg-paper p-5 shadow-lift">

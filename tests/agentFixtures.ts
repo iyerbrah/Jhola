@@ -16,6 +16,8 @@ export const products: Product[] = [
   { ...base, id: "p007", name: "Malai Paneer", category: "dairy", sub_category: "paneer", pack_size: 200, price: 72, tags: ["veg", "jain"] },
   { ...base, id: "p008", name: "Biryani Masala", category: "masalas_spices", sub_category: "biryani_masala", pack_size: 50, price: 58, tags: ["veg", "vegan"] },
   { ...base, id: "p009", name: "Premium Basmati Rice", brand: "Daawat", category: "atta_rice_dal", sub_category: "basmati_rice", pack_size: 1000, price: 137, tags: ["veg", "vegan", "jain"] },
+  // Not food: diets don't apply, so it has no diet tags and fits every diet.
+  { ...base, id: "p010", name: "Dishwash Liquid - Lemon", brand: "Vim", category: "cleaning_household", sub_category: "dishwash", unit: "ml", pack_size: 500, price: 105, tags: [] },
 ];
 
 export const index = indexCatalog(products);

@@ -30,6 +30,8 @@ export function priceVariants(variants: LlmVariant[], index: CatalogIndex): Pric
           optional: it.optional,
           note: it.note,
           sub_category: p.sub_category,
+          category: p.category,
+          tags: p.tags,
         },
       ];
     });

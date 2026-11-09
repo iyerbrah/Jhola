@@ -2,8 +2,9 @@
  * The browser side of the cart editor agent: builds the /api/agent request, reads the streamed
  * JSON lines, and describes the result for the chat. No React here, so it's unit-tested.
  */
-import type { CatalogIndex } from "../catalog";
 import { cartTotal } from "../cartState";
+import { fitsDiet } from "../requirements";
+import { isFood } from "../schema";
 import type { AgentStreamEvent } from "./api";
 import type { AgentCart } from "./carts";
 import type { CartChange } from "./changes";
@@ -96,16 +97,17 @@ export function describeRequirements(c: CartChange): string {
 }
 
 /**
- * Suggestion chips for a cart, worked out from what's in it: "Make it vegetarian" only if something
- * isn't veg, and a budget a fair step below the current total.
+ * Suggestion chips for a cart, worked out from what's in it: "Make it vegetarian" only if some food in it
+ * isn't veg, and a budget a fair step below the current total. Reads the items' own tags, so the browser
+ * doesn't need the catalog.
  */
-export function suggestionsFor(cart: AgentCart, index: CatalogIndex): string[] {
+export function suggestionsFor(cart: AgentCart): string[] {
   const ordered = cart.items.filter((it) => it.included);
   const chips: string[] = [];
-  if (cart.requirements.diet == null && ordered.some((it) => !index.get(it.product_id)?.tags.includes("veg"))) chips.push("Make it vegetarian");
+  if (cart.requirements.diet == null && ordered.some((it) => !fitsDiet(it, "veg"))) chips.push("Make it vegetarian");
   const target = Math.floor((cartTotal(cart) * 0.8) / 50) * 50;
   if (target >= 100) chips.push(`Keep it under ₹${target}`);
-  chips.push("Make it cheaper", "Add something for dessert");
+  chips.push("Make it cheaper", ordered.some(isFood) ? "Add something for dessert" : "Add anything I've missed");
   return chips.slice(0, 4);
 }
 

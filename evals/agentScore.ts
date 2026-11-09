@@ -7,7 +7,7 @@ import type { AgentCart } from "@/lib/agent/carts";
 import { checkCart } from "@/lib/agent/carts";
 import type { CatalogIndex } from "@/lib/catalog";
 import { cartTotal } from "@/lib/cartState";
-import type { Diet } from "@/lib/requirements";
+import { fitsDiet, type Diet } from "@/lib/requirements";
 import type { Product } from "@/lib/schema";
 import { matchesKind } from "@/lib/validate";
 import { percentile } from "./score";
@@ -27,7 +27,7 @@ export type AgentCheck =
   | { only_changed: number[] }
   /** Nothing changed at all. */
   | { unchanged: true }
-  /** Every ordered item has this diet tag. */
+  /** Every ordered food item has this diet tag. */
   | { diet: [cart: number, diet: Diet] }
   /** At least one ordered item matches one of these kinds. */
   | { contains_any: [cart: number, kinds: string[]] }
@@ -119,7 +119,7 @@ export function runCheck(check: AgentCheck, start: AgentCart[], final: AgentCart
   if ("diet" in check) {
     const [n, diet] = check.diet;
     return ordered(cart(n), index)
-      .filter(({ p }) => !p.tags.includes(diet))
+      .filter(({ p }) => !fitsDiet(p, diet))
       .map(({ p }) => `${name(n)} has ${p.name}, which isn't ${diet}`);
   }
   if ("contains_any" in check) {

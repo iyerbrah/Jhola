@@ -5,12 +5,12 @@
  *   so they're rebuilt from product IDs and quantities alone; every name, price and pack
  *   comes from the catalog. Anything else the browser sends (a price, a total) is ignored.
  * - checkCart: the rules an edited cart must still pass. Item, budget, item-count and
- *   named-ingredient checks are the cart builder's own (lib/validate.ts); diet is new.
+ *   named-ingredient checks are the cart builder's own (lib/validate.ts); diet is new (food only).
  */
 import { z } from "zod";
 import type { CatalogIndex } from "../catalog";
 import { MAX_QTY, type CartItem, type EditableCart } from "../cartState";
-import { DIET_LABELS, RequirementsSchema, type Requirements } from "../requirements";
+import { DIET_LABELS, fitsDiet, RequirementsSchema, type Requirements } from "../requirements";
 import { packLabel, type LlmVariant, type Product } from "../schema";
 import { matchesKind, missingNamed, variantErrors } from "../validate";
 
@@ -60,6 +60,8 @@ export function toCartItem(p: Product, qty: number, optional: boolean, included:
     included: optional ? included : true,
     note,
     sub_category: p.sub_category,
+    category: p.category,
+    tags: p.tags,
   };
 }
 
@@ -122,7 +124,7 @@ export function checkCart(cart: AgentCart, index: CatalogIndex): string[] {
   if (diet) {
     for (const it of variant.items) {
       const p = index.get(it.product_id);
-      if (p && !p.tags.includes(diet)) problems.push(`${cart.name}: ${it.product_id} (${p.name}) isn't ${DIET_LABELS[diet]}`);
+      if (p && !fitsDiet(p, diet)) problems.push(`${cart.name}: ${it.product_id} (${p.name}) isn't ${DIET_LABELS[diet]}`);
     }
   }
   return problems;

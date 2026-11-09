@@ -10,7 +10,7 @@ import type { CatalogIndex } from "../catalog";
 import { fitToBudget } from "../budget";
 import { cartTotal, MAX_QTY, removeItem, setQty, swapItem } from "../cartState";
 import { isSameKind } from "../kind";
-import { DIET_LABELS, DIETS } from "../requirements";
+import { DIET_LABELS, DIETS, fitsDiet, shownTags } from "../requirements";
 import { matchesKind } from "../validate";
 import { CATEGORIES, packLabel, type LlmVariant, type Product } from "../schema";
 import { checkCart, MAX_ITEMS, toCartItem, type AgentCart } from "./carts";
@@ -182,7 +182,7 @@ export function hitLine(h: SearchHit): string {
   return [h.id, h.name, h.brand, h.pack, `₹${h.price}`, h.sub_category, h.tags.join(",") || "-", h.in_stock ? "in stock" : "OUT OF STOCK"].join(" | ");
 }
 
-const productLine = (p: Product) => hitLine({ id: p.id, name: p.name, brand: p.brand, pack: packLabel(p), price: p.price, sub_category: p.sub_category, tags: p.tags, in_stock: p.in_stock });
+const productLine = (p: Product) => hitLine({ id: p.id, name: p.name, brand: p.brand, pack: packLabel(p), price: p.price, sub_category: p.sub_category, tags: shownTags(p), in_stock: p.in_stock });
 
 /** A cart as compact text: requirements, total and one line per item with its diet tags. */
 export function cartView(c: AgentCart, i: number, index: CatalogIndex, active?: number, editable?: boolean): string {
@@ -195,7 +195,7 @@ export function cartView(c: AgentCart, i: number, index: CatalogIndex, active?: 
   ].join("; ");
   const lines = c.items.map((it) => {
     const p = index.get(it.product_id);
-    const tags = p?.tags.join(",") || "-";
+    const tags = (p && shownTags(p).join(",")) || "-";
     const flags = [it.optional ? (it.included ? "optional, ticked" : "optional, not ticked") : "", p && !p.in_stock ? "OUT OF STOCK" : ""].filter(Boolean).join(", ");
     return `- ${it.product_id} | ${it.name} | ${it.brand} | ${it.pack_label} | ₹${it.price} × ${it.qty} = ₹${it.line_total} | ${it.sub_category} | ${tags}${flags ? ` | ${flags}` : ""}`;
   });
@@ -281,7 +281,7 @@ const amount = (p: Product, qty: number) => `${qty} × ${packLabel(p)}`;
  */
 export function fitCart(c: AgentCart, budget: number, deps: ToolDeps): AgentCart | null {
   const diet = c.requirements.diet;
-  const products = diet ? deps.products.filter((p) => p.tags.includes(diet)) : deps.products;
+  const products = diet ? deps.products.filter((p) => fitsDiet(p, diet)) : deps.products;
   const ordered = c.items.map((it, i) => ({ it, i })).filter(({ it }) => it.included);
   const variant: LlmVariant = {
     name: c.name,
@@ -302,8 +302,9 @@ export function fitCart(c: AgentCart, budget: number, deps: ToolDeps): AgentCart
 }
 
 /**
- * Swaps each ordered item without the cart's diet tag for the in-stock product of the same kind that
- * has it, closest in pack size, then price. Returns the new cart and the items with no such product.
+ * Swaps each ordered item that breaks the cart's diet for the in-stock product of the same kind that
+ * fits it, closest in pack size, then price. Non-food items are left alone. Returns the new cart and the
+ * items with no such product.
  */
 export function fitDiet(c: AgentCart, deps: ToolDeps): { cart: AgentCart; swapped: [Product, Product][]; left: Product[] } {
   const diet = c.requirements.diet;
@@ -313,10 +314,10 @@ export function fitDiet(c: AgentCart, deps: ToolDeps): { cart: AgentCart; swappe
   if (!diet) return { cart, swapped, left };
   for (const it of c.items) {
     const p = deps.index.get(it.product_id);
-    if (!it.included || !p || p.tags.includes(diet)) continue;
+    if (!it.included || !p || fitsDiet(p, diet)) continue;
     const inCart = new Set(cart.items.map((x) => x.product_id));
     const alt = deps.products
-      .filter((x) => x.in_stock && !inCart.has(x.id) && x.tags.includes(diet) && isSameKind(p, x))
+      .filter((x) => x.in_stock && !inCart.has(x.id) && fitsDiet(x, diet) && isSameKind(p, x))
       .sort((a, b) => Math.abs(Math.log(a.pack_size / p.pack_size)) - Math.abs(Math.log(b.pack_size / p.pack_size)) || Math.abs(a.price - p.price) - Math.abs(b.price - p.price))[0];
     if (alt) {
       cart = swapKeepingAmount(cart, p, it.qty, alt).cart;
@@ -477,7 +478,7 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
       // A replacement becomes the dish's new named ingredient, so finish checks the cart really has it.
       const replacements = a.drop_must_include.flatMap((d) => (d.replaced_by ? [d.replaced_by.trim().toLowerCase()] : []));
       for (const k of replacements) {
-        const stocked = deps.products.some((p) => p.in_stock && (!r.diet || p.tags.includes(r.diet)) && matchesKind(p, k));
+        const stocked = deps.products.some((p) => p.in_stock && (!r.diet || fitsDiet(p, r.diet)) && matchesKind(p, k));
         if (!stocked) return fail(`no in-stock${r.diet ? ` ${DIET_LABELS[r.diet]}` : ""} product matches "${k}". Search for what to use instead, then name its kind (like paneer).`);
       }
       r.must_include = [...new Set([...r.must_include.filter((k) => !dropped.includes(k)), ...replacements])].slice(0, 5);

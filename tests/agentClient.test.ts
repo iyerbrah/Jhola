@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { CartChange } from "@/lib/agent/changes";
 import { agentRequest, chatHistory, describeChange, describeRequirements, readAgentStream, sendAgentTurn, suggestionsFor } from "@/lib/agent/client";
-import { biryaniCarts, index } from "./agentFixtures";
+import { biryaniCarts } from "./agentFixtures";
 
 /** A streamed response whose body arrives in the given chunks (lines can be split across chunks). */
 const streamed = (chunks: string[], status = 200) =>
@@ -91,17 +91,17 @@ describe("describing a change", () => {
 describe("suggestionsFor", () => {
   it("offers vegetarian only for a cart with non-veg items, and a budget below the current total", () => {
     const [biryani] = biryaniCarts(); // ₹534 with chicken
-    expect(suggestionsFor(biryani, index)).toEqual(["Make it vegetarian", "Keep it under ₹400", "Make it cheaper", "Add something for dessert"]);
+    expect(suggestionsFor(biryani)).toEqual(["Make it vegetarian", "Keep it under ₹400", "Make it cheaper", "Add something for dessert"]);
     const veg = { ...biryani, items: biryani.items.filter((i) => i.product_id !== "p002") };
-    expect(suggestionsFor(veg, index)).not.toContain("Make it vegetarian");
+    expect(suggestionsFor(veg)).not.toContain("Make it vegetarian");
     const already = { ...biryani, requirements: { ...biryani.requirements, diet: "veg" as const } };
-    expect(suggestionsFor(already, index)).not.toContain("Make it vegetarian");
+    expect(suggestionsFor(already)).not.toContain("Make it vegetarian");
   });
 
   it("leaves out a budget for a small cart", () => {
     const [biryani] = biryaniCarts();
     const small = { ...biryani, items: biryani.items.filter((i) => i.product_id === "p003") };
-    expect(suggestionsFor(small, index).some((c) => c.startsWith("Keep it under"))).toBe(false);
+    expect(suggestionsFor(small).some((c) => c.startsWith("Keep it under"))).toBe(false);
   });
 });
 
