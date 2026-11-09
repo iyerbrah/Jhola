@@ -25,26 +25,27 @@ export function orderedItems(cart: EditableCart): CartItem[] {
   return cart.items.filter((it) => it.included);
 }
 
-const update = (cart: EditableCart, id: string, fn: (it: CartItem) => CartItem): EditableCart => ({
+// Generic, so a cart with extra fields (the agent's requirements) keeps them through an edit.
+const update = <C extends EditableCart>(cart: C, id: string, fn: (it: CartItem) => CartItem): C => ({
   ...cart,
   items: cart.items.map((it) => (it.product_id === id ? fn(it) : it)),
 });
 
-export function setQty(cart: EditableCart, id: string, qty: number): EditableCart {
+export function setQty<C extends EditableCart>(cart: C, id: string, qty: number): C {
   const q = Math.min(MAX_QTY, Math.max(1, Math.round(qty)));
   return update(cart, id, (it) => ({ ...it, qty: q, line_total: it.price * q }));
 }
 
-export function removeItem(cart: EditableCart, id: string): EditableCart {
+export function removeItem<C extends EditableCart>(cart: C, id: string): C {
   return { ...cart, items: cart.items.filter((it) => it.product_id !== id) };
 }
 
-export function toggleOptional(cart: EditableCart, id: string): EditableCart {
+export function toggleOptional<C extends EditableCart>(cart: C, id: string): C {
   return update(cart, id, (it) => (it.optional ? { ...it, included: !it.included } : it));
 }
 
 /** Replace a product with another from the catalog, keeping qty and optional/ticked state. */
-export function swapItem(cart: EditableCart, id: string, p: Product): EditableCart {
+export function swapItem<C extends EditableCart>(cart: C, id: string, p: Product): C {
   return update(cart, id, (it) => ({
     ...it,
     product_id: p.id,
