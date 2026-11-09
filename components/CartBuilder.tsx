@@ -110,6 +110,26 @@ export function CartBuilder({ catalogSize }: { catalogSize: number }) {
     return () => row.removeEventListener("scroll", onScroll);
   }, [carts.length]);
 
+  // On phones the row is only as tall as the cart in view, not the tallest cart, so a short cart isn't
+  // followed by a blank gap before the chat. Desktop shows all three side by side and is left alone.
+  useEffect(() => {
+    const row = rowRef.current;
+    if (!row) return;
+    const wide = window.matchMedia("(min-width: 1024px)");
+    const fit = () => {
+      const card = row.children[active] as HTMLElement | undefined;
+      row.style.height = !wide.matches && card ? `${card.offsetHeight + 24}px` : ""; // + the row's pb-6
+    };
+    fit();
+    const resized = new ResizeObserver(fit);
+    for (const child of row.children) resized.observe(child);
+    wide.addEventListener("change", fit);
+    return () => {
+      resized.disconnect();
+      wide.removeEventListener("change", fit);
+    };
+  }, [active, carts]);
+
   // Keep the active pill visible in the strip (sideways only).
   useEffect(() => {
     const strip = stripRef.current;
@@ -236,7 +256,7 @@ export function CartBuilder({ catalogSize }: { catalogSize: number }) {
 
             <div
               ref={rowRef}
-              className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-4 px-4 pb-6 lg:mx-0 lg:grid lg:grid-cols-3 lg:items-start lg:overflow-visible lg:px-0"
+              className="-mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto overflow-y-hidden scroll-px-4 px-4 pb-6 transition-[height] duration-300 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0"
             >
               {carts.map((c, i) => (
                 // Carts rise in one after another; on desktop the middle one sits lower to break the grid.
