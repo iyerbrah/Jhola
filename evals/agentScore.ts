@@ -163,7 +163,9 @@ export function runCheck(check: AgentCheck, start: AgentCart[], final: AgentCart
     return got === value ? [] : [`${name(n)} ${field} is ${got ?? "none"}, not ${value ?? "none"}`];
   }
   const words = check.reply_any;
-  return words.some((w) => reply.toLowerCase().includes(w.toLowerCase())) ? [] : [`the reply mentions none of: ${words.join(", ")}`];
+  // Curly and straight apostrophes count the same: "I can’t" is "I can't".
+  const plain = (t: string) => t.toLowerCase().replace(/[‘’]/g, "'");
+  return words.some((w) => plain(reply).includes(plain(w))) ? [] : [`the reply mentions none of: ${words.join(", ")}`];
 }
 
 export function scoreScenario(s: AgentScenario, start: AgentCart[], final: AgentCart[], turns: TurnRecord[], index: CatalogIndex): ScenarioScore {
