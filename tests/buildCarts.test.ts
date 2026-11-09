@@ -18,9 +18,9 @@ function plan(overrides: Partial<Plan> = {}): Plan {
     constraints: { budget_inr: null, item_count: null, item_kind: null },
     must_include: [],
     variants: [
-      { name: "Classic", reason: "From scratch", shopping_list: "paneer 400 g; tomato; onion; cream; salt (optional)" },
-      { name: "Budget", reason: "Butter instead of cream", shopping_list: "paneer 400 g; tomato; butter; paneer masala" },
-      { name: "Shortcut", reason: "Ready gravy", shopping_list: "paneer 400 g; ready gravy" },
+      { name: "Classic", reason: "From scratch", shopping_list: "paneer 400 g; tomato; onion; cream; salt (optional)", kinds: ["paneer", "tomato", "onion", "cream", "salt"] },
+      { name: "Budget", reason: "Butter instead of cream", shopping_list: "paneer 400 g; tomato; butter; paneer masala", kinds: ["paneer", "tomato", "butter", "paneer_masala"] },
+      { name: "Shortcut", reason: "Ready gravy", shopping_list: "paneer 400 g; ready gravy", kinds: ["paneer", "gravy"] },
     ],
     ...overrides,
   };

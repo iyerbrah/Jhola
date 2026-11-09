@@ -3,6 +3,7 @@ import { fitToBudget } from "./budget";
 import { diversify } from "./diversify";
 import { tidyCart } from "./tidy";
 import { catalog, catalogIndex, indexCatalog, type CatalogIndex } from "./catalog";
+import { productsForCart } from "./cartProducts";
 import { LlmError, openAiClient, type ChatMessage, type LlmClient, type LlmResult, type LlmUsage } from "./llm";
 import { markPantryOptional } from "./pantry";
 import { requirementsFromPlan } from "./requirements";
@@ -27,8 +28,8 @@ let cachedInstructions: string | null = null;
 const NO_CARTS_MESSAGE = "Sorry, I couldn't build a cart that fits this request. Try rephrasing it or loosening the budget.";
 
 /**
- * query -> plan (1 call) -> 3 carts (3 calls in parallel) -> validate
- * -> repair only the carts that broke a rule (in parallel, once) -> price.
+ * query -> plan (1 call, sees the kinds of product) -> 3 carts (3 calls in parallel, each sees only the
+ * products of the kinds it needs) -> validate -> repair only the carts that broke a rule (in parallel, once) -> price.
  * Throws LlmError if the provider fails twice on the plan, or on every cart.
  */
 export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Promise<BuildCartsResponse> {
@@ -98,8 +99,9 @@ export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Prom
   plan.must_include = (plan.must_include ?? []).filter((kind) => products.some((p) => p.in_stock && matchesKind(p, kind)));
   const planned = plan.variants.slice(0, 3);
 
-  // 2. Carts, in parallel. A cart whose call fails twice is dropped.
-  const cartMessages = planned.map((v, i) => user(cartMessage(query, plan, v, i)));
+  // 2. Carts, in parallel, each with the products of its kinds. A cart whose call fails twice is dropped.
+  const shown = await Promise.all(planned.map((v) => productsForCart(v, plan, products)));
+  const cartMessages = planned.map((v, i) => user(cartMessage(query, plan, v, i, shown[i])));
   const carts: (Cart | null)[] = await Promise.all(
     cartMessages.map((messages, i) => withRetry(`cart:${i + 1}`, () => llm.cart({ instructions, messages })).catch((err) => {
       if (err instanceof LlmError) return null;
