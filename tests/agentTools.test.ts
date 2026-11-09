@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { diffCarts } from "@/lib/agent/changes";
 import { cartView, runTool, statusFor, TOOL_SPECS, type AgentState } from "@/lib/agent/tools";
 import { cartTotal } from "@/lib/cartState";
-import { biryaniCarts, deps, index } from "./agentFixtures";
+import { toCartItem } from "@/lib/agent/carts";
+import { biryaniCarts, deps, index, none } from "./agentFixtures";
 
 const fresh = (): AgentState => ({ carts: biryaniCarts(), active: 0, version: 0, touched: new Set() });
 const run = (state: AgentState, name: string, args: unknown) => runTool(name, JSON.stringify(args), state, deps);
@@ -111,6 +112,46 @@ describe("set_requirements", () => {
   it("refuses to drop an ingredient the cart doesn't require", async () => {
     const r = await run(fresh(), "set_requirements", { cart: 1, diet: null, budget_inr: null, drop_must_include: ["mutton"] });
     expect(r.output).toContain("cart 1 doesn't require mutton. It requires: chicken");
+  });
+});
+
+describe("cheapen", () => {
+  it("reaches a budget with the smallest change that's enough", async () => {
+    const s = fresh();
+    // Premium: chicken ×3 ₹630 + premium rice ₹137 + onion ₹30 + masala ₹58 = ₹855. One pack of chicken fewer is enough.
+    const r = await run(s, "cheapen", { cart: 3, budget_inr: 800 });
+    expect(r.ok).toBe(true);
+    expect(r.output).toContain("Cheaper packs and brands: ₹855 → ₹645.");
+    expect(s.carts[2].items.find((i) => i.product_id === "p002")?.qty).toBe(2);
+    expect([...s.touched]).toEqual([2]);
+  });
+
+  it("cuts about 15% when there's no budget", async () => {
+    const s = fresh();
+    await run(s, "cheapen", { cart: 3, budget_inr: null });
+    expect(cartTotal(s.carts[2])).toBeLessThanOrEqual(Math.floor(855 * 0.85));
+  });
+
+  it("changes nothing when the budget can't be reached, and says the lowest it can do", async () => {
+    const s = fresh();
+    const r = await run(s, "cheapen", { cart: 1, budget_inr: 100 });
+    expect(r.ok).toBe(false);
+    expect(r.output).toContain("can't get cart 1 to ₹100: the lowest they reach is ₹324. Nothing changed.");
+    expect(s.carts).toEqual(biryaniCarts());
+    expect((await run(s, "cheapen", { cart: 1, budget_inr: 600 })).output).toContain("already ₹534, at or under ₹600. Nothing changed.");
+  });
+
+  it("only swaps to products with the cart's diet", async () => {
+    // One line: Fresh Paneer ₹95. Malai Paneer ₹72 is the cheaper twin; it's jain, but not vegan.
+    const onePaneer = (diet: "jain" | "vegan" | null): AgentState => ({
+      carts: [{ name: "Paneer", reason: "", items: [toCartItem(index.get("p001")!, 1, false, true)], requirements: { ...none, diet } }],
+      active: 0,
+      version: 0,
+      touched: new Set(),
+    });
+    expect((await run(onePaneer(null), "cheapen", { cart: 1, budget_inr: null })).output).toContain("₹95 → ₹72");
+    expect((await run(onePaneer("jain"), "cheapen", { cart: 1, budget_inr: null })).output).toContain("₹95 → ₹72");
+    expect((await run(onePaneer("vegan"), "cheapen", { cart: 1, budget_inr: null })).output).toContain("no cheaper packs or brands");
   });
 });
 

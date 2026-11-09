@@ -19,9 +19,12 @@ import type { CatalogSearch } from "./search";
 import { runTool, statusFor, type AgentState } from "./tools";
 
 export const LIMITS = {
-  /** A normal edit takes 2-5 tool calls; more means the agent is lost. */
-  maxToolCalls: 8,
-  maxModelCalls: 5,
+  /**
+   * A normal edit takes 2-5 tool calls; a diet change on a rich cart (4 swaps) takes up to 10.
+   * The first eval run hit 8 and 5 on those; past these limits the agent is lost.
+   */
+  maxToolCalls: 12,
+  maxModelCalls: 6,
   deadlineMs: 25_000,
   /** Earlier chat messages sent with each turn. */
   historyMessages: 6,
