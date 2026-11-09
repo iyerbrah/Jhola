@@ -159,6 +159,10 @@ const KEYWORDS: [RegExp, string, Category[]?][] = [
   [/cheese/i, "cheese", ["dairy"]],
   [/\bmilk\b/i, "milk", ["dairy"]],
   [/\beggs?\b/i, "eggs", ["eggs_meat"]],
+  // Meat that isn't a plain cut gets its own kind, so a budget chicken biryani gets curry-cut chicken,
+  // not the cheapest liver or a marinated tikka.
+  [/liver|gizzard|kidney|\bpaya\b|\bfat\b|brain|soup pieces/i, "offal_and_bones", ["eggs_meat"]],
+  [/tikka|kabab|kebab|seekh|patty|pops|nuggets?|supreme|crispy|peri.?peri|bbq|tandoori|hariyali|afghani|lollipop|lollypop|chilli chicken|achari|sausage|salami|marinated/i, "ready_to_cook_meat", ["eggs_meat"]],
   [/chicken/i, "chicken", ["eggs_meat"]],
   [/mutton|\blamb\b|goat/i, "mutton", ["eggs_meat"]],
   [/prawn|shrimp/i, "prawns", ["eggs_meat"]],

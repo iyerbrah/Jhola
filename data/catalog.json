@@ -17174,96 +17174,6 @@
   ]
  },
  {
-  "id": "p1555",
-  "name": "Amritsari Achari Chicken Tikka - Fresh",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 119,
-  "mrp": 278,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1556",
-  "name": "Amritsari Achari Chicken Tikka - Fresh",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 319,
-  "mrp": 526,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1557",
-  "name": "BBQ Pepper Chicken Cubes - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 119,
-  "mrp": 229,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1558",
-  "name": "BBQ Pepper Chicken Cubes - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 279,
-  "mrp": 459,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1559",
-  "name": "BBQ Pepper Exotic Whole Chicken Wings With",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 99,
-  "mrp": 179,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1560",
-  "name": "BBQ Pepper Exotic Whole Chicken Wings With",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 179,
-  "mrp": 294,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
   "id": "p1561",
   "name": "Chicken - Biryani Cut",
   "brand": "Fresho",
@@ -17309,81 +17219,6 @@
   ]
  },
  {
-  "id": "p518",
-  "name": "Chicken - Gizzard",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 94,
-  "mrp": 151,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p519",
-  "name": "Chicken - Gizzard",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 1000,
-  "unit": "g",
-  "price": 169,
-  "mrp": 235,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p520",
-  "name": "Chicken - Liver",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 1000,
-  "unit": "g",
-  "price": 139,
-  "mrp": 193,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1564",
-  "name": "Chicken - Lollipop",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 112,
-  "mrp": 155,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1565",
-  "name": "Chicken - Lollipop",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 209,
-  "mrp": 290,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
   "id": "p1566",
   "name": "Chicken - Mince",
   "brand": "Fresho",
@@ -17423,21 +17258,6 @@
   "unit": "g",
   "price": 439,
   "mrp": 610,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p521",
-  "name": "Chicken - Soup Pieces",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 900,
-  "unit": "g",
-  "price": 149,
-  "mrp": 207,
   "in_stock": true,
   "tags": [
    "high_protein"
@@ -17513,36 +17333,6 @@
   "unit": "g",
   "price": 211,
   "mrp": 360,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p522",
-  "name": "Chicken Burger Patty - Crunchy Outside",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 2,
-  "unit": "pcs",
-  "price": 329,
-  "mrp": 542,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p523",
-  "name": "Chicken Burger Patty - Crunchy Outside",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 4,
-  "unit": "pcs",
-  "price": 119,
-  "mrp": 197,
   "in_stock": true,
   "tags": [
    "high_protein"
@@ -17639,36 +17429,6 @@
   ]
  },
  {
-  "id": "p1580",
-  "name": "Chicken Hariyali Lollypop - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 99,
-  "mrp": 197,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1581",
-  "name": "Chicken Hariyali Lollypop - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 219,
-  "mrp": 362,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
   "id": "p1582",
   "name": "Chicken Leg - Without Skin",
   "brand": "Fresho",
@@ -17693,66 +17453,6 @@
   "unit": "g",
   "price": 189,
   "mrp": 263,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p524",
-  "name": "Chicken Liver",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 79,
-  "mrp": 109,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1584",
-  "name": "Chicken Malai Tikka - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 119,
-  "mrp": 245,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1585",
-  "name": "Chicken Malai Tikka - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 319,
-  "mrp": 526,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1586",
-  "name": "Chicken Masala Tikka",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 473,
-  "mrp": 675,
   "in_stock": true,
   "tags": [
    "high_protein"
@@ -17798,96 +17498,6 @@
   "unit": "g",
   "price": 139,
   "mrp": 193,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1590",
-  "name": "Chicken Seekh Kabab - Pahadi",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 242,
-  "mrp": 345,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1591",
-  "name": "Chicken Seekh Kabab Lime N Pudina",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 336,
-  "mrp": 480,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p517",
-  "name": "Chicken Seekh Kabab Malai N Cheese",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 249,
-  "mrp": 355,
-  "in_stock": false,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1592",
-  "name": "Chicken Seekh Kabab Nawabi",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 280,
-  "mrp": 400,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1593",
-  "name": "Chicken Seekh Kabab Punjabi",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 249,
-  "mrp": 355,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1594",
-  "name": "Chicken Seekh Kabab Regular",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 242,
-  "mrp": 345,
   "in_stock": true,
   "tags": [
    "high_protein"
@@ -17984,186 +17594,6 @@
   ]
  },
  {
-  "id": "p1600",
-  "name": "Chilli Chicken Pieces - Boneless",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 139,
-  "mrp": 193,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1601",
-  "name": "Chilli Chicken Pieces - Boneless",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 269,
-  "mrp": 374,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1602",
-  "name": "Creamy Afghani Chicken Tikka - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 119,
-  "mrp": 245,
-  "in_stock": false,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1603",
-  "name": "Creamy Afghani Chicken Tikka - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 299,
-  "mrp": 493,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1604",
-  "name": "Crispy Chicken Pops - Crunchy Outside",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 139,
-  "mrp": 229,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1605",
-  "name": "Crispy Chicken Pops - Crunchy Outside",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 249,
-  "mrp": 410,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1606",
-  "name": "Crispy Chicken Supreme - Juicy Texture",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 169,
-  "mrp": 278,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1607",
-  "name": "Crispy Chicken Supreme - Juicy Texture",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 249,
-  "mrp": 410,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1608",
-  "name": "Crispy Chicken Wings - Juicy Texture",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 109,
-  "mrp": 179,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1609",
-  "name": "Crispy Chicken Wings - Juicy Texture",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 199,
-  "mrp": 328,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p526",
-  "name": "Lush Hariyali Chicken Tikka - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 119,
-  "mrp": 245,
-  "in_stock": false,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p527",
-  "name": "Lush Hariyali Chicken Tikka - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 319,
-  "mrp": 526,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
   "id": "p1610",
   "name": "Mixed Chicken Pieces - Boneless",
   "brand": "Fresho",
@@ -18173,126 +17603,6 @@
   "unit": "g",
   "price": 259,
   "mrp": 360,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1611",
-  "name": "Peri Peri Chicken Drumstick - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 119,
-  "mrp": 229,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1612",
-  "name": "Peri Peri Chicken Drumstick - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 221,
-  "mrp": 365,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1613",
-  "name": "Peri-Peri Chicken Wings - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 99,
-  "mrp": 181,
-  "in_stock": false,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1614",
-  "name": "Peri-Peri Chicken Wings - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 199,
-  "mrp": 328,
-  "in_stock": false,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1615",
-  "name": "Tandoori Chicken - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 119,
-  "mrp": 197,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1616",
-  "name": "Tandoori Chicken - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 219,
-  "mrp": 362,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1617",
-  "name": "Tandoori Chicken Wings - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 99,
-  "mrp": 181,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1618",
-  "name": "Tandoori Chicken Wings - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "chicken",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 179,
-  "mrp": 294,
   "in_stock": true,
   "tags": [
    "high_protein"
@@ -18368,51 +17678,6 @@
   "unit": "pcs",
   "price": 181,
   "mrp": 210,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1619",
-  "name": "Amritsari Achari Fish Tikka - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 129,
-  "mrp": 362,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1620",
-  "name": "Amritsari Achari Fish Tikka - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 399,
-  "mrp": 658,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1621",
-  "name": "Amritsari Achari Seer Fish Steak",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 389,
-  "mrp": 642,
   "in_stock": true,
   "tags": [
    "high_protein"
@@ -18565,36 +17830,6 @@
   ]
  },
  {
-  "id": "p1630",
-  "name": "BBQ Pepper Fish - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 129,
-  "mrp": 362,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1631",
-  "name": "BBQ Pepper Fish - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 399,
-  "mrp": 658,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
   "id": "p1632",
   "name": "Bele Fish Whole-B",
   "brand": "Fresho",
@@ -18684,126 +17919,6 @@
   ]
  },
  {
-  "id": "p535",
-  "name": "Classic Hariyali Rohu Fish Steak",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 79,
-  "mrp": 130,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p536",
-  "name": "Classic Hariyali Rohu Fish Steak",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 139,
-  "mrp": 229,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1638",
-  "name": "Crispy Fish Fillet - Crunchy Outside",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 219,
-  "mrp": 362,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1639",
-  "name": "Crispy Fish Fillet - Crunchy Outside",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 409,
-  "mrp": 674,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1640",
-  "name": "Crispy Fish Finger - Crunchy Outside",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 219,
-  "mrp": 362,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1641",
-  "name": "Crispy Fish Finger - Crunchy Outside",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 409,
-  "mrp": 674,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1642",
-  "name": "Desi Rohu Fish Steak - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 89,
-  "mrp": 147,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1643",
-  "name": "Desi Rohu Fish Steak - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 139,
-  "mrp": 229,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
   "id": "p537",
   "name": "Fish - Katla",
   "brand": "Fresho",
@@ -18828,66 +17943,6 @@
   "unit": "g",
   "price": 119,
   "mrp": 166,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1645",
-  "name": "Fish Chettinad Cubes - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 129,
-  "mrp": 362,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1646",
-  "name": "Fish Chettinad Cubes - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 399,
-  "mrp": 658,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1647",
-  "name": "Honey Mustard Fish - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 129,
-  "mrp": 312,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1648",
-  "name": "Honey Mustard Fish - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 399,
-  "mrp": 658,
   "in_stock": true,
   "tags": [
    "high_protein"
@@ -19297,32 +18352,6 @@
   ]
  },
  {
-  "id": "p1676",
-  "name": "Malabar Style Pomfret Steak - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 429,
-  "mrp": 707,
-  "in_stock": true,
-  "tags": []
- },
- {
-  "id": "p1677",
-  "name": "Malabar Style Pomfret Steak - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 789,
-  "mrp": 1301,
-  "in_stock": false,
-  "tags": []
- },
- {
   "id": "p1678",
   "name": "Norwegian Salmon - Portions Skin On",
   "brand": "Cambay Tiger",
@@ -19525,62 +18554,6 @@
   ]
  },
  {
-  "id": "p1692",
-  "name": "Tandoori Catla Fish Steak - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 89,
-  "mrp": 147,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1693",
-  "name": "Tandoori Catla Fish Steak - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 149,
-  "mrp": 245,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p1694",
-  "name": "Tandoori Pomfret Whole - Pre Marinated",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 429,
-  "mrp": 707,
-  "in_stock": true,
-  "tags": []
- },
- {
-  "id": "p1695",
-  "name": "Tandoori Pomfret Whole - Pre Marinated",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "fish",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 789,
-  "mrp": 1301,
-  "in_stock": true,
-  "tags": []
- },
- {
   "id": "p1696",
   "name": "Tilapia Fillet - Fresh & Flavourful",
   "brand": "Fresho",
@@ -19734,32 +18707,6 @@
   "tags": []
  },
  {
-  "id": "p546",
-  "name": "Desi Catla Steak - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "marinated_meat",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 89,
-  "mrp": 147,
-  "in_stock": true,
-  "tags": []
- },
- {
-  "id": "p547",
-  "name": "Desi Catla Steak - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "marinated_meat",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 149,
-  "mrp": 245,
-  "in_stock": true,
-  "tags": []
- },
- {
   "id": "p548",
   "name": "Bombay Duck - Preservative Free",
   "brand": "Fresho",
@@ -19842,36 +18789,6 @@
   "unit": "g",
   "price": 479,
   "mrp": 778,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p549",
-  "name": "Mutton Fat",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "mutton",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 149,
-  "mrp": 207,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p550",
-  "name": "Mutton Fat",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "mutton",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 279,
-  "mrp": 291,
   "in_stock": true,
   "tags": [
    "high_protein"
@@ -20388,11 +19305,116 @@
   ]
  },
  {
+  "id": "p518",
+  "name": "Chicken - Gizzard",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "offal_and_bones",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 94,
+  "mrp": 151,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p519",
+  "name": "Chicken - Gizzard",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "offal_and_bones",
+  "pack_size": 1000,
+  "unit": "g",
+  "price": 169,
+  "mrp": 235,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p520",
+  "name": "Chicken - Liver",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "offal_and_bones",
+  "pack_size": 1000,
+  "unit": "g",
+  "price": 139,
+  "mrp": 193,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p521",
+  "name": "Chicken - Soup Pieces",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "offal_and_bones",
+  "pack_size": 900,
+  "unit": "g",
+  "price": 149,
+  "mrp": 207,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p524",
+  "name": "Chicken Liver",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "offal_and_bones",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 79,
+  "mrp": 109,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p549",
+  "name": "Mutton Fat",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "offal_and_bones",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 149,
+  "mrp": 207,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p550",
+  "name": "Mutton Fat",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "offal_and_bones",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 279,
+  "mrp": 291,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
   "id": "p557",
   "name": "Mutton Paya",
   "brand": "Fresho",
   "category": "eggs_meat",
-  "sub_category": "mutton",
+  "sub_category": "offal_and_bones",
   "pack_size": 1,
   "unit": "pcs",
   "price": 569,
@@ -20407,7 +19429,7 @@
   "name": "Mutton Paya - Cleaned",
   "brand": "Fresho",
   "category": "eggs_meat",
-  "sub_category": "mutton",
+  "sub_category": "offal_and_bones",
   "pack_size": 8,
   "unit": "pcs",
   "price": 1139,
@@ -20422,26 +19444,11 @@
   "name": "Mutton Paya - Cleaned",
   "brand": "Fresho",
   "category": "eggs_meat",
-  "sub_category": "mutton",
+  "sub_category": "offal_and_bones",
   "pack_size": 12,
   "unit": "pcs",
   "price": 1699,
   "mrp": 2363,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p558",
-  "name": "Mutton Shami Kabab",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "mutton",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 375,
-  "mrp": 535,
   "in_stock": true,
   "tags": [
    "high_protein"
@@ -20530,36 +19537,6 @@
  {
   "id": "p565",
   "name": "Breaded Torpedo Prawns - Crunchy Outside",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "prawns",
-  "pack_size": 500,
-  "unit": "g",
-  "price": 359,
-  "mrp": 592,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p566",
-  "name": "Peri Peri Prawns - Fresh & Juicy",
-  "brand": "Fresho",
-  "category": "eggs_meat",
-  "sub_category": "prawns",
-  "pack_size": 250,
-  "unit": "g",
-  "price": 199,
-  "mrp": 328,
-  "in_stock": true,
-  "tags": [
-   "high_protein"
-  ]
- },
- {
-  "id": "p567",
-  "name": "Peri Peri Prawns - Fresh & Juicy",
   "brand": "Fresho",
   "category": "eggs_meat",
   "sub_category": "prawns",
@@ -20751,6 +19728,1029 @@
   "tags": [
    "high_protein"
   ]
+ },
+ {
+  "id": "p1555",
+  "name": "Amritsari Achari Chicken Tikka - Fresh",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 119,
+  "mrp": 278,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1556",
+  "name": "Amritsari Achari Chicken Tikka - Fresh",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 319,
+  "mrp": 526,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1619",
+  "name": "Amritsari Achari Fish Tikka - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 129,
+  "mrp": 362,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1620",
+  "name": "Amritsari Achari Fish Tikka - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 399,
+  "mrp": 658,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1621",
+  "name": "Amritsari Achari Seer Fish Steak",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 389,
+  "mrp": 642,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1557",
+  "name": "BBQ Pepper Chicken Cubes - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 119,
+  "mrp": 229,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1558",
+  "name": "BBQ Pepper Chicken Cubes - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 279,
+  "mrp": 459,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1559",
+  "name": "BBQ Pepper Exotic Whole Chicken Wings With",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 99,
+  "mrp": 179,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1560",
+  "name": "BBQ Pepper Exotic Whole Chicken Wings With",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 179,
+  "mrp": 294,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1630",
+  "name": "BBQ Pepper Fish - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 129,
+  "mrp": 362,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1631",
+  "name": "BBQ Pepper Fish - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 399,
+  "mrp": 658,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1564",
+  "name": "Chicken - Lollipop",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 112,
+  "mrp": 155,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1565",
+  "name": "Chicken - Lollipop",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 209,
+  "mrp": 290,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p522",
+  "name": "Chicken Burger Patty - Crunchy Outside",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 2,
+  "unit": "pcs",
+  "price": 329,
+  "mrp": 542,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p523",
+  "name": "Chicken Burger Patty - Crunchy Outside",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 4,
+  "unit": "pcs",
+  "price": 119,
+  "mrp": 197,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1580",
+  "name": "Chicken Hariyali Lollypop - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 99,
+  "mrp": 197,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1581",
+  "name": "Chicken Hariyali Lollypop - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 219,
+  "mrp": 362,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1584",
+  "name": "Chicken Malai Tikka - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 119,
+  "mrp": 245,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1585",
+  "name": "Chicken Malai Tikka - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 319,
+  "mrp": 526,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1586",
+  "name": "Chicken Masala Tikka",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 473,
+  "mrp": 675,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1590",
+  "name": "Chicken Seekh Kabab - Pahadi",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 242,
+  "mrp": 345,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1591",
+  "name": "Chicken Seekh Kabab Lime N Pudina",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 336,
+  "mrp": 480,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p517",
+  "name": "Chicken Seekh Kabab Malai N Cheese",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 249,
+  "mrp": 355,
+  "in_stock": false,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1592",
+  "name": "Chicken Seekh Kabab Nawabi",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 280,
+  "mrp": 400,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1593",
+  "name": "Chicken Seekh Kabab Punjabi",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 249,
+  "mrp": 355,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1594",
+  "name": "Chicken Seekh Kabab Regular",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 242,
+  "mrp": 345,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1600",
+  "name": "Chilli Chicken Pieces - Boneless",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 139,
+  "mrp": 193,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1601",
+  "name": "Chilli Chicken Pieces - Boneless",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 269,
+  "mrp": 374,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p535",
+  "name": "Classic Hariyali Rohu Fish Steak",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 79,
+  "mrp": 130,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p536",
+  "name": "Classic Hariyali Rohu Fish Steak",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 139,
+  "mrp": 229,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1602",
+  "name": "Creamy Afghani Chicken Tikka - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 119,
+  "mrp": 245,
+  "in_stock": false,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1603",
+  "name": "Creamy Afghani Chicken Tikka - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 299,
+  "mrp": 493,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1604",
+  "name": "Crispy Chicken Pops - Crunchy Outside",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 139,
+  "mrp": 229,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1605",
+  "name": "Crispy Chicken Pops - Crunchy Outside",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 249,
+  "mrp": 410,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1606",
+  "name": "Crispy Chicken Supreme - Juicy Texture",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 169,
+  "mrp": 278,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1607",
+  "name": "Crispy Chicken Supreme - Juicy Texture",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 249,
+  "mrp": 410,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1608",
+  "name": "Crispy Chicken Wings - Juicy Texture",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 109,
+  "mrp": 179,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1609",
+  "name": "Crispy Chicken Wings - Juicy Texture",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 199,
+  "mrp": 328,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1638",
+  "name": "Crispy Fish Fillet - Crunchy Outside",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 219,
+  "mrp": 362,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1639",
+  "name": "Crispy Fish Fillet - Crunchy Outside",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 409,
+  "mrp": 674,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1640",
+  "name": "Crispy Fish Finger - Crunchy Outside",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 219,
+  "mrp": 362,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1641",
+  "name": "Crispy Fish Finger - Crunchy Outside",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 409,
+  "mrp": 674,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p546",
+  "name": "Desi Catla Steak - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 89,
+  "mrp": 147,
+  "in_stock": true,
+  "tags": []
+ },
+ {
+  "id": "p547",
+  "name": "Desi Catla Steak - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 149,
+  "mrp": 245,
+  "in_stock": true,
+  "tags": []
+ },
+ {
+  "id": "p1642",
+  "name": "Desi Rohu Fish Steak - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 89,
+  "mrp": 147,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1643",
+  "name": "Desi Rohu Fish Steak - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 139,
+  "mrp": 229,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1645",
+  "name": "Fish Chettinad Cubes - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 129,
+  "mrp": 362,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1646",
+  "name": "Fish Chettinad Cubes - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 399,
+  "mrp": 658,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1647",
+  "name": "Honey Mustard Fish - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 129,
+  "mrp": 312,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1648",
+  "name": "Honey Mustard Fish - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 399,
+  "mrp": 658,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p526",
+  "name": "Lush Hariyali Chicken Tikka - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 119,
+  "mrp": 245,
+  "in_stock": false,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p527",
+  "name": "Lush Hariyali Chicken Tikka - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 319,
+  "mrp": 526,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1676",
+  "name": "Malabar Style Pomfret Steak - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 429,
+  "mrp": 707,
+  "in_stock": true,
+  "tags": []
+ },
+ {
+  "id": "p1677",
+  "name": "Malabar Style Pomfret Steak - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 789,
+  "mrp": 1301,
+  "in_stock": false,
+  "tags": []
+ },
+ {
+  "id": "p558",
+  "name": "Mutton Shami Kabab",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 375,
+  "mrp": 535,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1611",
+  "name": "Peri Peri Chicken Drumstick - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 119,
+  "mrp": 229,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1612",
+  "name": "Peri Peri Chicken Drumstick - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 221,
+  "mrp": 365,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p566",
+  "name": "Peri Peri Prawns - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 199,
+  "mrp": 328,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p567",
+  "name": "Peri Peri Prawns - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 359,
+  "mrp": 592,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1613",
+  "name": "Peri-Peri Chicken Wings - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 99,
+  "mrp": 181,
+  "in_stock": false,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1614",
+  "name": "Peri-Peri Chicken Wings - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 199,
+  "mrp": 328,
+  "in_stock": false,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1692",
+  "name": "Tandoori Catla Fish Steak - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 89,
+  "mrp": 147,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1693",
+  "name": "Tandoori Catla Fish Steak - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 149,
+  "mrp": 245,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1615",
+  "name": "Tandoori Chicken - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 119,
+  "mrp": 197,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1616",
+  "name": "Tandoori Chicken - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 219,
+  "mrp": 362,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1617",
+  "name": "Tandoori Chicken Wings - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 99,
+  "mrp": 181,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1618",
+  "name": "Tandoori Chicken Wings - Fresh & Juicy",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 179,
+  "mrp": 294,
+  "in_stock": true,
+  "tags": [
+   "high_protein"
+  ]
+ },
+ {
+  "id": "p1694",
+  "name": "Tandoori Pomfret Whole - Pre Marinated",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 250,
+  "unit": "g",
+  "price": 429,
+  "mrp": 707,
+  "in_stock": true,
+  "tags": []
+ },
+ {
+  "id": "p1695",
+  "name": "Tandoori Pomfret Whole - Pre Marinated",
+  "brand": "Fresho",
+  "category": "eggs_meat",
+  "sub_category": "ready_to_cook_meat",
+  "pack_size": 500,
+  "unit": "g",
+  "price": 789,
+  "mrp": 1301,
+  "in_stock": true,
+  "tags": []
  },
  {
   "id": "p574",
