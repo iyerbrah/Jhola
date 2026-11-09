@@ -472,6 +472,19 @@ export async function runTool(name: string, rawArgs: string, state: AgentState, 
         if (!stocked) return fail(`no in-stock${r.diet ? ` ${DIET_LABELS[r.diet]}` : ""} product matches "${k}". Search for what to use instead, then name its kind (like paneer).`);
       }
       r.must_include = [...new Set([...r.must_include.filter((k) => !dropped.includes(k)), ...replacements])].slice(0, 5);
+      // Remember how much the dropped ingredient was, so its replacement can't be a token amount.
+      for (const d of a.drop_must_include) {
+        if (!d.replaced_by) continue;
+        const was = c.items.flatMap((it) => {
+          const p = deps.index.get(it.product_id);
+          return it.included && p && matchesKind(p, d.kind) ? [{ p, qty: it.qty }] : [];
+        });
+        if (!was.length) continue;
+        const unit = was[0].p.unit;
+        const total = was.filter((w) => w.p.unit === unit).reduce((sum, w) => sum + w.qty * w.p.pack_size, 0);
+        const kind = d.replaced_by.trim().toLowerCase();
+        r.min_amounts = [...(r.min_amounts ?? []).filter((m) => m.kind !== kind), { kind, amount: Math.ceil(total / 2), unit }].slice(-5);
+      }
       const next = { ...c, requirements: r };
       const problems = checkCart(next, deps.index);
       const result = changed(state, i, next, deps, "Requirements updated.");

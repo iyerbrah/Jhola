@@ -12,7 +12,7 @@ import type { CatalogIndex } from "../catalog";
 import { MAX_QTY, type CartItem, type EditableCart } from "../cartState";
 import { DIET_LABELS, RequirementsSchema, type Requirements } from "../requirements";
 import { packLabel, type LlmVariant, type Product } from "../schema";
-import { missingNamed, variantErrors } from "../validate";
+import { matchesKind, missingNamed, variantErrors } from "../validate";
 
 export const MAX_CARTS = 3;
 export const MAX_ITEMS = 40;
@@ -112,6 +112,13 @@ export function checkCart(cart: AgentCart, index: CatalogIndex): string[] {
   const { budget_inr, item_count, item_kind, must_include, diet } = cart.requirements;
   const variant = asVariant(cart);
   const problems = [...variantErrors(variant, { budget_inr, item_count, item_kind }, index), ...missingNamed(variant, must_include, index)];
+  for (const m of cart.requirements.min_amounts ?? []) {
+    const got = variant.items.reduce((sum, it) => {
+      const p = index.get(it.product_id);
+      return p && p.unit === m.unit && matchesKind(p, m.kind) ? sum + it.qty * p.pack_size : sum;
+    }, 0);
+    if (got < m.amount) problems.push(`${cart.name} has ${got} ${m.unit} of ${m.kind}; it needs at least ${m.amount} ${m.unit} to replace what was taken out`);
+  }
   if (diet) {
     for (const it of variant.items) {
       const p = index.get(it.product_id);
