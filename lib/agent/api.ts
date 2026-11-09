@@ -6,8 +6,11 @@
  * JSON: {"type":"status","text":"Searching for paneer"} lines while it works, then one
  * {"type":"done", ...} with the new carts, the change list and the reply (or {"type":"error"}).
  */
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { clientIp } from "../api";
+import { agentRecord, defaultRequestLog, errorRecord, logInBackground, type RequestLog, type StepRecord } from "../requestLog";
+import { visitorId } from "../visitor";
 import { catalog, catalogIndex, type CatalogIndex } from "../catalog";
 import { createMemoryLimiter, createUpstashLimiter, redisFromEnv, type LimitConfig, type Limiter } from "../ratelimit";
 import { CartsInputSchema, repriceCarts, type RepriceNote } from "./carts";
@@ -27,19 +30,26 @@ export const AgentRequestSchema = z.object({
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(500) }))
     .max(12)
     .default([]),
+  /** The request_id of the cart build these carts came from, to link the turn to it in the log. */
+  build_id: z.string().uuid().optional(),
 });
 
 export type AgentStreamEvent =
   | AgentEvent
   | ({ type: "done"; notes: RepriceNote[] } & Pick<AgentTurnResult, "status" | "stop_reason" | "reply" | "carts" | "changes"> & {
-        meta: Pick<AgentTurnResult["meta"], "trace_id" | "latency_ms" | "model_calls" | "tool_calls">;
+        meta: Pick<AgentTurnResult["meta"], "trace_id" | "latency_ms" | "model_calls" | "tool_calls"> & { request_id: string };
       })
   | { type: "error"; error: string };
 
 export type AgentApiDeps = {
   limiter: Limiter;
   index: CatalogIndex;
-  run: (input: AgentTurnInput, opts: { onEvent: (e: AgentEvent) => void; signal: AbortSignal }) => Promise<AgentTurnResult>;
+  /** Where each turn, its carts before and after, and its steps are saved. */
+  requestLog: RequestLog;
+  run: (
+    input: AgentTurnInput,
+    opts: { onEvent: (e: AgentEvent) => void; signal: AbortSignal; traceId: string; log: (line: Record<string, unknown>) => void },
+  ) => Promise<AgentTurnResult>;
 };
 
 const noLimit: Limiter = { check: async () => ({ ok: true }) };
@@ -63,7 +73,9 @@ export function defaultAgentDeps(): AgentApiDeps {
     // Its own keys, so agent turns don't use up the shopper's cart builds.
     limiter: !limitsOn ? noLimit : redis ? createUpstashLimiter(redis, config, "acb:agent:rl") : createMemoryLimiter(config),
     index: catalogIndex,
-    run: (input, { onEvent, signal }) => runAgentTurn(input, { model: openAiAgentModel, index: catalogIndex, products: catalog, search, onEvent, signal }),
+    requestLog: defaultRequestLog(),
+    run: (input, { onEvent, signal, traceId, log }) =>
+      runAgentTurn(input, { model: openAiAgentModel, index: catalogIndex, products: catalog, search, onEvent, signal, traceId, log }),
   };
   return defaults;
 }
@@ -87,7 +99,7 @@ export async function handleAgentTurn(req: Request, deps: AgentApiDeps = default
     const issue = parsed.error.issues[0];
     return json({ error: issue?.path[0] === "message" ? issue.message : `Invalid request: ${issue?.path.join(".") || "body"} ${issue?.message ?? ""}`.trim() }, 400);
   }
-  const { carts: cartInput, active, message, history } = parsed.data;
+  const { carts: cartInput, active, message, history, build_id } = parsed.data;
   if (active >= cartInput.length) return json({ error: `Invalid request: active is ${active} but there ${cartInput.length === 1 ? "is 1 cart" : `are ${cartInput.length} carts`}` }, 400);
 
   // 2. Rate limit (before anything that costs money). If Redis is down, let the turn through.
@@ -103,6 +115,25 @@ export async function handleAgentTurn(req: Request, deps: AgentApiDeps = default
 
   // 3. The turn, streamed. Carts are rebuilt from the catalog: the browser's prices never count.
   const { carts, notes } = repriceCarts(cartInput, deps.index);
+  // The turn's trace ID is its request ID in the log; its agent_step lines become the trace steps.
+  const id = randomUUID();
+  const visitor = visitorId(clientIp(req));
+  const started = Date.now();
+  const steps: StepRecord[] = [];
+  const log = (line: Record<string, unknown>) => {
+    console.log(JSON.stringify(line));
+    if (line.event !== "agent_step") return;
+    steps.push({
+      kind: line.kind === "tool" ? "tool" : "model",
+      name: String(line.name ?? ""),
+      ok: line.ok === true,
+      ms: Number(line.ms ?? 0),
+      input_tokens: typeof line.input_tokens === "number" ? line.input_tokens : undefined,
+      cached_tokens: typeof line.cached_tokens === "number" ? line.cached_tokens : undefined,
+      output_tokens: typeof line.output_tokens === "number" ? line.output_tokens : undefined,
+      error: line.error == null ? undefined : String(line.error).slice(0, 300),
+    });
+  };
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
@@ -114,11 +145,22 @@ export async function handleAgentTurn(req: Request, deps: AgentApiDeps = default
         }
       };
       try {
-        const r = await deps.run({ carts, active, message, history }, { onEvent: send, signal: req.signal });
+        const r = await deps.run({ carts, active, message, history }, { onEvent: send, signal: req.signal, traceId: id, log });
         const { trace_id, latency_ms, model_calls, tool_calls } = r.meta;
-        send({ type: "done", status: r.status, stop_reason: r.stop_reason, reply: r.reply, carts: r.carts, changes: r.changes, notes, meta: { trace_id, latency_ms, model_calls, tool_calls } });
+        send({
+          type: "done",
+          status: r.status,
+          stop_reason: r.stop_reason,
+          reply: r.reply,
+          carts: r.carts,
+          changes: r.changes,
+          notes,
+          meta: { trace_id, request_id: id, latency_ms, model_calls, tool_calls },
+        });
+        logInBackground(deps.requestLog, agentRecord({ id, parent_id: build_id ?? null, visitor, message, before: carts, result: r, steps }));
       } catch (err) {
         console.error("[agent] turn failed:", err);
+        logInBackground(deps.requestLog, errorRecord({ id, kind: "agent", visitor, query: message, error_kind: "unexpected", latency_ms: Date.now() - started, parent_id: build_id ?? null }));
         send({ type: "error", error: "Something went wrong, so your carts weren't changed. Please try again." });
       } finally {
         try {
