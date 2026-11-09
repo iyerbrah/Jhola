@@ -53,6 +53,19 @@ const goodCarts = () => ({ Classic: [toCart(classic)], Budget: [toCart(budget)],
 const deps = (llm: LlmClient) => ({ llm, products, instructions: "test" });
 
 describe("buildCarts", () => {
+  it("reports every model call as a step, retries as attempt 2, and ignores a step reporter that throws", async () => {
+    const steps: string[] = [];
+    const { llm } = fakeLlm([new LlmError("blip"), plan()], goodCarts());
+    const onStep = (s: { name: string; attempt: number; ok: boolean }) => {
+      steps.push(`${s.name}#${s.attempt}:${s.ok}`);
+      throw new Error("reporter broke");
+    };
+    const res = await buildCarts("paneer butter masala for 4", { ...deps(llm), onStep });
+    expect(res.variants).toHaveLength(3);
+    expect(steps.slice(0, 2)).toEqual(["plan#1:false", "plan#2:true"]);
+    expect(steps.slice(2).sort()).toEqual(["cart:1#1:true", "cart:2#1:true", "cart:3#1:true"]);
+  });
+
   it("returns the requirements every cart was built to, for later edits", async () => {
     const p = plan({ constraints: { budget_inr: 900, item_count: null, item_kind: null }, must_include: ["paneer"] });
     const { llm } = fakeLlm([p], goodCarts());

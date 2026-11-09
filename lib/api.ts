@@ -1,16 +1,18 @@
-import { buildCarts } from "./buildCarts";
+import { randomUUID } from "node:crypto";
+import { buildCarts, type BuildStep } from "./buildCarts";
 import { createRedisCache, noCache, type ResponseCache } from "./cache";
-import { defaultHistory, type HistoryStore } from "./history";
 import { LlmError, modelName } from "./llm";
+import { buildRecord, defaultRequestLog, errorRecord, logInBackground, type RequestLog, type StepRecord } from "./requestLog";
+import { visitorId } from "./visitor";
 import { createMemoryLimiter, createUpstashLimiter, limitConfigFromEnv, redisFromEnv, type Limiter } from "./ratelimit";
 import { BuildCartsRequestSchema, type BuildCartsResponse } from "./schema";
 
 export type ApiDeps = {
   limiter: Limiter;
   cache: ResponseCache;
-  /** Where each generation and its cost is saved, for the /history page. */
-  history: HistoryStore;
-  build: (query: string) => Promise<BuildCartsResponse>;
+  /** Where every request, its carts and its model calls are saved (Postgres, or memory without one). */
+  requestLog: RequestLog;
+  build: (query: string, opts?: { onStep?: (step: BuildStep) => void }) => Promise<BuildCartsResponse>;
   /** Give up and return 502 after this long, instead of hanging. */
   deadlineMs: number;
 };
@@ -32,8 +34,8 @@ export function defaultDeps(): ApiDeps {
   defaults = {
     limiter: !limitsOn ? noLimit : redis ? createUpstashLimiter(redis, config) : createMemoryLimiter(config),
     cache: redis ? createRedisCache(redis, modelName()) : noCache,
-    history: defaultHistory(redis),
-    build: (query) => buildCarts(query),
+    requestLog: defaultRequestLog(),
+    build: (query, opts) => buildCarts(query, { onStep: opts?.onStep }),
     deadlineMs: 50_000,
   };
   return defaults;
@@ -90,26 +92,34 @@ export async function handleBuildCarts(req: Request, deps: ApiDeps = defaultDeps
     console.error("[build-carts] rate limiter failed:", err instanceof Error ? err.message : err);
   }
 
-  // 3. Cache, then the pipeline
+  // 3. Cache, then the pipeline. Every answer (and every failure) is saved to the request log in
+  // the background: the shopper never waits for it.
   const started = Date.now();
+  const id = randomUUID();
+  const visitor = visitorId(clientIp(req));
+  const steps: StepRecord[] = [];
   try {
     const hit = await deps.cache.get(query).catch(() => null);
     if (hit) {
       // No model call was made, so this request used no tokens.
-      const meta = { ...hit.meta, cached: true, latency_ms: Date.now() - started, input_tokens: 0, cached_tokens: 0, output_tokens: 0 };
+      const meta = { ...hit.meta, cached: true, latency_ms: Date.now() - started, input_tokens: 0, cached_tokens: 0, output_tokens: 0, request_id: id };
       const res = { ...hit, meta };
       log(query, res);
+      logInBackground(deps.requestLog, buildRecord({ id, visitor, query, res, steps, cached: true }));
       return json(res, 200);
     }
 
-    const res = await withDeadline(deps.build(query), deps.deadlineMs);
+    const built = await withDeadline(deps.build(query, { onStep: (s) => steps.push(s) }), deps.deadlineMs);
+    const res = { ...built, meta: { ...built.meta, request_id: id } };
     log(query, res);
-    await deps.history.add(query, res).catch((err) => console.error("[build-carts] history save failed:", err instanceof Error ? err.message : err));
+    logInBackground(deps.requestLog, buildRecord({ id, visitor, query, res, steps, cached: false }));
     // Don't cache an answer that lost carts: that is often a one-off provider blip.
     const complete = res.status === "cannot_fulfil" || res.variants.length === 3;
-    if (complete) await deps.cache.set(query, res).catch(() => {});
+    if (complete) await deps.cache.set(query, built).catch(() => {});
     return json(res, 200);
   } catch (err) {
+    const error_kind = err instanceof LlmError ? err.kind : "unexpected";
+    logInBackground(deps.requestLog, errorRecord({ id, kind: "build", visitor, query, error_kind, latency_ms: Date.now() - started }));
     if (err instanceof LlmError) {
       console.error(`[build-carts] LLM failed (${err.kind}):`, err.message);
       // `reason` says what kind of failure it was (never the key or the message), to make deploy problems easy to spot.
@@ -122,8 +132,8 @@ export async function handleBuildCarts(req: Request, deps: ApiDeps = defaultDeps
 
 /** One line per request: the query text and metrics only, nothing about the caller. */
 function log(query: string, res: BuildCartsResponse) {
-  const { latency_ms, model, repaired, cached, input_tokens, cached_tokens, output_tokens } = res.meta;
+  const { latency_ms, model, repaired, cached, input_tokens, cached_tokens, output_tokens, request_id } = res.meta;
   console.log(
-    JSON.stringify({ event: "build_carts", query, status: res.status, latency_ms, model, repaired, cached: !!cached, input_tokens, cached_tokens, output_tokens }),
+    JSON.stringify({ event: "build_carts", request_id, query, status: res.status, latency_ms, model, repaired, cached: !!cached, input_tokens, cached_tokens, output_tokens }),
   );
 }

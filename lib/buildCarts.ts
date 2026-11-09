@@ -11,7 +11,16 @@ import { buildInstructions, cartMessage, cartRepairMessage, planMessage } from "
 import type { BuildCartsResponse, Cart, LlmOutput, LlmVariant, Product } from "./schema";
 import { checkOutput, matchesKind, salvage } from "./validate";
 
-export type BuildCartsDeps = { llm?: LlmClient; products?: Product[]; instructions?: string };
+/** One model call, for the request log's trace: which call, which attempt, how long, how many tokens. */
+export type BuildStep = { kind: "model"; name: string; attempt: number; ok: boolean; ms: number; error?: string } & Partial<LlmUsage>;
+
+export type BuildCartsDeps = {
+  llm?: LlmClient;
+  products?: Product[];
+  instructions?: string;
+  /** Called after every model call ("plan", "cart:2", "repair:1"). It can't affect the build. */
+  onStep?: (step: BuildStep) => void;
+};
 
 let cachedInstructions: string | null = null;
 
@@ -33,21 +42,36 @@ export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Prom
   /** How long each step took, for finding slow spots. */
   const steps = { plan: 0, carts: 0, repair: 0 };
   let model = "";
-  const track = async <T>(call: Promise<LlmResult<T>>): Promise<T> => {
-    const res = await call;
-    usage.input_tokens += res.usage.input_tokens;
-    usage.cached_tokens += res.usage.cached_tokens;
-    usage.output_tokens += res.usage.output_tokens;
-    model = res.model;
-    return res.output;
+  const report = (step: BuildStep) => {
+    try {
+      deps.onStep?.(step);
+    } catch {
+      // Recording a step must never break a build.
+    }
+  };
+  /** Runs one model call, adds up its tokens and reports it as a step. */
+  const track = async <T>(name: string, attempt: number, call: () => Promise<LlmResult<T>>): Promise<T> => {
+    const t = Date.now();
+    try {
+      const res = await call();
+      usage.input_tokens += res.usage.input_tokens;
+      usage.cached_tokens += res.usage.cached_tokens;
+      usage.output_tokens += res.usage.output_tokens;
+      model = res.model;
+      report({ kind: "model", name, attempt, ok: true, ms: Date.now() - t, ...res.usage });
+      return res.output;
+    } catch (err) {
+      report({ kind: "model", name, attempt, ok: false, ms: Date.now() - t, error: err instanceof LlmError ? err.kind : "unexpected" });
+      throw err;
+    }
   };
   // A provider failure (timeout, 5xx, unparsable output) gets one retry.
-  const withRetry = async <T>(fn: () => Promise<LlmResult<T>>): Promise<T> => {
+  const withRetry = async <T>(name: string, call: () => Promise<LlmResult<T>>): Promise<T> => {
     try {
-      return await track(fn());
+      return await track(name, 1, call);
     } catch (err) {
       if (!(err instanceof LlmError)) throw err;
-      return await track(fn());
+      return await track(name, 2, call);
     }
   };
   const user = (content: string): ChatMessage[] => [{ role: "user", content }];
@@ -65,7 +89,7 @@ export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Prom
   });
 
   // 1. Plan
-  const plan = await withRetry(() => llm.plan({ instructions, messages: user(planMessage(query)) }));
+  const plan = await withRetry("plan", () => llm.plan({ instructions, messages: user(planMessage(query)) }));
   steps.plan = Date.now() - started;
   if (plan.status === "cannot_fulfil" || plan.variants.length === 0) {
     return respond({ ...plan, status: "cannot_fulfil", message: plan.message || NO_CARTS_MESSAGE, variants: [] }, false);
@@ -77,7 +101,7 @@ export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Prom
   // 2. Carts, in parallel. A cart whose call fails twice is dropped.
   const cartMessages = planned.map((v, i) => user(cartMessage(query, plan, v, i)));
   const carts: (Cart | null)[] = await Promise.all(
-    cartMessages.map((messages) => withRetry(() => llm.cart({ instructions, messages })).catch((err) => {
+    cartMessages.map((messages, i) => withRetry(`cart:${i + 1}`, () => llm.cart({ instructions, messages })).catch((err) => {
       if (err instanceof LlmError) return null;
       throw err;
     })),
@@ -121,7 +145,7 @@ export async function buildCarts(query: string, deps: BuildCartsDeps = {}): Prom
         const { items, model_total_inr } = variants[i];
         const messages = [...messagesFor[i], ...user(cartRepairMessage({ items, model_total_inr }, check.perVariant[i], index))];
         const needsMath = check.perVariant[i].some((e) => /budget|needs exactly/.test(e));
-        return track(llm.repairCart({ instructions, messages, needsMath })).catch((err) => {
+        return track(`repair:${i + 1}`, 1, () => llm.repairCart({ instructions, messages, needsMath })).catch((err) => {
           if (err instanceof LlmError) return null; // keep the first cart and salvage below
           throw err;
         });
