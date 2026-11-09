@@ -58,7 +58,9 @@ describe("a turn that edits", () => {
 
     expect(res.status).toBe("done");
     expect(res.stop_reason).toBe("finished");
-    expect(res.reply).toContain("paneer biryani");
+    // The swap step left the cart passing every rule, so code ended the turn: no model call for "finish".
+    expect(res.meta.finished_by).toBe("code");
+    expect(res.reply).toBe("Done. Budget is now vegetarian, at ₹494.");
     expect(res.carts[0].items.map((i) => [i.product_id, i.qty])).toEqual([["p001", 4], ["p004", 1], ["p003", 1], ["p005", 1]]);
     expect(cartTotal(res.carts[0])).toBe(380 + 84 + 30);
     expect(res.carts[0].requirements).toMatchObject({ diet: "veg", must_include: ["paneer"] });
@@ -72,7 +74,7 @@ describe("a turn that edits", () => {
       total_before: 534,
       total_after: 494,
     });
-    expect(res.meta).toMatchObject({ trace_id: "trace-1", model_calls: 3, tool_calls: 5, input_tokens: 3000, cached_tokens: 2400, output_tokens: 150 });
+    expect(res.meta).toMatchObject({ trace_id: "trace-1", model_calls: 2, tool_calls: 4, input_tokens: 2000, cached_tokens: 1600, output_tokens: 100 });
     expect(res.meta.cost_usd).toBeGreaterThan(0);
     expect(events).toEqual(["Updating what the cart must meet", "Searching for paneer", "Swapping Chicken Curry Cut for Fresh Paneer", "Changing Fresh Paneer"]);
     // The carts it was given are not modified.
@@ -120,6 +122,46 @@ describe("a turn that edits", () => {
     const { deps } = setup([{ ...step(), text: "That cart is ₹534." }]);
     const res = await runAgentTurn(turn("total?"), deps);
     expect(res).toMatchObject({ status: "done", reply: "That cart is ₹534." });
+  });
+});
+
+describe("ending the turn in code", () => {
+  const swapToPaneer = step(["swap_item", { cart: 1, product_id: "p002", new_product_id: "p001" }]);
+  const veg = step(["set_requirements", { cart: 1, diet: "veg", budget_inr: null, drop_must_include: [{ kind: "chicken", replaced_by: "paneer" }] }]);
+
+  it("ends after an edit-only step that leaves the cart passing every rule", async () => {
+    const { deps, sent } = setup([step(["remove_item", { cart: 1, product_id: "p003" }]), finish("never called")]);
+    const res = await runAgentTurn(turn("I have onions"), deps);
+    expect(res).toMatchObject({ status: "done", reply: "Done. Budget is now ₹504.", meta: { finished_by: "code", model_calls: 1 } });
+    expect(sent).toHaveLength(1);
+  });
+
+  it("doesn't end while the cart still breaks a rule", async () => {
+    // Vegetarian is recorded, but the chicken is still there: the model gets another step.
+    const { deps, sent } = setup([veg, swapToPaneer, finish("never called")]);
+    const res = await runAgentTurn(turn("make it veg"), deps);
+    expect(sent).toHaveLength(2);
+    expect(res.meta.finished_by).toBe("code");
+  });
+
+  it("doesn't end after a step that also looked something up, or had a failed call", async () => {
+    const looked = setup([step(["remove_item", { cart: 1, product_id: "p003" }], ["search_catalog", { text: "tea", diet: null, max_price: null, category: null }]), finish("Removed the onion.")]);
+    expect((await runAgentTurn(turn("no onion"), looked.deps)).meta.finished_by).toBe("model");
+    const failed = setup([step(["remove_item", { cart: 1, product_id: "p003" }], ["add_item", { cart: 1, product_id: "p999", qty: 1 }]), finish("Removed the onion.")]);
+    expect((await runAgentTurn(turn("no onion, add tea"), failed.deps)).meta.finished_by).toBe("model");
+  });
+
+  it("waits until every cart the shopper asked about has been changed", async () => {
+    const onion = (cart: number) => step(["remove_item", { cart, product_id: "p003" }]);
+    const { deps, sent } = setup([onion(1), onion(2), onion(3), finish("never called")]);
+    const res = await runAgentTurn(turn("remove the onion from all three carts"), deps);
+    expect(sent).toHaveLength(3);
+    expect(res.reply).toBe("Done. Budget is now ₹504, Classic is now ₹562 and Premium is now ₹825.");
+  });
+
+  it("lets the model finish a question itself", async () => {
+    const { deps } = setup([finish("The chicken is most of it.")]);
+    expect((await runAgentTurn(turn("why so expensive?"), deps)).meta.finished_by).toBe("model");
   });
 });
 
