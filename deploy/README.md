@@ -138,7 +138,7 @@ sudo systemctl restart jhola
 
 The exception is `SITE_URL`: it's read at build time, so after changing it, run `deploy/deploy.sh` instead of only restarting.
 
-The file holds `SITE_URL`, `OPENAI_API_KEY`, `LLM_MODEL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_HOUR`, `DAILY_REQUEST_CAP`, `HISTORY_KEY`, `DATABASE_URL` and `VISITOR_SECRET`. [.env.example](../.env.example) explains each one.
+The file holds `SITE_URL`, `LLM_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_HOUR`, `DAILY_REQUEST_CAP`, `HISTORY_KEY`, `DATABASE_URL` and `VISITOR_SECRET`. [.env.example](../.env.example) explains each one.
 
 ### Rotate a key
 
@@ -224,8 +224,11 @@ sudo -u jhola nano /opt/jhola/.env.production.local
 
 ```
 SITE_URL=https://jhola.ramiyer.tech
+LLM_PROVIDER=openrouter
 OPENAI_API_KEY=
-LLM_MODEL=gpt-5.4-mini
+OPENAI_MODEL=gpt-5.4-mini
+OPENROUTER_API_KEY=
+OPENROUTER_MODEL=nvidia/nemotron-3.5-super-vl:free
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 RATE_LIMIT_PER_HOUR=10
