@@ -16,7 +16,7 @@ import { checkGate, mergeRetry, renderReport, toRetry, type Baseline } from "../
 import { runCases } from "../evals/run";
 import { summarise, type EvalCase } from "../evals/score";
 import { catalog } from "../lib/catalog";
-import { modelName } from "../lib/llm";
+import { apiKeyName, modelName } from "../lib/llm";
 
 for (const f of [".env.local", ".env"]) {
   try {
@@ -42,8 +42,8 @@ function readBaseline(): Baseline | null {
 }
 
 async function main() {
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("OPENAI_API_KEY is not set: the eval check calls the real model.");
+  if (!process.env[apiKeyName()]) {
+    console.error(`${apiKeyName()} is not set: the eval check calls the real model.`);
     process.exit(1);
   }
   console.log(`Eval check: ${cases.length} CI queries, model ${modelName()}, ${catalog.length} products\n`);
