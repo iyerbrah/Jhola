@@ -297,12 +297,12 @@ You need Node.js 20 or newer (the live server uses Node 24).
 
 ```bash
 npm ci
-cp .env.example .env.local   # then add your OPENAI_API_KEY
+cp .env.example .env         # then add your OpenRouter or OpenAI key
 npm run dev                  # http://localhost:3000
 ```
 
 **Optional services:**
-- **Redis:** locally, rate limits are off and there is no cache unless you add Upstash values to `.env.local`.
+- **Redis:** locally, rate limits are off and there is no cache unless you add Upstash values to `.env`.
 - **Postgres:** without `DATABASE_URL`, the request log is kept in memory, so `/history` works until you restart and `/stats` shows an empty state. To try Postgres locally, point `DATABASE_URL` at any database; the app creates its tables itself.
 
 On a Mac you can also double-click `start-jhola.command`, which starts the dev server and opens the site. Don't run `npm run build` while the dev server is running: both use the `.next` folder.

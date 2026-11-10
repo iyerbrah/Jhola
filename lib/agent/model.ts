@@ -4,7 +4,7 @@
  * use a scripted fake and the provider can change without touching the loop.
  */
 import type { ResponseInputItem } from "openai/resources/responses/responses";
-import { classifyError, getClient, isReasoningModel, LlmError, modelName, type LlmUsage } from "../llm";
+import { classifyError, getClient, isReasoningModel, LlmError, modelName, openAiOnly, type LlmUsage } from "../llm";
 import { TOOL_SPECS } from "./tools";
 
 export type ToolCall = { call_id: string; name: string; arguments: string };
@@ -40,7 +40,7 @@ function toOpenAiInput(items: AgentInputItem[]): ResponseInputItem[] {
 /** LLM_AGENT_SERVICE_TIER for the agent alone, else the cart builder's LLM_SERVICE_TIER. */
 const serviceTier = () => (process.env.LLM_AGENT_SERVICE_TIER || process.env.LLM_SERVICE_TIER || undefined) as "priority" | undefined;
 
-/** gpt-5.4-mini through the Responses API, with strict tool schemas and a tool call required every step. */
+/** The model (gpt-5.4-mini by default) through the Responses API, with strict tool schemas and a tool call required every step. */
 export const openAiAgentModel: AgentModel = {
   async next({ instructions, input, signal }) {
     const model = modelName();
@@ -54,10 +54,12 @@ export const openAiAgentModel: AgentModel = {
           tool_choice: "required",
           parallel_tool_calls: true,
           max_output_tokens: 1500,
-          // Same key every turn, so the instructions and tool schemas stay cached.
-          prompt_cache_key: "jhola-agent-v1",
-          // Optional: OpenAI's faster, pricier tier ("priority"). Unset = the standard tier.
-          ...(serviceTier() ? { service_tier: serviceTier() } : {}),
+          ...openAiOnly({
+            // Same key every turn, so the instructions and tool schemas stay cached.
+            prompt_cache_key: "jhola-agent-v1",
+            // Optional: OpenAI's faster, pricier tier ("priority"). Unset = the standard tier.
+            ...(serviceTier() ? { service_tier: serviceTier() } : {}),
+          }),
           ...(isReasoningModel(model) ? { reasoning: { effort: (process.env.LLM_AGENT_EFFORT as "none" | "low") || "none" } } : {}),
         },
         { signal },
