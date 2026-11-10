@@ -29,7 +29,7 @@ import { openAiAgentModel } from "../lib/agent/model";
 import type { ChatTurn } from "../lib/agent/prompt";
 import { createMemorySearch } from "../lib/agent/search";
 import { catalog, catalogIndex } from "../lib/catalog";
-import { modelName } from "../lib/llm";
+import { apiKeyName, modelName } from "../lib/llm";
 
 for (const f of [".env.local", ".env"]) {
   try {
@@ -128,8 +128,8 @@ function printSummary(s: AgentSummary) {
 }
 
 async function main() {
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("OPENAI_API_KEY is not set: the agent eval calls the real model.");
+  if (!process.env[apiKeyName()]) {
+    console.error(`${apiKeyName()} is not set: the agent eval calls the real model.`);
     process.exit(1);
   }
   if (!scenarios.length) throw new Error("No scenarios match.");

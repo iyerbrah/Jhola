@@ -47,20 +47,48 @@ type Effort = "none" | "low" | "medium" | "high";
 
 let client: OpenAI | null = null;
 
-/** The shared OpenAI client. Also used by the cart editor agent (lib/agent/model.ts). */
+/** Who serves the model: "openai" (default) or "openrouter", which speaks the same API at another address. */
+export function isOpenRouter(): boolean {
+  return (process.env.LLM_PROVIDER || "openai").trim().toLowerCase() === "openrouter";
+}
+
+/** OpenAI-only request options (prompt caching, service tier). Other providers get none. */
+export function openAiOnly<T extends object>(options: T): T | Record<string, never> {
+  return isOpenRouter() ? {} : options;
+}
+
+/** The env var that holds the key for the chosen provider. */
+export function apiKeyName(): "OPENAI_API_KEY" | "OPENROUTER_API_KEY" {
+  return isOpenRouter() ? "OPENROUTER_API_KEY" : "OPENAI_API_KEY";
+}
+
+/** The shared client. Also used by the cart editor agent (lib/agent/model.ts). */
 export function getClient(): OpenAI {
-  if (!process.env.OPENAI_API_KEY) throw new LlmError("OPENAI_API_KEY is not set", "missing_key");
+  const keyName = apiKeyName();
+  const apiKey = process.env[keyName];
+  if (!apiKey) throw new LlmError(`${keyName} is not set`, "missing_key");
   // A normal call takes 1-5 s. buildCarts retries once itself, so the SDK doesn't.
-  client ??= new OpenAI({ timeout: 12_000, maxRetries: 0 });
+  client ??= new OpenAI({
+    apiKey,
+    timeout: Number(process.env.LLM_TIMEOUT_MS) || 12_000,
+    maxRetries: 0,
+    ...(isOpenRouter() ? { baseURL: "https://openrouter.ai/api/v1" } : {}),
+  });
   return client;
 }
 
+/** Each provider has its own model setting, so switching LLM_PROVIDER is the only change needed. */
 export function modelName(): string {
-  return process.env.LLM_MODEL || "gpt-5.4-mini";
+  if (isOpenRouter()) return process.env.OPENROUTER_MODEL || "nvidia/nemotron-3.5-super-vl:free";
+  return process.env.OPENAI_MODEL || "gpt-5.4-mini";
 }
 
+/**
+ * Models that take a reasoning effort. On OpenRouter it's always sent: its models think by
+ * default unless told "none", and the thinking alone can use up max_output_tokens.
+ */
 export function isReasoningModel(model: string): boolean {
-  return /^(gpt-5|gpt-6|o\d)/.test(model);
+  return isOpenRouter() || /^(gpt-5|gpt-6|o\d)/.test(model);
 }
 
 async function structuredCall<S extends z.ZodType>(
@@ -77,10 +105,12 @@ async function structuredCall<S extends z.ZodType>(
       input: messages,
       text: { format: zodTextFormat(schema, name) },
       max_output_tokens: 3000,
-      // Same key for every call, so the long rules + catalog prefix stays cached.
-      prompt_cache_key: "ai-cart-builder-v2",
-      // Optional: OpenAI's faster, pricier tiers (e.g. "priority"). Unset = the standard tier.
-      ...(process.env.LLM_SERVICE_TIER ? { service_tier: process.env.LLM_SERVICE_TIER as "priority" } : {}),
+      ...openAiOnly({
+        // Same key for every call, so the long rules + catalog prefix stays cached.
+        prompt_cache_key: "ai-cart-builder-v2",
+        // Optional: OpenAI's faster, pricier tiers (e.g. "priority"). Unset = the standard tier.
+        ...(process.env.LLM_SERVICE_TIER ? { service_tier: process.env.LLM_SERVICE_TIER as "priority" } : {}),
+      }),
       ...(isReasoningModel(model) ? { reasoning: { effort } } : {}),
     });
     const output = response.output_parsed;
