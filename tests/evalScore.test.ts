@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { percentile, scoreCase, summarise, type EvalCase } from "@/evals/score";
+import { percentile } from "@/lib/percentile";
+import { scoreCase, summarise, type EvalCase } from "@/evals/score";
 import { priceVariants } from "@/lib/price";
 import type { BuildCartsResponse, LlmVariant } from "@/lib/schema";
 import { budget, classic, index, item, shortcut } from "./fixtures";

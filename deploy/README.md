@@ -1,13 +1,13 @@
 # Jhola's server
 
-Jhola runs at **https://jhola.ramiyer.tech** on a Hostinger VPS running Ubuntu. It moved there from Vercel on Nov 8, 2026. Upstash Redis was kept, so the rate limits, answer cache and history carried over.
+Jhola runs at **https://jhola.ramiyer.tech** on a Hostinger VPS running Ubuntu. It moved there from Vercel on Nov 8, 2026. Upstash Redis was kept, so the rate limits and answer cache carried over.
 
 ```
 Browser ──HTTPS──▶ nginx (ports 80/443, Let's Encrypt certificate)
-                     │  sets X-Real-IP, caps /api/build-carts per address
+                     │  sets X-Real-IP, caps /api/build-carts and /api/agent per address
                      ▼
                    Next.js on 127.0.0.1:3000 (systemd service "jhola", user "jhola")
-                     ├──▶ OpenAI API
+                     ├──▶ OpenRouter (openai/gpt-5.4-mini)
                      ├──▶ Upstash Redis (HTTPS): rate limits, answer cache
                      └──▶ PostgreSQL on 127.0.0.1:5432: request log, feedback, /stats
 ```
@@ -15,8 +15,8 @@ Browser ──HTTPS──▶ nginx (ports 80/443, Let's Encrypt certificate)
 | What | Where |
 | --- | --- |
 | Live site | https://jhola.ramiyer.tech |
-| Server | Hostinger VPS `srv2139468`, Ubuntu, nginx 1.28, Node.js 24 (NodeSource) |
-| SSH login | `ram@jhola.ramiyer.tech`; `sudo` asks for **ram's** password, not root's |
+| Server | Hostinger VPS, Ubuntu, nginx 1.28, Node.js 24 (NodeSource) |
+| SSH login | `<you>@jhola.ramiyer.tech`, your own sudo user; `sudo` asks for **that user's** password, not root's |
 | DNS | Hostinger DNS: an A record for `jhola` pointing at the VPS, TTL 300 |
 | App code | `/opt/jhola`, owned by the `jhola` user, which has no login and no admin rights |
 | Secrets | `/opt/jhola/.env.production.local` (only on the server; deploys never copy or overwrite it) |
@@ -27,7 +27,7 @@ Browser ──HTTPS──▶ nginx (ports 80/443, Let's Encrypt certificate)
 | Deploys | GitHub Actions ([.github/workflows/deploy.yml](../.github/workflows/deploy.yml)) after CI passes on `main` |
 | Deploy user | `deploy`: no password; its one SSH key can only run `/usr/local/sbin/jhola-deploy` (from [server/jhola-deploy](server/jhola-deploy)) |
 | Deploy state | `/var/lib/jhola-deploy`: a clone of the repo, `current` (the live commit) and `history` (every deploy) |
-| Staging copy | `~/jhola-src` in ram's home (only the manual `deploy/deploy.sh` uses it) |
+| Staging copy | `~/jhola-src` in your home (only the manual `deploy/deploy.sh` uses it) |
 | Request log | PostgreSQL on this machine (127.0.0.1:5432), database `jhola`; the app creates its tables itself. Backups nightly in `/var/backups/jhola` |
 
 ## Day to day
@@ -66,18 +66,18 @@ sudo /usr/local/sbin/jhola-deploy <commit SHA>
 deploy/deploy.sh
 ```
 
-It runs the tests, copies the code (never secrets), installs packages and builds on the server, installs the service file, then restarts the app. The server asks once for ram's password. The `npm warn` lines during the install are harmless.
+It runs the tests, copies the code (never secrets), installs packages and builds on the server, installs the service file, then restarts the app. The server asks once for your password. The `npm warn` lines during the install are harmless.
 
 ### Change the deploy script itself
 
 Deploys never update `/usr/local/sbin/jhola-deploy`, the service file or nginx, so a merged PR can't give itself more access to the server. After changing [server/jhola-deploy](server/jhola-deploy), install it by hand, from the project folder on your Mac:
 
 ```bash
-scp deploy/server/jhola-deploy deploy/server/setup-github-deploy.sh ~/.ssh/jhola_deploy.pub ram@jhola.ramiyer.tech:
+scp deploy/server/jhola-deploy deploy/server/setup-github-deploy.sh ~/.ssh/jhola_deploy.pub <you>@jhola.ramiyer.tech:
 ```
 
 ```bash
-ssh -t ram@jhola.ramiyer.tech 'sudo bash setup-github-deploy.sh jhola_deploy.pub'
+ssh -t <you>@jhola.ramiyer.tech 'sudo bash setup-github-deploy.sh jhola_deploy.pub'
 ```
 
 ### Apply an nginx change
@@ -138,12 +138,12 @@ sudo systemctl restart jhola
 
 The exception is `SITE_URL`: it's read at build time, so after changing it, run `deploy/deploy.sh` instead of only restarting.
 
-The file holds `SITE_URL`, `LLM_PROVIDER`, `OPENAI_API_KEY`, `OPENAI_MODEL`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_HOUR`, `DAILY_REQUEST_CAP`, `HISTORY_KEY`, `DATABASE_URL` and `VISITOR_SECRET`. [.env.example](../.env.example) explains each one.
+The file holds `SITE_URL`, `LLM_PROVIDER`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` (plus `OPENAI_API_KEY` and `OPENAI_MODEL` only to call OpenAI directly), `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_HOUR`, `DAILY_REQUEST_CAP`, `HISTORY_KEY`, `DATABASE_URL` and `VISITOR_SECRET`. [.env.example](../.env.example) explains each one.
 
 ### Rotate a key
 
 - **Upstash:** in [console.upstash.com](https://console.upstash.com), open the database and use **Reset Password**. That replaces the REST token; the URL stays the same. Copy the new token from **Connect → REST**, put it in the secrets file and restart. Until you do, the site keeps working but without rate limits or the answer cache.
-- **OpenAI:** create the new key first, put it in the secrets file, restart, check a cart builds, then revoke the old key.
+- **OpenRouter** (or OpenAI, if you call it directly): create the new key first, put it in the secrets file, restart, check a cart builds, then revoke the old key.
 
 ### Other checks
 
@@ -225,10 +225,8 @@ sudo -u jhola nano /opt/jhola/.env.production.local
 ```
 SITE_URL=https://jhola.ramiyer.tech
 LLM_PROVIDER=openrouter
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-5.4-mini
 OPENROUTER_API_KEY=
-OPENROUTER_MODEL=nvidia/nemotron-3.5-super-vl:free
+OPENROUTER_MODEL=openai/gpt-5.4-mini
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
 RATE_LIMIT_PER_HOUR=10
@@ -288,14 +286,14 @@ All on your Mac, from the project folder. Make a key just for GitHub (no passphr
 ssh-keygen -t ed25519 -N "" -C "github-actions-deploy" -f ~/.ssh/jhola_deploy
 ```
 
-Copy the setup files and the public key to the server, then run the setup (it asks for ram's password twice: once to log in, once for sudo):
+Copy the setup files and the public key to the server, then run the setup (it asks for your password twice: once to log in, once for sudo):
 
 ```bash
-scp deploy/server/jhola-deploy deploy/server/setup-github-deploy.sh ~/.ssh/jhola_deploy.pub ram@jhola.ramiyer.tech:
+scp deploy/server/jhola-deploy deploy/server/setup-github-deploy.sh ~/.ssh/jhola_deploy.pub <you>@jhola.ramiyer.tech:
 ```
 
 ```bash
-ssh -t ram@jhola.ramiyer.tech 'sudo bash setup-github-deploy.sh jhola_deploy.pub'
+ssh -t <you>@jhola.ramiyer.tech 'sudo bash setup-github-deploy.sh jhola_deploy.pub'
 ```
 
 It ends with `✓ GitHub deploy access is set up`. Test the key by deploying the latest `main` with it. This is a real deploy, ending with `✓ Deployed` and the commit:
@@ -314,18 +312,18 @@ gh secret set DEPLOY_SSH_KEY < ~/.ssh/jhola_deploy
 ssh-keyscan -t ed25519 jhola.ramiyer.tech 2>/dev/null | gh variable set DEPLOY_KNOWN_HOSTS
 ```
 
-The host key's fingerprint should match what your Mac saw when you first connected: `ssh-keygen -F jhola.ramiyer.tech -l` and `ssh-keyscan -t ed25519 jhola.ramiyer.tech 2>/dev/null | ssh-keygen -lf -` print the same `SHA256:…`. For the current server it's `SHA256:9W6wUY9u/Vz2AgOMXvGUT4WYyrr/fQJkbK0MglgeUCI`.
+The host key's fingerprint should match what your Mac saw when you first connected: `ssh-keygen -F jhola.ramiyer.tech -l` and `ssh-keyscan -t ed25519 jhola.ramiyer.tech 2>/dev/null | ssh-keygen -lf -` print the same `SHA256:…`.
 
 ### 10. Add the database (the request log)
 
 Copy the setup script to the server and run it. It installs PostgreSQL (listening on this machine only), creates the `jhola` database, sets up nightly backups, writes `DATABASE_URL` and `VISITOR_SECRET` into the secrets file and restarts the app. From your Mac:
 
 ```bash
-scp deploy/server/setup-postgres.sh ram@jhola.ramiyer.tech:
+scp deploy/server/setup-postgres.sh <you>@jhola.ramiyer.tech:
 ```
 
 ```bash
-ssh -t ram@jhola.ramiyer.tech 'sudo bash setup-postgres.sh'
+ssh -t <you>@jhola.ramiyer.tech 'sudo bash setup-postgres.sh'
 ```
 
 It ends with `✓ PostgreSQL is ready`. The app creates its tables the first time it saves a request, so there's nothing else to run. Without the database the site still works; requests just aren't kept.
@@ -334,13 +332,13 @@ It ends with `✓ PostgreSQL is ready`. The app creates its tables the first tim
 
 | What you see | Cause and fix |
 | --- | --- |
-| `sudo: Authentication failed` | It wants the password of the user you're logged in as (`ram`), not root's. If that's forgotten, become root with `su -` (root's password) and run `passwd ram`. |
-| `ssh: Could not resolve hostname` | The SSH target is wrong. It should be `ram@jhola.ramiyer.tech`, or the VPS's IP. |
+| `sudo: Authentication failed` | It wants the password of the user you're logged in as, not root's. If that's forgotten, become root with `su -` (root's password) and run `passwd <you>`. |
+| `ssh: Could not resolve hostname` | The SSH target is wrong. It should be `<you>@jhola.ramiyer.tech`, or `<you>@` the VPS's IP. |
 | certbot: `Invalid Location header` or an IP that isn't the VPS | The domain in the command or in `server_name` doesn't point to this server. Check `dig +short <domain>` and `grep server_name /etc/nginx/sites-available/jhola`. Five failed tries block that domain for an hour. |
 | certbot: timeout during connect | Port 80 is blocked. Check `sudo ufw status` shows `Nginx Full`, and check Hostinger's firewall. |
 | nginx shows "502 Bad Gateway" | The app isn't running. `systemctl status jhola` and `sudo journalctl -u jhola -n 50` show why; usually a missing or misspelled value in the secrets file. |
 | Every visitor gets "Too many requests" quickly | The app sees everyone as one address. The nginx file must keep its `X-Real-IP $remote_addr` line. |
-| Carts fail with "trouble answering" | The logs give a reason: `missing_key`, `bad_key` or `quota` come from OpenAI. |
+| Carts fail with "trouble answering" | The logs give a reason: `missing_key`, `bad_key` or `quota` come from the model provider (OpenRouter): check the key and the account's credits. |
 | The build stops with `Killed` | The server ran out of memory. Add swap: `sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' \| sudo tee -a /etc/fstab` |
 | Deploy workflow: `DEPLOY_SSH_KEY secret or DEPLOY_KNOWN_HOSTS variable is missing` | Step 9's two `gh` commands weren't run, or were run for another repo. `gh secret list` and `gh variable list` should show them. |
 | Deploy workflow: `Host key verification failed` | The server's host key changed (e.g. the VPS was rebuilt). Check the new fingerprint on the server with `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub`, then rerun the `ssh-keyscan … \| gh variable set` command. |

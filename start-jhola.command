@@ -11,9 +11,9 @@ if ! command -v npm >/dev/null; then
   exit 1
 fi
 
-if ! grep -qE '^OPENAI_API_KEY=.+' .env.local 2>/dev/null; then
-  echo "Add your OpenAI API key to .env.local (OPENAI_API_KEY=...) first; carts can't be built without it."
-  echo "The page will still open, but building carts will show an error."
+if ! grep -qsE '^OPENROUTER_API_KEY=.+' .env .env.local; then
+  echo "Add your OpenRouter key to .env (OPENROUTER_API_KEY=...) first; carts can't be built without it."
+  echo "Copy .env.example to .env if you haven't. The page will still open, but building carts will show an error."
   echo
 fi
 

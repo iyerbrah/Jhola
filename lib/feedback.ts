@@ -6,7 +6,7 @@
  * Answers 204 when saved, 400 for bad input, 404 for an unknown request, 429 when rate-limited.
  */
 import { z } from "zod";
-import { clientIp } from "./api";
+import { clientIp, json } from "./http";
 import { createMemoryLimiter, createUpstashLimiter, redisFromEnv, type Limiter } from "./ratelimit";
 import { defaultRequestLog, type RequestLog } from "./requestLog";
 import { visitorId } from "./visitor";
@@ -24,7 +24,7 @@ export type FeedbackDeps = { limiter: Limiter; requestLog: RequestLog };
 
 let defaults: FeedbackDeps | null = null;
 
-export function defaultFeedbackDeps(): FeedbackDeps {
+function defaultFeedbackDeps(): FeedbackDeps {
   if (defaults) return defaults;
   const redis = redisFromEnv();
   const config = { perHour: 60, perDay: 2000 };
@@ -35,8 +35,6 @@ export function defaultFeedbackDeps(): FeedbackDeps {
   };
   return defaults;
 }
-
-const json = (body: unknown, status: number) => Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 
 export async function handleFeedback(req: Request, deps: FeedbackDeps = defaultFeedbackDeps()): Promise<Response> {
   let body: unknown;

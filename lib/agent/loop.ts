@@ -273,14 +273,14 @@ function saysDone(rawArgs: string): boolean {
  * changed cart passes every rule. (The loop also requires that the model marked an edit done, that the
  * step didn't look anything up, and that no call failed.)
  */
-export function editsComplete(state: AgentState, index: CatalogIndex): boolean {
+function editsComplete(state: AgentState, index: CatalogIndex): boolean {
   const scope = state.scope ?? new Set(state.carts.map((_, i) => i));
   if (state.touched.size === 0 || ![...scope].every((i) => state.touched.has(i))) return false;
   return [...state.touched].every((i) => checkCart(state.carts[i], index).length === 0);
 }
 
 /** The reply when code ends the turn: what's now true, from the carts themselves. */
-export function codeReply(before: AgentCart[], state: AgentState): string {
+function codeReply(before: AgentCart[], state: AgentState): string {
   const changed = [...state.touched].sort().map((i) => state.carts[i]);
   const describe = (c: AgentCart, i: number) => {
     const diet = c.requirements.diet && c.requirements.diet !== before[i]?.requirements.diet ? `${DIET_LABELS[c.requirements.diet]}, at ` : "";

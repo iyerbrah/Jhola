@@ -19,7 +19,7 @@ export function packsFor(it: { need: number; qty: number }, p: Product): number 
  * The cheapest pack size of the same product (same brand and name) that covers the need,
  * e.g. 400 g of rice -> one 1 kg bag (₹84), not one 5 kg bag (₹429). Ties go to less waste.
  */
-export function bestPack(it: { need: number; qty: number }, p: Product, products: Product[]): Product {
+function bestPack(it: { need: number; qty: number }, p: Product, products: Product[]): Product {
   if (!(it.need > 0)) return p;
   const siblings = products.filter((x) => x.in_stock && x.brand === p.brand && x.name === p.name && x.unit === p.unit);
   const cost = (x: Product) => x.price * packsFor(it, x);

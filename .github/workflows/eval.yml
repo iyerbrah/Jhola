@@ -1,5 +1,5 @@
 # The eval checks, on PRs that can change answers, both against the real model:
-# - the cart builder: 9 queries vs evals/baseline.json (about $0.15)
+# - the cart builder: 11 queries vs evals/baseline.json (about $0.15)
 # - the cart editor agent: 6 scenarios vs evals/agent/baseline.json (about $0.03)
 # Both reports go into one PR comment, and the run fails if either check fails.
 #
@@ -29,13 +29,14 @@ concurrency:
 
 jobs:
   eval:
-    name: Eval check (9 queries, real model)
+    name: Eval check (11 queries + 6 agent scenarios, real model)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # PRs from forks don't get repo secrets, so the check can't run there.
     if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
     env:
       NEXT_TELEMETRY_DISABLED: 1
+      LLM_PROVIDER: openrouter
     steps:
       - uses: actions/checkout@v5
 
@@ -49,7 +50,7 @@ jobs:
       - name: Run the cart builder eval check
         id: eval
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           set +e
           npm run eval:ci
@@ -58,7 +59,7 @@ jobs:
       - name: Run the agent eval check
         id: agent
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           set +e
           npm run eval:agent -- --ci

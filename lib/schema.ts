@@ -23,7 +23,7 @@ export const CATEGORIES = [
   "pet_care",
 ] as const;
 
-export const NON_FOOD_CATEGORIES = ["personal_care", "cleaning_household", "home_kitchen", "baby_care", "pet_care"] as const;
+const NON_FOOD_CATEGORIES = ["personal_care", "cleaning_household", "home_kitchen", "baby_care", "pet_care"] as const;
 const NON_FOOD = new Set<string>(NON_FOOD_CATEGORIES);
 
 /** Food is what diets apply to. Soap is never "not vegetarian". */
@@ -31,9 +31,9 @@ export function isFood(p: { category: string }): boolean {
   return !NON_FOOD.has(p.category);
 }
 
-export const UNITS = ["g", "ml", "pcs"] as const;
+const UNITS = ["g", "ml", "pcs"] as const;
 
-export const ProductSchema = z.object({
+const ProductSchema = z.object({
   id: z.string().regex(/^p\d{3,}$/),
   name: z.string().min(2),
   brand: z.string().min(1),
@@ -57,7 +57,7 @@ export const CatalogSchema = z.array(ProductSchema);
 // Strict structured output: every field is required, "missing" values are null.
 // Two kinds of call: one PLAN call, then one CART call per variant (run in parallel).
 
-export const STATUSES = ["ok", "partial", "cannot_fulfil"] as const;
+const STATUSES = ["ok", "partial", "cannot_fulfil"] as const;
 
 const ConstraintsSchema = z.object({
   budget_inr: z.number().nullable(),
@@ -85,7 +85,7 @@ export const PlanSchema = z.object({
   ),
 });
 
-export const LlmItemSchema = z.object({
+const LlmItemSchema = z.object({
   product_id: z.string(),
   /** How much of this product the cart needs, in the product's unit (g, ml or pcs). 0 = just use qty. */
   need: z.number(),

@@ -180,19 +180,20 @@ Agreed on Nov 9, 2026:
 
 ## What changed from the plan
 
-Built as planned in PRs #5–#13, with these differences, each driven by the eval:
+Built as planned in PRs #5–#13, with these differences, each driven by the eval. Every number here was measured with gpt-5.4-mini called on OpenAI directly; since Nov 12, 2026 the same model is called through OpenRouter.
 
-- **More of the work moved into code.** Three tools that weren't in the plan do mechanical work in code instead of in model calls:
+- **More of the work moved into code.** Two tools that weren't in the plan do mechanical work in code instead of in model calls:
   - `cheapen` runs the cart builder's own budget fitting;
-  - `fit_diet` swaps items to fit a diet by kind;
-  - `set_requirements` records what the shopper asked for, so a dropped main ingredient has to name its replacement.
+  - `fit_diet` swaps items to fit a diet by kind.
+
+  `set_requirements` (planned) also gained a rule: a dropped main ingredient has to name its replacement.
 - **Code decides which carts a turn may change**, from the shopper's words, rather than trusting the model to stay in scope. That took "wrong cart changed" to 0.
 - **Every editing tool takes a `done` flag.** When the model marks its last edit done and every rule passes, code ends the turn and writes the reply itself. This saves a model call and halved the median turn, from about 4.2 s to 2.3 s. After any refused call the model still writes the reply, so it can say what couldn't be done.
 - **Swaps keep the amount**, and a replaced main ingredient must be at least half its weight. Without this, 900 g of chicken became one 200 g pack of paneer.
 - **The reply can't mention a rupee amount the agent wasn't shown**, so it can't claim a total it didn't reach.
-- **Limits:** 16 tool calls, 6 model calls and 25 s per turn, instead of the planned 12 / 6 / 20 s. Diet changes on all three carts needed the room.
+- **Limits:** 16 tool calls, 6 model calls and 25 s per turn, instead of the planned 8 / 5 / 25 s. Diet changes on all three carts needed the room.
 - **Results:**
   - 89–93% on 27 scenarios across runs before the catalog grew to 2,743 products, and 90% on 29 after;
   - 0 rule breaks in every run;
-  - about 2.3 s median per turn at about $0.003.
+  - about 2.3 s median per turn at about $0.003 on 27 scenarios, and 3.9–4.4 s at $0.0039–0.0051 on the 29 scenarios with the bigger catalog.
 - **Later work this plan put off has since shipped:** the request log in Postgres, 👍/👎 feedback and `/stats` (PRs #14–#16), and the bigger catalog with household items (PR #17).

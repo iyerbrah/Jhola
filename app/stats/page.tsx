@@ -106,7 +106,7 @@ function Body({ stats }: { stats: Stats }) {
             <Row label="Per fresh cart build" value={usd(t.cost_per_build)} />
             <Row label="Per agent turn" value={usd(t.cost_per_turn)} />
           </dl>
-          <p className="mt-2 text-sm text-ink-soft">OpenAI list prices, with cached input at its lower rate. Answers from the cache cost nothing.</p>
+          <p className="mt-2 text-sm text-ink-soft">gpt-5.4-mini list prices, with cached input at its lower rate. Answers from the cache cost nothing.</p>
         </section>
       </div>
 

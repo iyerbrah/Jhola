@@ -86,7 +86,7 @@ const TIER_HINTS = [
 ];
 
 /** Share of the budget each cart aims for, cheapest tier first. The budget itself is the hard cap. */
-export const BUDGET_TARGETS = [0.6, 0.8, 0.92];
+const BUDGET_TARGETS = [0.6, 0.8, 0.92];
 
 export function cartMessage(query: string, plan: Plan, variant: PlanVariant, tierIndex: number, products: Map<string, Product[]>): string {
   const budget = plan.constraints.budget_inr;

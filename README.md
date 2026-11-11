@@ -18,10 +18,10 @@ Type a shopping request in plain language, like *"chicken biryani for 4"*, *"cle
 - **A tool-using agent edits the carts.** It works only through tools that check every argument. Code decides which carts it may change and won't let it finish while a rule is broken. Eval: 26 of 29 scripted conversations pass, with 0 rule breaks in every run.
 - **Built to scale past the prompt.** The cart builder looks the catalog up in two steps (kinds first, then products), so growing the catalog 2.7× left the cost per answer about where it was (about $0.02).
 - **Data you can query.** Every build and agent turn is logged in Postgres with a trace of each model and tool call. Shoppers rate answers 👍/👎, and a public [/stats](https://jhola.ramiyer.tech/stats) page computes speed, reliability and cost from the log in SQL.
-- **Measured on every change.** A 35-request cart eval and an 29-scenario agent eval run against the real model. Every pull request runs a subset of each and fails if the scores drop below the saved baseline.
-- **Shipped like a team.** Small PRs, CI on each one (lint, types, 293 tests including Postgres, catalog and contrast checks, a build), and an automatic deploy to its own server on merge.
+- **Measured on every change.** A 35-request cart eval and a 29-scenario agent eval run against the real model. Every pull request runs a subset of each and fails if the scores drop below the saved baseline.
+- **Shipped like a team.** Small PRs, CI on each one (lint, types, 292 tests including Postgres, catalog and contrast checks, a build), and an automatic deploy to its own server on merge.
 
-**Stack:** Next.js (App Router) · TypeScript · Tailwind CSS · OpenAI `gpt-5.4-mini` (structured outputs and tool calls) · Zod · PostgreSQL · Upstash Redis · Vitest · GitHub Actions · nginx + systemd on an Ubuntu VPS
+**Stack:** Next.js (App Router) · TypeScript · Tailwind CSS · OpenAI `gpt-5.4-mini` through OpenRouter (structured outputs and tool calls) · Zod · PostgreSQL · Upstash Redis · Vitest · GitHub Actions · nginx + systemd on an Ubuntu VPS
 
 | Ask in one line | Compare three carts | Change a cart by asking |
 | --- | --- | --- |
@@ -37,7 +37,7 @@ Type a shopping request in plain language, like *"chicken biryani for 4"*, *"cle
 flowchart LR
   B[Browser] -->|HTTPS| N[nginx<br/>TLS, per-address caps]
   N --> A[Next.js app<br/>pages + API routes]
-  A -->|plan, cart, agent calls| O[OpenAI<br/>gpt-5.4-mini]
+  A -->|plan, cart, agent calls| O[OpenRouter<br/>openai/gpt-5.4-mini]
   A -->|rate limits, 30-day answer cache| R[(Upstash Redis)]
   A -->|after each response:<br/>requests, carts, traces, feedback| P[(PostgreSQL)]
   P -->|SQL| S["/stats and /history pages"]
@@ -52,7 +52,7 @@ flowchart LR
 
 ## How the cart builder works
 
-1. **Plan** (1 LLM call). The plan sees the rules plus a short index of the 361 kinds of product in stock: each kind's count, price range, typical price and two example names. It decides:
+1. **Plan** (1 LLM call). The plan sees the rules plus a short index of the 362 kinds of product in stock: each kind's count, price range, typical price and two example names. It decides:
    - the status and any assumptions;
    - the constraints (budget, item count);
    - any main ingredient every cart must contain ("chicken biryani" → chicken);
@@ -89,7 +89,7 @@ Under the carts, the shopper changes one in plain language. A tool-using agent m
 
 The same rule as the cart builder: **the model decides, code checks.**
 
-- **Tools only.** The agent works through tools that validate every argument and take prices from the catalog: search, add, remove, swap, quantity, requirements, `cheapen`, `fit_diet` and `finish`.
+- **Tools only.** The agent works through tools that validate every argument and take prices from the catalog: search, product details, add, remove, swap, quantity, requirements, `cheapen`, `fit_diet`, `check_rules` and `finish`.
 - **Code does the mechanical edits.** `cheapen` runs the cart builder's own budget fitting, and `fit_diet` swaps items to fit a diet by kind. Swaps keep about the same amount, and a replaced main ingredient must be replaced by at least half its weight.
 - **Scope is decided in code** from the shopper's words: the visible cart, unless they name another or say "all".
 - **`finish` checks the work.** It's refused while a changed cart breaks a rule (stock, budget, diet, the dish's main ingredient, item counts). It also refuses a reply that mentions a rupee amount the agent was never shown.
@@ -123,7 +123,7 @@ flowchart LR
 
 ## The catalog
 
-2,743 products: 1,719 food and 1,024 household items (personal care, cleaning, kitchen and home, baby care, pet care) in 362 kinds. They're built from a public BigBasket dataset by [scripts/catalog/build.ts](scripts/catalog/build.ts), whose rules are unit-tested on real rows.
+2,743 products: 1,719 food and 1,024 household items (personal care, cleaning, kitchen and home, baby care, pet care) in 363 kinds. They're built from a public BigBasket dataset by [scripts/catalog/build.ts](scripts/catalog/build.ts), whose rules are unit-tested on real rows.
 
 - **Stable IDs.** [data/catalog/ids.json](data/catalog/ids.json) maps every source row to its ID, so a rebuild never renumbers products: saved carts, the request log and the agent eval keep working. New products are appended. A product whose row disappears stays, out of stock.
 - **Misfilings caught by rules.** Each ingredient kind has a home category: cheese must be dairy, ghee must be oils and ghee. That fixed a chicken kabab filed as cheese, laddoos as ghee, Palakkad rice as spinach ("palak") and steamed rice as a drink ("steam" contains "tea").
@@ -132,7 +132,7 @@ flowchart LR
 
 ## Key decisions
 
-- **The model picks, code counts.** The LLM returns product IDs and amounts. Code computes packs, prices and totals, and the schema plus ID checks mean a prompt-injection reply can't put arbitrary content in a cart.
+- **IDs and amounts from the model, everything else from code.** Because the schema and ID checks accept only catalog products, even a reply bent by prompt injection can't put arbitrary content in a cart.
 - **A two-step catalog lookup instead of the whole catalog in the prompt.** At 1,006 products the whole catalog fit, at about 31k tokens per call, mostly cached. At 2,743 it was 78k tokens per call and about $0.14 a build. Now the plan sees an index of kinds and each cart call sees only its kinds' products: about 13k tokens per call and about $0.02 a build.
 - **One plan, three parallel carts, instead of one big call.** Each call writes a third of the output and they run at once, which roughly halved latency against a single call.
 - **Mechanical work lives in code, not in prompts.** Duplicates, stock, pantry staples, budgets, near-identical carts, diet swaps and which carts an edit may touch are all decided by tested code. Repeatedly, a prompt-only fix didn't stick and a code check did.
@@ -140,9 +140,9 @@ flowchart LR
 - **Logging never sits on the request path.** Writes happen after the response, with 3 s timeouts. The log stays plain SQL tables, not an analytics service, so `/stats` is a few tested queries.
 - **Limits ship with the public link.**
   - Cart builds: 10 per person per hour and 300 a day.
-  - Agent turns: 30 per person per hour.
+  - Agent turns: 30 per person per hour and 600 a day.
   - Repeated questions come from a 30-day answer cache.
-  - The counts live in Upstash Redis, so they survive restarts and deploys, and nginx adds a per-address cap on the cart API that holds even if Redis is unreachable.
+  - The counts live in Upstash Redis, so they survive restarts and deploys, and nginx adds a per-address cap on both APIs that holds even if Redis is unreachable.
 - **A small VPS instead of serverless.** One long-running Node.js process behind nginx, with Postgres on the same machine: no function time limits, no per-request billing.
 
 ## Evaluation
@@ -158,7 +158,7 @@ flowchart LR
 
 Results are saved to [evals/results/](evals/results/).
 
-Latest run (Nov 9, 2026, gpt-5.4-mini, 2,743 products, one query at a time from a home connection in India):
+Latest run (Nov 9, 2026, gpt-5.4-mini called on OpenAI directly, before the move to OpenRouter; 2,743 products, one query at a time from a home connection in India):
 
 | Metric | How it's measured | Result | Target |
 | --- | --- | --- | --- |
@@ -169,9 +169,9 @@ Latest run (Nov 9, 2026, gpt-5.4-mini, 2,743 products, one query at a time from 
 | Variant distinctness | Mean pairwise Jaccard on product IDs (lower = more different) | **0.29** | < 0.60 |
 | Correct status | Edge cases get the expected status | **5 of 5** | 5 of 5 |
 | Latency | p50 / p95 per query | 8.8 s / 17.6 s | p95 < 8 s |
-| Cost | Average per query, from token counts and OpenAI list prices | $0.017 (about ₹1.5) | report |
+| Cost | Average per query, from token counts and gpt-5.4-mini list prices | $0.017 (about ₹1.5) | report |
 
-Latency misses its target. Each query makes 2–3 back-to-back calls from India to OpenAI's US servers, and OpenAI's speed varies a lot. On 9 Nov the code from before the catalog grew, run side by side with this code, was just as slow: 8–10 s per build. Two weeks earlier the same old code measured 5.4 s / 8.5 s. The live server's own timings are on [/stats](https://jhola.ramiyer.tech/stats).
+Latency misses its target. Each query makes 2–3 back-to-back calls from India to the model's US servers, and their speed varies a lot. On 9 Nov the code from before the catalog grew, run side by side with this code, was just as slow: 8–10 s per build. Two weeks earlier the same old code measured 5.4 s / 8.5 s. The live server's own timings are on [/stats](https://jhola.ramiyer.tech/stats).
 
 <details>
 <summary><b>What each change improved</b> (one full run per change)</summary>
@@ -212,10 +212,10 @@ The biggest wins came from moving mechanical fixes (duplicates, budgets, near-id
 - impossible requests, including a prompt injection;
 - two-turn chats.
 
-Latest run (Nov 9, 2026): **90% (26 of 29)** task success, **0** rule breaks in changed carts, **0** scenarios that changed the wrong cart, 4 of 4 questions and impossible requests that changed nothing, 4.4 s / 12.9 s per turn (p50 / p95), $0.0039 per turn.
+Latest run (Nov 9, 2026, on OpenAI directly, before the move to OpenRouter): **90% (26 of 29)** task success, **0** rule breaks in changed carts, **0** scenarios that changed the wrong cart, 4 of 4 questions and impossible requests that changed nothing, 4.4 s / 12.9 s per turn (p50 / p95), $0.0039 per turn.
 
 <details>
-<summary><b>What each change improved</b> (27 scenarios until the last row)</summary>
+<summary><b>What each change improved</b> (27 scenarios until the *29 scenarios* row)</summary>
 
 | Change | Task success | Wrong cart changed | Turns that gave up | p50 / p95 per turn | Cost per turn |
 | --- | --- | --- | --- | --- | --- |
@@ -236,7 +236,7 @@ Latest run (Nov 9, 2026): **90% (26 of 29)** task success, **0** rule breaks in 
 | `cheapen` never takes a pack off the main ingredient | 79% (23/29) | 1 | 4 of 31 | 4.4 / 14.1 s | $0.0051 |
 | A named budget is recorded once removals reach it; plain meat cuts | **90% (26/29)** | 0 | 1 of 31 | 4.4 / 12.9 s | $0.0039 |
 
-Across every run there were **0 rule breaks** in changed carts. Questions, a laptop charger and the prompt injection changed nothing. Not spending a model call on `finish` when code can confirm the edits halved the median turn: one OpenAI call takes over a second even for "Say OK", so fewer model calls is the speed lever.
+Across every run there were **0 rule breaks** in changed carts. Questions, a laptop charger and the prompt injection changed nothing. Not spending a model call on `finish` when code can confirm the edits halved the median turn: one model call takes over a second even for "Say OK", so fewer model calls is the speed lever.
 
 Still open:
 - **"make it cheaper" on a chicken biryani:** it finds only about 7%, because it won't cut the chicken (the eval wants 10%);
@@ -267,7 +267,7 @@ Latency is reported but never fails a check, since GitHub's runners aren't the l
 - **Stock** is simulated: about 5% of products are marked out of stock so substitutions show up.
 - **Amounts** are the model's judgement. Code makes the pack counts match the amounts, but a "premium" cart can still pick big packs: the premium cleaning kit comes to about ₹9,000 with a ₹2,999 spin mop.
 - **Recipes** can still miss a secondary ingredient, which the eval's ingredient coverage shows.
-- **Latency** depends on OpenAI's load and the distance to its servers: the same queries ran in 5 s on one day and 9 s on another.
+- **Latency** depends on the model provider's load and the distance to its servers: the same queries ran in 5 s on one day and 9 s on another.
 - **It's a demo:** one catalog, one store, no login, and checkout places no order.
 
 ## Repository tour
@@ -282,7 +282,7 @@ Latency is reported but never fails a check, since GitHub's runners aren't the l
 | [`scripts/catalog/build.ts`](scripts/catalog/build.ts) | The catalog pipeline: kinds, quality checks, stable IDs, report |
 | [`app/`](app/), [`components/`](components/) | Pages, API routes and the UI |
 | [`evals/`](evals/) | Both evals, their scoring, baselines and every saved run |
-| [`tests/`](tests/) | 293 tests: fake-model unit tests, Postgres integration tests, pipeline fixtures |
+| [`tests/`](tests/) | 292 tests: fake-model unit tests, Postgres integration tests, pipeline fixtures |
 | [`deploy/`](deploy/) | Server setup, the deploy script, nginx and systemd config, and the runbook |
 | [`.github/workflows/`](.github/workflows/) | CI, the eval check on PRs, and deploy on merge |
 
@@ -297,7 +297,7 @@ You need Node.js 20 or newer (the live server uses Node 24).
 
 ```bash
 npm ci
-cp .env.example .env         # then add your OpenRouter or OpenAI key
+cp .env.example .env         # then add your OpenRouter key
 npm run dev                  # http://localhost:3000
 ```
 
@@ -305,7 +305,7 @@ npm run dev                  # http://localhost:3000
 - **Redis:** locally, rate limits are off and there is no cache unless you add Upstash values to `.env`.
 - **Postgres:** without `DATABASE_URL`, the request log is kept in memory, so `/history` works until you restart and `/stats` shows an empty state. To try Postgres locally, point `DATABASE_URL` at any database; the app creates its tables itself.
 
-On a Mac you can also double-click `start-jhola.command`, which starts the dev server and opens the site. Don't run `npm run build` while the dev server is running: both use the `.next` folder.
+On a Mac you can also double-click `start-jhola.command`, which starts the dev server and opens the site in Safari. Don't run `npm run build` while the dev server is running: both use the `.next` folder.
 
 ```bash
 npm test                          # unit tests (no API calls; Postgres tests run when TEST_DATABASE_URL is set)
@@ -340,5 +340,3 @@ The live site, [jhola.ramiyer.tech](https://jhola.ramiyer.tech), runs on an Ubun
 ## Data
 
 The code is under the [MIT license](LICENSE). Product data comes from the Kaggle dataset ["BigBasket Products"](https://www.kaggle.com/datasets/chinmayshanbhag/big-basket-products) by Chinmay Shanbhag (CC0, public domain), plus about 50 hand-added staples with illustrative prices. Prices are a past snapshot. Jhola is a portfolio project and isn't affiliated with any retailer.
-
-The original product spec is in [SPEC.md](SPEC.md).
