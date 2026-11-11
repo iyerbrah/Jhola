@@ -64,7 +64,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
       </dl>
       {entries.length > 0 && (
         <p className="mt-2 text-sm text-ink-soft">
-          {repaired} of {entries.length} needed a repair call. Costs use OpenAI&apos;s list prices, with cached input billed at its lower rate.
+          {repaired} of {entries.length} needed a repair call. Costs use gpt-5.4-mini&apos;s list prices, with cached input billed at its lower rate.
         </p>
       )}
 
