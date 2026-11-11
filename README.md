@@ -21,7 +21,7 @@ Type a shopping request in plain language, like *"chicken biryani for 4"*, *"cle
 - **Measured on every change.** A 35-request cart eval and an 29-scenario agent eval run against the real model. Every pull request runs a subset of each and fails if the scores drop below the saved baseline.
 - **Shipped like a team.** Small PRs, CI on each one (lint, types, 293 tests including Postgres, catalog and contrast checks, a build), and an automatic deploy to its own server on merge.
 
-**Stack:** Next.js (App Router) · TypeScript · Tailwind CSS · OpenAI `gpt-5.4-mini` (structured outputs and tool calls) · Zod · PostgreSQL · Upstash Redis · Vitest · GitHub Actions · nginx + systemd on an Ubuntu VPS
+**Stack:** Next.js (App Router) · TypeScript · Tailwind CSS · OpenAI `gpt-5.4-mini` through OpenRouter (structured outputs and tool calls) · Zod · PostgreSQL · Upstash Redis · Vitest · GitHub Actions · nginx + systemd on an Ubuntu VPS
 
 | Ask in one line | Compare three carts | Change a cart by asking |
 | --- | --- | --- |
@@ -37,7 +37,7 @@ Type a shopping request in plain language, like *"chicken biryani for 4"*, *"cle
 flowchart LR
   B[Browser] -->|HTTPS| N[nginx<br/>TLS, per-address caps]
   N --> A[Next.js app<br/>pages + API routes]
-  A -->|plan, cart, agent calls| O[OpenAI<br/>gpt-5.4-mini]
+  A -->|plan, cart, agent calls| O[OpenRouter<br/>openai/gpt-5.4-mini]
   A -->|rate limits, 30-day answer cache| R[(Upstash Redis)]
   A -->|after each response:<br/>requests, carts, traces, feedback| P[(PostgreSQL)]
   P -->|SQL| S["/stats and /history pages"]
@@ -297,7 +297,7 @@ You need Node.js 20 or newer (the live server uses Node 24).
 
 ```bash
 npm ci
-cp .env.example .env         # then add your OpenRouter or OpenAI key
+cp .env.example .env         # then add your OpenRouter key
 npm run dev                  # http://localhost:3000
 ```
 

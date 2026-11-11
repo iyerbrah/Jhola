@@ -3,7 +3,7 @@
 Oct 25, 2026 · @Ram
 
 > **This is the original plan, kept as written.** The built app differs in a few places. See [README.md](README.md) for how it works now:
-> - **LLM:** OpenAI `gpt-5.4-mini` via the `openai` SDK, not the Anthropic SDK.
+> - **LLM:** OpenAI `gpt-5.4-mini` through OpenRouter, via the `openai` SDK, not the Anthropic SDK.
 > - **Hosting:** it launched on Vercel, then moved on Nov 8, 2026 to an Ubuntu VPS at [jhola.ramiyer.tech](https://jhola.ramiyer.tech) (nginx, Let's Encrypt, systemd). See [deploy/README.md](deploy/README.md).
 > - **Logs:** they go to the server's journal (`journalctl -u jhola`), not Vercel's logs, and `maxDuration` is gone. The API gives up at 50 s and nginx waits 70 s.
 > - **Cache:** answers are cached for 30 days, not 24 hours.

@@ -47,9 +47,9 @@ type Effort = "none" | "low" | "medium" | "high";
 
 let client: OpenAI | null = null;
 
-/** Who serves the model: "openai" (default) or "openrouter", which speaks the same API at another address. */
+/** Who serves the model: "openrouter" (default) or "openai" directly. OpenRouter speaks the same API at another address. */
 export function isOpenRouter(): boolean {
-  return (process.env.LLM_PROVIDER || "openai").trim().toLowerCase() === "openrouter";
+  return (process.env.LLM_PROVIDER || "openrouter").trim().toLowerCase() === "openrouter";
 }
 
 /** OpenAI-only request options (prompt caching, service tier). Other providers get none. */
@@ -77,9 +77,12 @@ export function getClient(): OpenAI {
   return client;
 }
 
-/** Each provider has its own model setting, so switching LLM_PROVIDER is the only change needed. */
+/**
+ * The model for every call (cart builder and agent): gpt-5.4-mini, through OpenRouter by default.
+ * Each provider has its own model setting, so switching LLM_PROVIDER is the only change needed.
+ */
 export function modelName(): string {
-  if (isOpenRouter()) return process.env.OPENROUTER_MODEL || "nvidia/nemotron-3.5-super-vl:free";
+  if (isOpenRouter()) return process.env.OPENROUTER_MODEL || "openai/gpt-5.4-mini";
   return process.env.OPENAI_MODEL || "gpt-5.4-mini";
 }
 
