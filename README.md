@@ -305,7 +305,7 @@ npm run dev                  # http://localhost:3000
 - **Redis:** locally, rate limits are off and there is no cache unless you add Upstash values to `.env`.
 - **Postgres:** without `DATABASE_URL`, the request log is kept in memory, so `/history` works until you restart and `/stats` shows an empty state. To try Postgres locally, point `DATABASE_URL` at any database; the app creates its tables itself.
 
-Don't run `npm run build` while the dev server is running: both use the `.next` folder.
+On a Mac you can also double-click `start-jhola.command`, which starts the dev server and opens the site in Safari. Don't run `npm run build` while the dev server is running: both use the `.next` folder.
 
 ```bash
 npm test                          # unit tests (no API calls; Postgres tests run when TEST_DATABASE_URL is set)

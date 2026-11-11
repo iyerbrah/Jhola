@@ -26,7 +26,7 @@ echo "→ Copying code to $HOST"
 rsync -az --delete \
   --include='.env.example' --exclude='.env*' \
   --exclude='node_modules' --exclude='.next' --exclude='.git' --exclude='.claude' \
-  --exclude='.DS_Store' \
+  --exclude='.DS_Store' --exclude='start-jhola.command' \
   ./ "$HOST:jhola-src/"
 
 echo "→ Building and restarting on $HOST (sudo asks for your server user's password)"

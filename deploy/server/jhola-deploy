@@ -55,7 +55,7 @@ echo "→ Copying it into $APP (secrets stay as they are)"
 rsync -a --delete \
   --include=".env.example" --exclude=".env*" \
   --exclude="node_modules" --exclude=".next" --exclude=".git" \
-  --exclude=".claude" \
+  --exclude=".claude" --exclude="start-jhola.command" \
   "$SRC/" "$APP/"
 chown -R jhola:jhola "$APP"
 
