@@ -123,6 +123,19 @@ describe("summary and gate", () => {
     expect(run([true, true, true, true, true, true], { rule_breaks: 1 }).pass).toBe(false);
     expect(checkAgentGate(base, ["a"], "m", baseline).checks[0].ok).toBe(false);
   });
+
+  it("limits cost to 1.5x the baseline, but never below the floor, since six turns are noisy", () => {
+    const ids = ["a", "b", "c", "d", "e", "f"];
+    const runAt = (cost: number) => summariseAgent(ids.map(() => score(true, { turns: [turn({ cost_usd: cost })] })));
+    const gate = (baseCost: number, cost: number) => checkAgentGate(runAt(cost), ids, "m", { updated: "2026-11-12T00:00:00Z", model: "m", ids, summary: runAt(baseCost) });
+    const costCheck = (baseCost: number, cost: number) => gate(baseCost, cost).checks.find((c) => c.name === "Cost per turn")!;
+    // A cheap baseline: the floor, $0.006, is the limit, so a noisy $0.005 run passes.
+    expect(costCheck(0.0023, 0.005)).toMatchObject({ ok: true, detail: "$0.0050 (needs ≤ $0.0060)" });
+    expect(costCheck(0.0023, 0.007).ok).toBe(false);
+    // A pricier baseline: 1.5x applies.
+    expect(costCheck(0.006, 0.0085)).toMatchObject({ ok: true, detail: "$0.0085 (needs ≤ $0.0090)" });
+    expect(costCheck(0.006, 0.0095).ok).toBe(false);
+  });
 });
 
 describe("the scenarios themselves", () => {

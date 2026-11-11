@@ -18,8 +18,8 @@ Type a shopping request in plain language, like *"chicken biryani for 4"*, *"cle
 - **A tool-using agent edits the carts.** It works only through tools that check every argument. Code decides which carts it may change and won't let it finish while a rule is broken. Eval: 26 of 29 scripted conversations pass, with 0 rule breaks in every run.
 - **Built to scale past the prompt.** The cart builder looks the catalog up in two steps (kinds first, then products), so growing the catalog 2.7× left the cost per answer about where it was (about $0.02).
 - **Data you can query.** Every build and agent turn is logged in Postgres with a trace of each model and tool call. Shoppers rate answers 👍/👎, and a public [/stats](https://jhola.ramiyer.tech/stats) page computes speed, reliability and cost from the log in SQL.
-- **Measured on every change.** A 35-request cart eval and a 29-scenario agent eval run against the real model. Every pull request runs a subset of each and fails if the scores drop below the saved baseline.
-- **Shipped like a team.** Small PRs, CI on each one (lint, types, 292 tests including Postgres, catalog and contrast checks, a build), and an automatic deploy to its own server on merge.
+- **Measured on every change.** A 35-request cart eval and a 29-scenario agent eval run against the real model. A pull request that changes answers runs a subset of each, on request, and fails if the scores drop below the saved baseline.
+- **Shipped like a team.** Small PRs, CI on each one (lint, types, 293 tests including Postgres, catalog and contrast checks, a build), and an automatic deploy to its own server on merge.
 
 **Stack:** Next.js (App Router) · TypeScript · Tailwind CSS · OpenAI `gpt-5.4-mini` through OpenRouter (structured outputs and tool calls) · Zod · PostgreSQL · Upstash Redis · Vitest · GitHub Actions · nginx + systemd on an Ubuntu VPS
 
@@ -248,7 +248,7 @@ Still open:
 
 ### The eval checks on pull requests
 
-Every PR that touches the pipeline, prompts, catalog, eval code or dependencies runs two checks against the real model and posts one comment with the scores:
+Each run calls the real model and costs about $0.19, so the check is opt-in: adding the `run-evals` label to a PR (or starting it from the Actions tab) runs two checks and posts one comment with the scores:
 - **cart builder:** 11 requests marked `"ci": true`, covering every group;
 - **agent:** 6 scenarios.
 
@@ -257,7 +257,8 @@ A check fails when:
 - ingredient coverage drops more than 8 points below the baseline or under 90%;
 - carts get more alike;
 - cost per query rises more than 50%;
-- the agent breaks a rule or passes fewer than 5 of its 6 scenarios.
+- the agent breaks a rule or passes fewer than 5 of its 6 scenarios;
+- the agent's cost per turn rises more than 50%, though never failing under $0.006 a turn, since an average over 6 turns is noisy.
 
 Latency is reported but never fails a check, since GitHub's runners aren't the live server. The baselines are [evals/baseline.json](evals/baseline.json) and [evals/agent/baseline.json](evals/agent/baseline.json). A PR that deliberately moves the numbers updates them, so the change is visible in review.
 
@@ -282,7 +283,7 @@ Latency is reported but never fails a check, since GitHub's runners aren't the l
 | [`scripts/catalog/build.ts`](scripts/catalog/build.ts) | The catalog pipeline: kinds, quality checks, stable IDs, report |
 | [`app/`](app/), [`components/`](components/) | Pages, API routes and the UI |
 | [`evals/`](evals/) | Both evals, their scoring, baselines and every saved run |
-| [`tests/`](tests/) | 292 tests: fake-model unit tests, Postgres integration tests, pipeline fixtures |
+| [`tests/`](tests/) | 293 tests: fake-model unit tests, Postgres integration tests, pipeline fixtures |
 | [`deploy/`](deploy/) | Server setup, the deploy script, nginx and systemd config, and the runbook |
 | [`.github/workflows/`](.github/workflows/) | CI, the eval check on PRs, and deploy on merge |
 
