@@ -3,6 +3,7 @@ import { buildCarts, type BuildStep } from "./buildCarts";
 import { createRedisCache, noCache, type ResponseCache } from "./cache";
 import { LlmError, modelName } from "./llm";
 import { buildRecord, defaultRequestLog, errorRecord, logInBackground, type RequestLog, type StepRecord } from "./requestLog";
+import { clientIp, json } from "./http";
 import { visitorId } from "./visitor";
 import { createMemoryLimiter, createUpstashLimiter, limitConfigFromEnv, redisFromEnv, type Limiter } from "./ratelimit";
 import { BuildCartsRequestSchema, type BuildCartsResponse } from "./schema";
@@ -22,7 +23,7 @@ let defaults: ApiDeps | null = null;
 const noLimit: Limiter = { check: async () => ({ ok: true }) };
 
 /** Real dependencies: Upstash when configured, otherwise in-memory limits and no cache. */
-export function defaultDeps(): ApiDeps {
+function defaultDeps(): ApiDeps {
   if (defaults) return defaults;
   const redis = redisFromEnv();
   const config = limitConfigFromEnv();
@@ -40,21 +41,6 @@ export function defaultDeps(): ApiDeps {
   };
   return defaults;
 }
-
-/**
- * The caller's IP, for rate limits. x-real-ip comes first: nginx (deploy/nginx/jhola.conf) sets it
- * to the real client address, overwriting anything the caller sent. x-forwarded-for is only a
- * fallback, because behind a proxy that appends to it, its first entry is whatever the caller wrote.
- * This is safe because the app listens on 127.0.0.1 only, so every request comes through nginx.
- */
-export function clientIp(req: Request): string {
-  const real = req.headers.get("x-real-ip")?.trim();
-  const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return real || forwarded || "local";
-}
-
-const json = (body: unknown, status: number, headers: Record<string, string> = {}) =>
-  Response.json(body, { status, headers: { "Cache-Control": "no-store", ...headers } });
 
 function withDeadline<T>(p: Promise<T>, ms: number): Promise<T> {
   return new Promise((resolve, reject) => {

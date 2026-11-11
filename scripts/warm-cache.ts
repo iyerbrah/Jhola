@@ -7,7 +7,7 @@ import { buildCarts } from "../lib/buildCarts";
 import { createRedisCache } from "../lib/cache";
 import { modelName } from "../lib/llm";
 import { redisFromEnv } from "../lib/ratelimit";
-import { EXAMPLES } from "../components/QueryInput";
+import { EXAMPLES } from "../lib/example";
 
 for (const f of [".env.local", ".env"]) {
   try {

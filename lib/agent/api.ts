@@ -8,7 +8,7 @@
  */
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { clientIp } from "../api";
+import { clientIp, json } from "../http";
 import { agentRecord, defaultRequestLog, errorRecord, logInBackground, type RequestLog, type StepRecord } from "../requestLog";
 import { visitorId } from "../visitor";
 import { catalog, catalogIndex, type CatalogIndex } from "../catalog";
@@ -21,7 +21,7 @@ import { createMemorySearch } from "./search";
 /** Three full carts plus recent chat stay well under this. */
 export const MAX_BODY_BYTES = 64 * 1024;
 
-export const AgentRequestSchema = z.object({
+const AgentRequestSchema = z.object({
   carts: CartsInputSchema,
   /** 0-based index of the cart the shopper is looking at. */
   active: z.number().int().min(0).max(2),
@@ -54,7 +54,7 @@ export type AgentApiDeps = {
 
 const noLimit: Limiter = { check: async () => ({ ok: true }) };
 
-export function agentLimitConfigFromEnv(): LimitConfig {
+function agentLimitConfigFromEnv(): LimitConfig {
   const num = (v: string | undefined, fallback: number) => (v && Number(v) > 0 ? Number(v) : fallback);
   // A turn costs about a quarter of a cart build, so the agent gets more turns than builds.
   return { perHour: num(process.env.AGENT_RATE_LIMIT_PER_HOUR, 30), perDay: num(process.env.AGENT_DAILY_CAP, 600) };
@@ -63,7 +63,7 @@ export function agentLimitConfigFromEnv(): LimitConfig {
 let defaults: AgentApiDeps | null = null;
 
 /** Real dependencies: Upstash limits in production (in memory without Upstash), none on your own machine. */
-export function defaultAgentDeps(): AgentApiDeps {
+function defaultAgentDeps(): AgentApiDeps {
   if (defaults) return defaults;
   const redis = redisFromEnv();
   const config = agentLimitConfigFromEnv();
@@ -79,9 +79,6 @@ export function defaultAgentDeps(): AgentApiDeps {
   };
   return defaults;
 }
-
-const json = (body: unknown, status: number, headers: Record<string, string> = {}) =>
-  Response.json(body, { status, headers: { "Cache-Control": "no-store", ...headers } });
 
 export async function handleAgentTurn(req: Request, deps: AgentApiDeps = defaultAgentDeps()): Promise<Response> {
   // 1. Input

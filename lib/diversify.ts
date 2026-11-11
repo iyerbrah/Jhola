@@ -1,6 +1,6 @@
 import { isSameKind } from "./kind";
 import type { CatalogIndex } from "./catalog";
-import { cartTotal } from "./price";
+import { itemsTotal } from "./price";
 import type { LlmVariant, Product } from "./schema";
 import { packsFor } from "./tidy";
 import { jaccard, MAX_JACCARD } from "./validate";
@@ -35,7 +35,7 @@ export function diversify(variants: LlmVariant[], index: CatalogIndex, products:
             .sort((a, b) => Number(b.price >= p.price) - Number(a.price >= p.price) || Math.abs(a.price - p.price) - Math.abs(b.price - p.price));
           for (const alt of options) {
             const next = cart.items.map((x) => (x.product_id === it.product_id ? { ...x, product_id: alt.id, qty: packsFor(x, alt), note: "" } : x));
-            if (budget != null && cartTotal(next, index) > budget) continue;
+            if (budget != null && itemsTotal(next, index) > budget) continue;
             cart.items = next;
             swapped = true;
             break;

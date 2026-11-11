@@ -12,3 +12,6 @@ export const EXAMPLE = {
     { name: "Premium Feast", total: 787 },
   ],
 } as const;
+
+/** A dish, a household request and a gift with a budget, so the chips show the range. Warmed by `npm run warm`. */
+export const EXAMPLES = [EXAMPLE.query, "Cleaning supplies for a new flat", "Gift of 4 dark chocolates under ₹1000"];

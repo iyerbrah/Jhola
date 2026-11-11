@@ -4,7 +4,7 @@
  * use a scripted fake and the provider can change without touching the loop.
  */
 import type { ResponseInputItem } from "openai/resources/responses/responses";
-import { classifyError, getClient, isReasoningModel, LlmError, modelName, openAiOnly, type LlmUsage } from "../llm";
+import { classifyError, getClient, isReasoningModel, LlmError, modelName, openAiOnly, toUsage, type LlmUsage } from "../llm";
 import { TOOL_SPECS } from "./tools";
 
 export type ToolCall = { call_id: string; name: string; arguments: string };
@@ -70,11 +70,7 @@ export const openAiAgentModel: AgentModel = {
         text: res.output_text ?? "",
         model: res.model,
         replay: res.output,
-        usage: {
-          input_tokens: res.usage?.input_tokens ?? 0,
-          cached_tokens: res.usage?.input_tokens_details?.cached_tokens ?? 0,
-          output_tokens: res.usage?.output_tokens ?? 0,
-        },
+        usage: toUsage(res.usage),
       };
     } catch (err) {
       if (err instanceof LlmError) throw err;

@@ -104,7 +104,7 @@ export function getSql(): Sql | null {
 }
 
 /** A small pool with short timeouts: a slow or missing database must never hold up a shopper. */
-export function connect(url: string): Sql {
+function connect(url: string): Sql {
   return postgres(url, {
     max: 4,
     connect_timeout: 3,
