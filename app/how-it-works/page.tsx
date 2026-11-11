@@ -82,7 +82,7 @@ const AGENT_STEPS = [
 
 const STACK = [
   ["Next.js + TypeScript", "one app for the page and the API"],
-  ["OpenAI gpt-5.4-mini", "structured JSON output and tool calls, checked with Zod"],
+  ["gpt-5.4-mini via OpenRouter", "structured JSON output and tool calls, checked with Zod"],
   ["PostgreSQL", "every build and agent turn with its trace, the 👍/👎 votes, and the live stats"],
   ["Upstash Redis", "rate limits and a 30-day answer cache"],
   ["Tailwind CSS", "styling, with every colour pair checked for WCAG AA"],
