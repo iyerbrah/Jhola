@@ -86,7 +86,7 @@ const STACK = [
   ["PostgreSQL", "every build and agent turn with its trace, the 👍/👎 votes, and the live stats"],
   ["Upstash Redis", "rate limits and a 30-day answer cache"],
   ["Tailwind CSS", "styling, with every colour pair checked for WCAG AA"],
-  ["Vitest + GitHub Actions", "unit tests on every PR, a real-model eval check, and a deploy on every merge"],
+  ["Vitest + GitHub Actions", "unit tests on every PR, a real-model eval check on request, and a deploy on every merge"],
   ["Own Ubuntu server", "nginx with Let's Encrypt HTTPS in front, Node.js kept running by systemd"],
 ];
 
@@ -220,8 +220,8 @@ export default function HowItWorks() {
           <section className="mt-16">
             <h2 className="font-display text-3xl text-ink">Measured, not guessed</h2>
             <p className="mt-3 max-w-2xl text-ink-soft">
-              Two evaluations run the real model and score every answer in code. Every pull request runs a subset of each and fails if the scores
-              drop below the saved baseline.
+              Two evaluations run the real model and score every answer in code. A pull request that changes answers runs a subset of each, on request,
+              and fails if the scores drop below the saved baseline.
             </p>
             {run && s && (
               <>
