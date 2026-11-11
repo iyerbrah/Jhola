@@ -1,22 +1,16 @@
-# The eval checks, on PRs that can change answers, both against the real model:
-# - the cart builder: 11 queries vs evals/baseline.json (about $0.15)
-# - the cart editor agent: 6 scenarios vs evals/agent/baseline.json (about $0.03)
+# The eval checks, against the real model, paid with the OPENROUTER_API_KEY secret:
+# - the cart builder: 11 queries vs evals/baseline.json (about $0.17)
+# - the cart editor agent: 6 scenarios vs evals/agent/baseline.json (about $0.02)
 # Both reports go into one PR comment, and the run fails if either check fails.
 #
-# It only runs when matching files change, so it is not a required check
-# (a required check that never starts would block the PR).
+# Opt-in, because every run costs money: it runs only when a PR gets the "run-evals" label
+# (remove and re-add the label to run it again after more pushes), or from the Actions tab.
+# So it is not a required check (a required check that never starts would block the PR).
 name: Eval
 
 on:
   pull_request:
-    paths:
-      - "lib/**"
-      - "data/**"
-      - "evals/**"
-      - "scripts/eval*.ts"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/eval.yml"
+    types: [labeled]
   workflow_dispatch:
 
 permissions:
@@ -32,8 +26,10 @@ jobs:
     name: Eval check (11 queries + 6 agent scenarios, real model)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # PRs from forks don't get repo secrets, so the check can't run there.
-    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    # Only for the run-evals label. PRs from forks don't get repo secrets, so the check can't run there.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.label.name == 'run-evals' && github.event.pull_request.head.repo.full_name == github.repository)
     env:
       NEXT_TELEMETRY_DISABLED: 1
       LLM_PROVIDER: openrouter
@@ -76,7 +72,7 @@ jobs:
         if: always() && hashFiles('evals/ci-report.md') != ''
         run: cat evals/ci-report.md >> "$GITHUB_STEP_SUMMARY"
 
-      # One comment per PR, updated in place on every push (found by its first-line marker).
+      # One comment per PR, updated in place on every run (found by its first-line marker).
       - name: Comment on the PR
         if: always() && github.event_name == 'pull_request' && hashFiles('evals/ci-report.md') != ''
         env:
