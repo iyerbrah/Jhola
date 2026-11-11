@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cartTotal, priceVariants } from "@/lib/price";
+import { itemsTotal, priceVariants } from "@/lib/price";
 import { classic, index, item } from "./fixtures";
 
 describe("priceVariants", () => {
@@ -33,8 +33,8 @@ describe("priceVariants", () => {
   });
 });
 
-describe("cartTotal", () => {
+describe("itemsTotal", () => {
   it("skips optional and unknown items", () => {
-    expect(cartTotal([item("p001", 3), item("p005", 1, true), item("p999", 2)], index)).toBe(285);
+    expect(itemsTotal([item("p001", 3), item("p005", 1, true), item("p999", 2)], index)).toBe(285);
   });
 });

@@ -1,5 +1,5 @@
 import type { CatalogIndex } from "./catalog";
-import { cartTotal } from "./price";
+import { itemsTotal } from "./price";
 import type { LlmItem, LlmOutput, LlmVariant, Product } from "./schema";
 
 export const MAX_JACCARD = 0.7;
@@ -46,7 +46,7 @@ export function variantErrors(v: LlmVariant, c: Constraints, index: CatalogIndex
   if (v.items.filter((i) => !i.optional).length === 0) errors.push(`${v.name}: cart has no required items`);
 
   if (c.budget_inr != null) {
-    const total = cartTotal(v.items, index);
+    const total = itemsTotal(v.items, index);
     if (total > c.budget_inr) errors.push(`${v.name} cart is ₹${total}, which is ₹${total - c.budget_inr} over the ₹${c.budget_inr} budget`);
   }
 

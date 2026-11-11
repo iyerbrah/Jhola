@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { handleBuildCarts, clientIp, type ApiDeps } from "@/lib/api";
+import { handleBuildCarts, type ApiDeps } from "@/lib/buildCartsApi";
+import { clientIp } from "@/lib/http";
 import { normalizeQuery, type ResponseCache } from "@/lib/cache";
 import { createMemoryRequestLog, type RequestLog } from "@/lib/requestLog";
 import { LlmError } from "@/lib/llm";

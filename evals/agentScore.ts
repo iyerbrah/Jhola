@@ -10,7 +10,7 @@ import { cartTotal } from "@/lib/cartState";
 import { fitsDiet, type Diet } from "@/lib/requirements";
 import type { Product } from "@/lib/schema";
 import { matchesKind } from "@/lib/validate";
-import { percentile } from "./score";
+import { percentile } from "@/lib/percentile";
 
 /**
  * Does a product count as this kind? Same matching as the cart builder's rules, except that a

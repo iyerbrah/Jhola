@@ -2,7 +2,7 @@ import type { CatalogIndex } from "./catalog";
 import { packLabel, type LlmVariant, type PricedVariant } from "./schema";
 
 /** Sum of price × qty for the non-optional items. Unknown products count as 0. */
-export function cartTotal(items: { product_id: string; qty: number; optional: boolean }[], index: CatalogIndex): number {
+export function itemsTotal(items: { product_id: string; qty: number; optional: boolean }[], index: CatalogIndex): number {
   return items.reduce((sum, it) => {
     const p = index.get(it.product_id);
     return it.optional || !p ? sum : sum + p.price * it.qty;

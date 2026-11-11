@@ -35,7 +35,7 @@ export interface CatalogSearch {
   search(query: SearchQuery): Promise<SearchHit[]>;
 }
 
-export const DEFAULT_LIMIT = 8;
+const DEFAULT_LIMIT = 8;
 export const MAX_LIMIT = 20;
 
 const STOPWORDS = new Set(
@@ -228,7 +228,7 @@ function groupScore(item: Indexed, group: string[]): number {
   return score;
 }
 
-export function toHit(p: Product): SearchHit {
+function toHit(p: Product): SearchHit {
   return { id: p.id, name: p.name, brand: p.brand, pack: packLabel(p), price: p.price, sub_category: p.sub_category, tags: shownTags(p), in_stock: p.in_stock };
 }
 
