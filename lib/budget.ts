@@ -1,6 +1,6 @@
 import { isSameKind } from "./kind";
 import type { CatalogIndex } from "./catalog";
-import { cartTotal } from "./price";
+import { itemsTotal } from "./price";
 import type { LlmVariant, Product } from "./schema";
 import { packsFor } from "./tidy";
 import { matchesKind } from "./validate";
@@ -18,7 +18,7 @@ type Change = { saving: number; apply: (items: LlmVariant["items"]) => LlmVarian
 export function fitToBudget(v: LlmVariant, budget: number, index: CatalogIndex, products: Product[], mustInclude: string[] = []): LlmVariant | null {
   let items = v.items.map((it) => ({ ...it }));
   for (let step = 0; step < 20; step++) {
-    const total = cartTotal(items, index);
+    const total = itemsTotal(items, index);
     if (total <= budget) return { ...v, items, model_total_inr: total };
 
     const inCart = new Set(items.map((it) => it.product_id));

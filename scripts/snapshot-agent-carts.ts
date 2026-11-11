@@ -16,7 +16,7 @@ for (const f of [".env.local", ".env"]) {
 }
 
 /** Name → request. The names are what scenarios refer to. */
-export const STARTING_CARTS: Record<string, string> = {
+const STARTING_CARTS: Record<string, string> = {
   chicken_biryani: "chicken biryani for 4",
   paneer_butter_masala: "paneer butter masala for 4",
   monthly_groceries: "monthly groceries for a couple under 3000",

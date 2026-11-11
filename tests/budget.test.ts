@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fitToBudget } from "@/lib/budget";
-import { cartTotal } from "@/lib/price";
+import { itemsTotal } from "@/lib/price";
 import { classic, index, item, products } from "./fixtures";
 
 describe("fitToBudget", () => {
@@ -13,7 +13,7 @@ describe("fitToBudget", () => {
     // ₹327 -> swapping Amul paneer (₹95) for Malai (₹72) saves 2×23 = ₹46 -> ₹281
     const res = fitToBudget(classic, 300, index, products)!;
     expect(res.items[0].product_id).toBe("p010");
-    expect(cartTotal(res.items, index)).toBe(281);
+    expect(itemsTotal(res.items, index)).toBe(281);
   });
 
   it("never swaps to an out-of-stock item, a much smaller pack, or touches optional items", () => {
@@ -27,7 +27,7 @@ describe("fitToBudget", () => {
   it("lowers quantities when swaps aren't enough", () => {
     const v = { ...classic, items: [item("p010", 4), item("p002")] }; // 288 + 40 = 328
     const res = fitToBudget(v, 260, index, products)!;
-    expect(cartTotal(res.items, index)).toBeLessThanOrEqual(260);
+    expect(itemsTotal(res.items, index)).toBeLessThanOrEqual(260);
     expect(res.items[0].qty).toBe(3);
   });
 

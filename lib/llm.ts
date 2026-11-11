@@ -47,9 +47,9 @@ type Effort = "none" | "low" | "medium" | "high";
 
 let client: OpenAI | null = null;
 
-/** Who serves the model: "openai" (default) or "openrouter", which speaks the same API at another address. */
+/** Who serves the model: "openrouter" (default) or "openai" directly. OpenRouter speaks the same API at another address. */
 export function isOpenRouter(): boolean {
-  return (process.env.LLM_PROVIDER || "openai").trim().toLowerCase() === "openrouter";
+  return (process.env.LLM_PROVIDER || "openrouter").trim().toLowerCase() === "openrouter";
 }
 
 /** OpenAI-only request options (prompt caching, service tier). Other providers get none. */
@@ -77,9 +77,12 @@ export function getClient(): OpenAI {
   return client;
 }
 
-/** Each provider has its own model setting, so switching LLM_PROVIDER is the only change needed. */
+/**
+ * The model for every call (cart builder and agent): gpt-5.4-mini, through OpenRouter by default.
+ * Each provider has its own model setting, so switching LLM_PROVIDER is the only change needed.
+ */
 export function modelName(): string {
-  if (isOpenRouter()) return process.env.OPENROUTER_MODEL || "nvidia/nemotron-3.5-super-vl:free";
+  if (isOpenRouter()) return process.env.OPENROUTER_MODEL || "openai/gpt-5.4-mini";
   return process.env.OPENAI_MODEL || "gpt-5.4-mini";
 }
 
@@ -89,6 +92,15 @@ export function modelName(): string {
  */
 export function isReasoningModel(model: string): boolean {
   return isOpenRouter() || /^(gpt-5|gpt-6|o\d)/.test(model);
+}
+
+/** Token counts from a Responses API reply, with 0 for anything the provider left out. */
+export function toUsage(u: { input_tokens?: number; output_tokens?: number; input_tokens_details?: { cached_tokens?: number } } | null | undefined): LlmUsage {
+  return {
+    input_tokens: u?.input_tokens ?? 0,
+    cached_tokens: u?.input_tokens_details?.cached_tokens ?? 0,
+    output_tokens: u?.output_tokens ?? 0,
+  };
 }
 
 async function structuredCall<S extends z.ZodType>(
@@ -107,7 +119,7 @@ async function structuredCall<S extends z.ZodType>(
       max_output_tokens: 3000,
       ...openAiOnly({
         // Same key for every call, so the long rules + catalog prefix stays cached.
-        prompt_cache_key: "ai-cart-builder-v2",
+        prompt_cache_key: "jhola-builder-v1",
         // Optional: OpenAI's faster, pricier tiers (e.g. "priority"). Unset = the standard tier.
         ...(process.env.LLM_SERVICE_TIER ? { service_tier: process.env.LLM_SERVICE_TIER as "priority" } : {}),
       }),
@@ -118,11 +130,7 @@ async function structuredCall<S extends z.ZodType>(
     return {
       output: output as z.infer<S>,
       model: response.model,
-      usage: {
-        input_tokens: response.usage?.input_tokens ?? 0,
-        cached_tokens: response.usage?.input_tokens_details?.cached_tokens ?? 0,
-        output_tokens: response.usage?.output_tokens ?? 0,
-      },
+      usage: toUsage(response.usage),
     };
   } catch (err) {
     if (err instanceof LlmError) throw err;

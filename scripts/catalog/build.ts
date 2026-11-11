@@ -14,7 +14,7 @@ import { CatalogSchema, isFood, type Category, type Product, type Unit } from ".
 
 /** Most products kept per kind (all sizes counted). Food keeps nearly everything; non-food keeps a varied few. */
 export const PER_KIND = { food: 100, nonFood: 10 };
-export const SIZES_PER_PRODUCT = 2;
+const SIZES_PER_PRODUCT = 2;
 /** Skip bulk packs nobody buys for one order. Non-food comes in bigger counts (diapers, tissues). */
 const MAX_PACK = { food: { g: 5000, ml: 5000, pcs: 30 }, nonFood: { g: 5000, ml: 5000, pcs: 200 } };
 /** Nothing in a quick-commerce cart costs more than this. */
@@ -63,7 +63,7 @@ const SKIP_SUBCATEGORIES = new Set([
   "Electronic Accessories",
 ]);
 
-export function categoryFor(bbCategory: string, bbSub: string): Category | null {
+function categoryFor(bbCategory: string, bbSub: string): Category | null {
   if (SKIP_SUBCATEGORIES.has(bbSub)) return null;
   const s = bbSub.toLowerCase();
   if (bbCategory === "Beauty & Hygiene") return "personal_care";
@@ -300,7 +300,7 @@ const isSpiceOnly = (sub: string) => sub === "masala_mix" || sub.endsWith("_masa
 export type HomeSkip = { name: string; category: Category; keyword_kind: string; kind: string };
 
 /** The product's kind. `skipped` lists keyword matches outside their home, for the report. */
-export function subCategoryFor(name: string, bbSub: string, category: Category, skipped: HomeSkip[] = []): string {
+function subCategoryFor(name: string, bbSub: string, category: Category, skipped: HomeSkip[] = []): string {
   if (!isFood({ category })) {
     for (const [re, sub] of NON_FOOD_KEYWORDS[bbSub] ?? []) if (re.test(name)) return sub;
     return NON_FOOD_KINDS[bbSub] ?? slug(bbSub);
@@ -342,7 +342,7 @@ const MARKETING =
   /\b(rich in|high in|helps?|boosts?|perfect for|made with|enhances|adds? flavou?r|no added|source of|stays? softer|good for|ideal for|used (o|f)r|for longer|great for|with goodness|nutritious|healthy cooking|trans fat free|antibiotic residue|provides)\b.*$/i;
 
 /** Shorten long marketing names: "Poha /Avalakki/Aval - Thick, Makers..." -> "Poha - Thick" */
-export function cleanName(raw: string): string {
+function cleanName(raw: string): string {
   let s = raw.replace(/�/g, "e").replace(/Â/g, "").replace(/\s+/g, " ").trim();
   s = s.replace(/\s*\/\s*[A-Za-z][A-Za-z ]*?(?=\s*[-/,(]|$)/g, ""); // drop "/Godihittu" style aliases
   s = s.replace(/\s*\(loose\)/i, "");
@@ -364,7 +364,7 @@ const NOT_JAIN = /onion|garlic|potato|ginger|carrot|beetroot|radish|aloo/i;
 const SUGAR_FREE = /sugar ?free|no added sugar|unsweetened|sugarfree/i;
 
 /** Diet and other tags. Non-food gets none: diets don't apply to it. */
-export function tagsFor(name: string, category: Category, sub: string): string[] {
+function tagsFor(name: string, category: Category, sub: string): string[] {
   if (!isFood({ category })) return [];
   const tags = new Set<string>();
   const veg = category === "masalas_spices" || (!NON_VEG.test(name) && category !== "eggs_meat");
@@ -585,7 +585,7 @@ function hash(s: string): number {
  * the ledger existed. The first matching row wins, as the old build's de-duplication did. A product a
  * quality check now drops gets a "retired:" entry, so it's kept (out of stock) and listed in the report.
  */
-export function bootstrapLedger(all: Draft[], previous: Product[]): Ledger {
+function bootstrapLedger(all: Draft[], previous: Product[]): Ledger {
   const ids = new Map(previous.map((p) => [productKey(p), p.id]));
   const ledger: Ledger = {};
   for (const d of all) {

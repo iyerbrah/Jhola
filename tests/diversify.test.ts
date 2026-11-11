@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { diversify } from "@/lib/diversify";
-import { cartTotal } from "@/lib/price";
+import { itemsTotal } from "@/lib/price";
 import type { LlmVariant } from "@/lib/schema";
 import { jaccard } from "@/lib/validate";
 import { budget, classic, index, item, products } from "./fixtures";
@@ -31,6 +31,6 @@ describe("diversify", () => {
     const [, b2] = diversify([a, b], index, products, 112);
     // The only other paneer in stock (Amul, ₹95) would make it ₹135, over ₹112.
     expect(b2.items.map((it) => it.product_id)).toEqual(["p010", "p002"]);
-    expect(cartTotal(b2.items, index)).toBeLessThanOrEqual(112);
+    expect(itemsTotal(b2.items, index)).toBeLessThanOrEqual(112);
   });
 });

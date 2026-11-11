@@ -1,11 +1,11 @@
 /**
- * USD prices per 1M tokens, from OpenAI's pricing page (developers.openai.com/api/docs/pricing),
- * checked Oct 25, 2026. Update this table if you change OPENAI_MODEL / OPENROUTER_MODEL or prices change.
+ * USD prices per 1M tokens. OpenAI direct from developers.openai.com/api/docs/pricing (checked Oct 25, 2026);
+ * OpenRouter from openrouter.ai/api/v1/models (checked Nov 12, 2026), the same rates for this model.
+ * Update this table if you change OPENAI_MODEL / OPENROUTER_MODEL or prices change.
  */
 const PRICES: Record<string, { input: number; cached: number; output: number }> = {
   "gpt-5.4-mini": { input: 0.75, cached: 0.075, output: 4.5 },
-  // OpenRouter's free tier (rate-limited), checked Nov 10, 2026.
-  "nvidia/nemotron-3.5-super-vl:free": { input: 0, cached: 0, output: 0 },
+  "openai/gpt-5.4-mini": { input: 0.75, cached: 0.075, output: 4.5 },
 };
 
 type Usage = { input_tokens: number; cached_tokens: number; output_tokens: number };

@@ -46,6 +46,7 @@ export function CartChat({ carts, active, tiers, onCarts, buildId }: Props) {
   // Follow the cart the shopper scrolls to, unless a change is running.
   useEffect(() => {
     if (!busy) setTarget(active);
+    // Only a scroll should retarget, not the end of a change, so `busy` is left out on purpose.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active]);
   // Leaving the page (or building new carts) cancels a running change.

@@ -128,7 +128,6 @@ export function scoreCase(c: EvalCase, res: BuildCartsResponse, index: CatalogIn
   };
 }
 
-export { percentile };
 
 export type Summary = {
   cases: number;
