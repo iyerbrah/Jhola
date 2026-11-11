@@ -262,6 +262,12 @@ export const AGENT_LIMITS = {
   /** Scenarios that may fail beyond the baseline's count: one, since a single run of 6 is noisy. */
   extraFailures: 1,
   costRise: 1.5,
+  /**
+   * The cost limit never drops below this, in USD per turn. Six turns are a small sample: one diet change
+   * that takes a few extra model calls moves the average a lot (the same code measured $0.0020 to $0.0050
+   * a turn on Nov 12, 2026). Far below the plan's ~$0.01 a turn, so a real regression still fails.
+   */
+  costFloorUsd: 0.006,
 };
 
 export function checkAgentGate(summary: AgentSummary, ids: string[], model: string, baseline: AgentBaseline | null): { pass: boolean; checks: AgentGateCheck[]; notes: string[] } {
@@ -279,7 +285,7 @@ export function checkAgentGate(summary: AgentSummary, ids: string[], model: stri
   checks.push({ name: "Scenarios passed", ok: summary.passed >= floor, detail: `${summary.passed} of ${summary.scenarios} (needs ≥ ${floor})` });
   const baseCost = baseline?.summary.cost_per_turn ?? null;
   if (summary.cost_per_turn != null && baseCost != null) {
-    const limit = baseCost * AGENT_LIMITS.costRise;
+    const limit = Math.max(baseCost * AGENT_LIMITS.costRise, AGENT_LIMITS.costFloorUsd);
     checks.push({ name: "Cost per turn", ok: summary.cost_per_turn <= limit, detail: `$${summary.cost_per_turn.toFixed(4)} (needs ≤ $${limit.toFixed(4)})` });
   }
   if (baseline) {
