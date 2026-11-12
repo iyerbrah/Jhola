@@ -1,17 +1,16 @@
 /**
- * Jhola's request log: every cart build and agent turn, with its carts and the timing and tokens of
- * each model or tool call ("trace steps"). Stored in Postgres when DATABASE_URL is set, and in memory
+ * Jhola's request log: every shopping-agent turn (lib/chat/log.ts), with its cart before and after and
+ * the timing and tokens of each model or tool call ("trace steps"). Older rows from the 3-cart builder
+ * (kind "build") stay in the table and in /stats' history. Stored in Postgres when DATABASE_URL is set, and in memory
  * otherwise (your own machine, tests), so /history and /stats work either way.
  *
  * Writes happen in the background (logInBackground): a slow or broken database never holds up or
  * breaks a request. Each request is one transaction, so a request is either stored whole or not at all.
+ *
+ * Phone numbers and email addresses are masked in every record's text before it's stored (maskPii).
  */
-import type { AgentCart } from "./agent/carts";
-import type { AgentTurnResult } from "./agent/loop";
-import { catalog, catalogIndex, type CatalogIndex } from "./catalog";
-import { costUsd } from "./cost";
+import { catalog } from "./catalog";
 import { ensureSchema, getSql, type Sql } from "./db";
-import { packLabel, type BuildCartsResponse, type PricedVariant } from "./schema";
 
 export type StepRecord = {
   kind: "model" | "tool";
@@ -54,157 +53,107 @@ export type RequestRecord = {
   steps: StepRecord[];
 };
 
-/** One generation for the /history page: the answer as the shopper saw it, plus when and what it cost. */
-export type HistoryEntry = BuildCartsResponse & { id: string; at: string; query: string; cost_usd: number | null };
+/** One chat turn for the /history page: what was asked and answered, the cart it left, and what it cost. */
+export type HistoryEntry = {
+  id: string;
+  at: string;
+  session_id: string | null;
+  message: string;
+  status: string;
+  reply: string;
+  summary: string;
+  /** The cart after the turn (or before it, when nothing changed). */
+  total: number | null;
+  items: number | null;
+  cached: boolean;
+  model_calls: number | null;
+  tool_calls: number | null;
+  latency_ms: number;
+  cost_usd: number | null;
+  finished_by: string | null;
+};
 
-/** A shopper's vote on one of a build's carts, or on an agent reply. Rating 0 takes the vote back. */
+/** A shopper's vote on a turn's cart or its reply. Rating 0 takes the vote back. */
 export type FeedbackRecord = { request_id: string; target: "cart" | "reply"; cart_position: number; rating: -1 | 0 | 1; visitor: string };
-/** "unknown": no such request. "mismatch": carts are rated on builds, replies on agent turns. */
+/** "unknown": no such request. "mismatch": not something that can be rated (an old build, a cart that isn't there). */
 export type RateResult = "saved" | "cleared" | "unknown" | "mismatch";
 
 export interface RequestLog {
   record(r: RequestRecord): Promise<void>;
-  /** The newest builds that called the model (cache hits and errors left out), newest first. */
-  recentBuilds(limit: number): Promise<HistoryEntry[]>;
+  /** The newest chat turns (errors left out), newest first. */
+  recentTurns(limit: number): Promise<HistoryEntry[]>;
   /** Saves (or takes back) one visitor's vote. Each visitor has at most one vote per cart or reply. */
   rate(f: FeedbackRecord): Promise<RateResult>;
 }
 
-const targetKind = { cart: "build", reply: "agent" } as const;
+// ---------- Personal details ----------
 
-// ---------- Turning results into records ----------
+// Indian mobile numbers: 10 digits starting 6-9, optionally after +91, 0091, 91 or 0, with spaces or hyphens
+// between digits ("+91 98765 43210", "098765-43210"). Not inside a longer number or word.
+const PHONE = /(?<![\w+])(?:(?:\+|00)?91[\s-]?|0)?[6-9](?:[\s-]?\d){9}(?![\w])/g;
+const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
 
-/** A cart build (fresh or from the cache) as a record. */
-export function buildRecord(a: { id: string; visitor: string; query: string; res: BuildCartsResponse; steps: StepRecord[]; cached: boolean }): RequestRecord {
-  const { res } = a;
-  const m = res.meta;
+/** Masks phone numbers and email addresses: "call 98765 43210" -> "call [phone]". */
+export function maskPii(text: string): string {
+  return text.replace(EMAIL, "[email]").replace(PHONE, "[phone]");
+}
+
+/** Masks every string inside a value (meta holds the model's reply, assumptions and the like). */
+function maskDeep<T>(v: T): T {
+  if (typeof v === "string") return maskPii(v) as T;
+  if (Array.isArray(v)) return v.map(maskDeep) as T;
+  if (v && typeof v === "object" && Object.getPrototypeOf(v) === Object.prototype) {
+    return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, maskDeep(x)])) as T;
+  }
+  return v;
+}
+
+/** What a store keeps: the record with personal details masked in the query, meta and item notes. */
+export function maskRecord(r: RequestRecord): RequestRecord {
   return {
-    id: a.id,
-    kind: "build",
-    visitor: a.visitor,
-    query: a.query,
-    status: res.status,
-    cached: a.cached,
-    repaired: m.repaired,
-    model: m.model,
-    latency_ms: m.latency_ms,
-    input_tokens: m.input_tokens,
-    cached_tokens: m.cached_tokens,
-    output_tokens: m.output_tokens,
-    cost_usd: a.cached ? 0 : costUsd(m.model, m),
-    catalog_size: catalog.length,
-    meta: { message: res.message, assumptions: res.assumptions, suggestions: res.suggestions, requirements: res.requirements, steps_ms: m.steps_ms },
-    carts: res.variants.map((v, position) => ({
-      role: "result",
-      position,
-      name: v.name,
-      reason: v.reason,
-      total: v.total,
-      items: v.items.map((it) => ({ product_id: it.product_id, qty: it.qty, price: it.price, optional: it.optional, included: !it.optional, note: it.note })),
-    })),
-    steps: a.steps,
+    ...r,
+    query: r.query == null ? r.query : maskPii(r.query),
+    meta: maskDeep(r.meta),
+    carts: r.carts.map((c) => ({ ...c, name: maskPii(c.name), reason: maskPii(c.reason), items: c.items.map((it) => ({ ...it, note: maskPii(it.note) })) })),
   };
 }
+
+// ---------- Turning results into records ----------
 
 /** A request that failed before producing an answer. */
 export function errorRecord(a: { id: string; kind: "build" | "agent"; visitor: string; query: string; error_kind: string; latency_ms: number; parent_id?: string | null }): RequestRecord {
   return { ...a, status: "error", cached: false, catalog_size: catalog.length, meta: {}, carts: [], steps: [] };
 }
 
-const agentCart = (role: CartRecord["role"]) => (c: AgentCart, position: number): CartRecord => ({
-  role,
-  position,
-  name: c.name,
-  reason: c.reason,
-  total: c.items.reduce((s, it) => (it.included ? s + it.price * it.qty : s), 0),
-  items: c.items.map((it) => ({ product_id: it.product_id, qty: it.qty, price: it.price, optional: it.optional, included: it.included, note: it.note })),
-});
+type Meta = { chat?: boolean; session_id?: string; reply?: string; summary?: string; finished_by?: string | null };
 
-/** An agent turn: the carts before it, and after it when something changed. */
-export function agentRecord(a: { id: string; parent_id: string | null; visitor: string; message: string; before: AgentCart[]; result: AgentTurnResult; steps: StepRecord[] }): RequestRecord {
-  const r = a.result;
-  const changed = r.changes.length > 0;
-  return {
-    id: a.id,
-    kind: "agent",
-    parent_id: a.parent_id,
-    visitor: a.visitor,
-    query: a.message,
-    status: r.status,
-    stop_reason: r.stop_reason,
-    cached: false,
-    model: r.meta.model || null,
-    latency_ms: r.meta.latency_ms,
-    input_tokens: r.meta.input_tokens,
-    cached_tokens: r.meta.cached_tokens,
-    output_tokens: r.meta.output_tokens,
-    cost_usd: r.meta.cost_usd,
-    model_calls: r.meta.model_calls,
-    tool_calls: r.meta.tool_calls,
-    catalog_size: catalog.length,
-    meta: { reply: r.reply, changes: r.changes, finished_by: r.meta.finished_by ?? null },
-    carts: [...a.before.map(agentCart("before")), ...(changed ? r.carts.map(agentCart("after")) : [])],
-    steps: a.steps,
-  };
-}
-
-/** Rebuilds the answer the shopper saw from stored carts, taking names and packs from the catalog. */
-function toHistoryEntry(
-  r: Pick<RequestRecord, "id" | "query" | "status" | "repaired" | "model" | "latency_ms" | "input_tokens" | "cached_tokens" | "output_tokens" | "cost_usd" | "meta"> & { at: string },
-  carts: Pick<CartRecord, "name" | "reason" | "total" | "items">[],
-  index: CatalogIndex,
-): HistoryEntry {
-  const meta = r.meta as { message?: string; assumptions?: string[]; suggestions?: string[]; requirements?: BuildCartsResponse["requirements"] };
-  const variants: PricedVariant[] = carts.map((c) => ({
-    name: c.name,
-    reason: c.reason,
-    total: c.total,
-    items: c.items.map((it) => {
-      const p = index.get(it.product_id);
-      return {
-        product_id: it.product_id,
-        name: p?.name ?? it.product_id,
-        brand: p?.brand ?? "",
-        pack_label: p ? packLabel(p) : "",
-        price: it.price,
-        qty: it.qty,
-        line_total: it.price * it.qty,
-        optional: it.optional,
-        note: it.note,
-        sub_category: p?.sub_category ?? "",
-        category: p?.category ?? "snacks",
-        tags: p?.tags ?? [],
-      };
-    }),
-  }));
+function toHistoryEntry(r: RequestRecord & { at: string }, cart: Pick<CartRecord, "total" | "items"> | null): HistoryEntry {
+  const m = r.meta as Meta;
   return {
     id: r.id,
     at: r.at,
-    query: r.query ?? "",
-    status: r.status as BuildCartsResponse["status"],
-    message: meta.message ?? "",
-    assumptions: meta.assumptions ?? [],
-    suggestions: meta.suggestions ?? [],
-    requirements: meta.requirements ?? { budget_inr: null, item_count: null, item_kind: null, must_include: [], diet: null },
-    variants,
+    session_id: m.session_id ?? null,
+    message: r.query ?? "",
+    status: r.status,
+    reply: m.reply ?? "",
+    summary: m.summary ?? "",
+    total: cart?.total ?? null,
+    items: cart ? cart.items.filter((it) => it.included).length : null,
+    cached: r.cached,
+    model_calls: r.model_calls ?? null,
+    tool_calls: r.tool_calls ?? null,
+    latency_ms: r.latency_ms,
     cost_usd: r.cost_usd == null ? null : Number(r.cost_usd),
-    meta: {
-      latency_ms: r.latency_ms,
-      model: r.model ?? "",
-      repaired: !!r.repaired,
-      input_tokens: r.input_tokens ?? 0,
-      cached_tokens: r.cached_tokens ?? 0,
-      output_tokens: r.output_tokens ?? 0,
-    },
+    finished_by: m.finished_by ?? null,
   };
 }
 
-const isHistory = (r: RequestRecord) => r.kind === "build" && !r.cached && r.status !== "error";
+const isTurn = (r: RequestRecord) => r.kind === "agent" && (r.meta as Meta).chat === true && r.status !== "error";
 
 // ---------- Stores ----------
 
 /** For your own machine and tests: the newest records in memory, lost on restart. */
-export function createMemoryRequestLog(keep = 500, index: CatalogIndex = catalogIndex): RequestLog & { records: RequestRecord[]; votes: Map<string, FeedbackRecord> } {
+export function createMemoryRequestLog(keep = 500): RequestLog & { records: RequestRecord[]; votes: Map<string, FeedbackRecord> } {
   const records: RequestRecord[] = [];
   const votes = new Map<string, FeedbackRecord>();
   return {
@@ -213,7 +162,7 @@ export function createMemoryRequestLog(keep = 500, index: CatalogIndex = catalog
     async rate(f) {
       const r = records.find((x) => x.id === f.request_id);
       if (!r) return "unknown";
-      if (r.kind !== targetKind[f.target] || (f.target === "cart" && !r.carts.some((c) => c.role === "result" && c.position === f.cart_position))) return "mismatch";
+      if (r.kind !== "agent" || (f.target === "cart" && !r.carts.some((c) => c.position === f.cart_position))) return "mismatch";
       const key = `${f.request_id}|${f.target}|${f.cart_position}|${f.visitor}`;
       if (f.rating === 0) {
         votes.delete(key);
@@ -223,19 +172,19 @@ export function createMemoryRequestLog(keep = 500, index: CatalogIndex = catalog
       return "saved";
     },
     async record(r) {
-      records.unshift({ ...r, created_at: r.created_at ?? new Date() });
+      records.unshift({ ...maskRecord(r), created_at: r.created_at ?? new Date() });
       records.length = Math.min(records.length, keep);
     },
-    async recentBuilds(limit) {
+    async recentTurns(limit) {
       return records
-        .filter(isHistory)
+        .filter(isTurn)
         .slice(0, limit)
-        .map((r) => toHistoryEntry({ ...r, at: (r.created_at ?? new Date()).toISOString() }, r.carts.filter((c) => c.role === "result"), index));
+        .map((r) => toHistoryEntry({ ...r, at: (r.created_at ?? new Date()).toISOString() }, r.carts.find((c) => c.role === "after") ?? r.carts.find((c) => c.role === "before") ?? null));
     },
   };
 }
 
-export function createPgRequestLog(sql: Sql, index: CatalogIndex = catalogIndex): RequestLog {
+export function createPgRequestLog(sql: Sql): RequestLog {
   return {
     async rate(f) {
       await ensureSchema(sql);
@@ -246,9 +195,9 @@ export function createPgRequestLog(sql: Sql, index: CatalogIndex = catalogIndex)
         [req] = await sql`select kind from requests where id = ${f.request_id}`;
       }
       if (!req) return "unknown";
-      if (req.kind !== targetKind[f.target]) return "mismatch";
+      if (req.kind !== "agent") return "mismatch";
       if (f.target === "cart") {
-        const [cart] = await sql`select 1 from carts where request_id = ${f.request_id} and role = 'result' and position = ${f.cart_position}`;
+        const [cart] = await sql`select 1 from carts where request_id = ${f.request_id} and position = ${f.cart_position}`;
         if (!cart) return "mismatch";
       }
       if (f.rating === 0) {
@@ -262,8 +211,9 @@ export function createPgRequestLog(sql: Sql, index: CatalogIndex = catalogIndex)
         do update set rating = excluded.rating, updated_at = now()`;
       return "saved";
     },
-    async record(r) {
+    async record(record) {
       await ensureSchema(sql);
+      const r = maskRecord(record);
       const { carts, steps, meta, ...row } = r;
       await sql.begin(async (tx) => {
         await tx`insert into requests ${tx({ ...row, created_at: row.created_at ?? new Date(), meta: tx.json(meta as never) })}`;
@@ -278,46 +228,20 @@ export function createPgRequestLog(sql: Sql, index: CatalogIndex = catalogIndex)
         }
       });
     },
-    async recentBuilds(limit) {
+    async recentTurns(limit) {
       await ensureSchema(sql);
-      // One round trip: each build with its result carts and their items, as JSON.
+      // One round trip: each turn with the cart it left (after, else before) as JSON.
       const rows = await sql`
-        select r.id, r.created_at, r.query, r.status, r.repaired, r.model, r.latency_ms,
-               r.input_tokens, r.cached_tokens, r.output_tokens, r.cost_usd, r.meta,
-               coalesce((
-                 select json_agg(json_build_object(
-                          'name', c.name, 'reason', c.reason, 'total', c.total,
-                          'items', (select coalesce(json_agg(json_build_object(
-                                      'product_id', i.product_id, 'qty', i.qty, 'price', i.price,
-                                      'optional', i.optional, 'included', i.included, 'note', i.note) order by i.line), '[]')
-                                    from cart_items i where i.cart_id = c.id)
-                        ) order by c.position)
-                 from carts c where c.request_id = r.id and c.role = 'result'
-               ), '[]') as carts
+        select r.*, (
+                 select json_build_object('total', c.total, 'items',
+                          (select coalesce(json_agg(json_build_object('included', i.included)), '[]') from cart_items i where i.cart_id = c.id))
+                 from carts c where c.request_id = r.id order by (c.role = 'after') desc limit 1
+               ) as cart
         from requests r
-        where r.kind = 'build' and not r.cached and r.status <> 'error'
+        where r.kind = 'agent' and r.meta ->> 'chat' = 'true' and r.status <> 'error'
         order by r.created_at desc
         limit ${limit}`;
-      return rows.map((row) =>
-        toHistoryEntry(
-          {
-            id: row.id,
-            at: new Date(row.created_at).toISOString(),
-            query: row.query,
-            status: row.status,
-            repaired: row.repaired,
-            model: row.model,
-            latency_ms: row.latency_ms,
-            input_tokens: row.input_tokens,
-            cached_tokens: row.cached_tokens,
-            output_tokens: row.output_tokens,
-            cost_usd: row.cost_usd == null ? null : Number(row.cost_usd),
-            meta: row.meta,
-          },
-          row.carts,
-          index,
-        ),
-      );
+      return rows.map((row) => toHistoryEntry({ ...(row as unknown as RequestRecord), carts: [], steps: [], at: new Date(row.created_at).toISOString() }, row.cart));
     },
   };
 }

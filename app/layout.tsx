@@ -9,17 +9,17 @@ const mukta = Mukta({ variable: "--font-mukta", weight: ["400", "500", "600", "7
 // it comes from /opt/jhola/.env.production.local (https://jhola.ramiyer.tech).
 const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
 const DESCRIPTION =
-  "Describe a dish, a meal or an occasion and get three ready-to-order carts built from 2,700+ real Indian groceries and household essentials, with quantities and totals worked out.";
+  "A shopping agent you chat with: describe a dish, a meal or an occasion and get one ready cart from 4,100+ real Indian groceries and household essentials, in stock, the right amounts, within budget. Then change anything by asking.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "Jhola: three ready carts from one sentence", template: "%s · Jhola" },
+  title: { default: "Jhola: one ready cart from one sentence", template: "%s · Jhola" },
   description: DESCRIPTION,
   applicationName: "Jhola",
   authors: [{ name: "Ram Iyer", url: "https://github.com/iyerbrah" }],
   // Link previews (LinkedIn, Slack, WhatsApp, email). The image comes from app/opengraph-image.tsx.
-  openGraph: { type: "website", url: "/", siteName: "Jhola", title: "Jhola: three ready carts from one sentence", description: DESCRIPTION, locale: "en_IN" },
-  twitter: { card: "summary_large_image", title: "Jhola: three ready carts from one sentence", description: DESCRIPTION },
+  openGraph: { type: "website", url: "/", siteName: "Jhola", title: "Jhola: one ready cart from one sentence", description: DESCRIPTION, locale: "en_IN" },
+  twitter: { card: "summary_large_image", title: "Jhola: one ready cart from one sentence", description: DESCRIPTION },
 };
 
 export const viewport: Viewport = {

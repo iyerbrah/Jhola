@@ -4,11 +4,11 @@ Jhola runs at **https://jhola.ramiyer.tech** on a Hostinger VPS running Ubuntu. 
 
 ```
 Browser ──HTTPS──▶ nginx (ports 80/443, Let's Encrypt certificate)
-                     │  sets X-Real-IP, caps /api/build-carts and /api/agent per address
+                     │  sets X-Real-IP, caps /api/chat, /api/solve and /api/share per address
                      ▼
                    Next.js on 127.0.0.1:3000 (systemd service "jhola", user "jhola")
                      ├──▶ OpenRouter (openai/gpt-5.4-mini)
-                     ├──▶ Upstash Redis (HTTPS): rate limits, answer cache
+                     ├──▶ Upstash Redis (HTTPS): rate limits, first-answer cache
                      └──▶ PostgreSQL on 127.0.0.1:5432: request log, feedback, /stats
 ```
 

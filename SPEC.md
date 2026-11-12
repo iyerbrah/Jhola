@@ -1,3 +1,5 @@
+> **Historical.** This is the original product spec for the 3-cart builder. Jhola has since been rebuilt as one shopping agent that builds and edits a single cart: see the [README](README.md) for how it works now.
+
 # Jhola: original product spec (then called AI Cart Builder)
 
 Oct 25, 2026 · @Ram
@@ -8,7 +10,7 @@ Oct 25, 2026 · @Ram
 > - **Logs:** they go to the server's journal (`journalctl -u jhola`), not Vercel's logs, and `maxDuration` is gone. The API gives up at 50 s and nginx waits 70 s.
 > - **Cache:** answers are cached for 30 days, not 24 hours.
 > - **Pipeline:** one plan call, then three cart calls in parallel, instead of one call. The plan sees an index of the kinds of product, and each cart call sees only the products of its kinds, not the whole catalog.
-> - **Catalog:** 2,743 products, including household and personal care, not about 1,000 grocery items. It's built by a tested pipeline with stable IDs.
+> - **Catalog:** 2,744 products (one a planted prompt-injection demo), including household and personal care, not about 1,000 grocery items. It's built by a tested pipeline with stable IDs.
 > - **Beyond v1:** a cart editor agent ([docs/agent-plan.md](docs/agent-plan.md)), a Postgres request log with 👍/👎 feedback and a public `/stats` page, and eval checks on every pull request.
 
 ## Overview

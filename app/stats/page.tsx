@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 const pct = (x: number | null) => (x == null ? "–" : `${Math.round(x * 100)}%`);
 const secs = (ms: number | null) => (ms == null ? "–" : `${(ms / 1000).toFixed(1)} s`);
-const STEP_LABEL: Record<string, string> = { plan: "Plan (cart builder)", cart: "One cart (cart builder)", repair: "Repair (cart builder)", agent: "One agent step" };
+const STEP_LABEL: Record<string, string> = { agent: "One agent model call", plan: "Plan (old 3-cart builder)", cart: "One cart (old 3-cart builder)", repair: "Repair (old 3-cart builder)" };
 
 export default async function StatsPage() {
   let stats: Stats | null = null;
@@ -32,7 +32,7 @@ export default async function StatsPage() {
           Jhola
         </Link>
         <Link href="/" className="text-sm font-semibold underline underline-offset-4">
-          Build carts
+          Build a cart
         </Link>
       </header>
 
@@ -48,7 +48,7 @@ export default async function StatsPage() {
         <Notice>These numbers come from the live site&apos;s database, which isn&apos;t connected here.</Notice>
       ) : stats.totals.requests === 0 ? (
         <Notice>
-          No requests yet in the last 30 days. <Link href="/" className="font-semibold underline underline-offset-4">Build some carts</Link> and
+          No requests yet in the last 30 days. <Link href="/" className="font-semibold underline underline-offset-4">Build a cart</Link> and
           they&apos;ll show up here.
         </Notice>
       ) : (
@@ -66,11 +66,11 @@ function Body({ stats }: { stats: Stats }) {
   return (
     <>
       <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <Tile label="Cart builds" value={String(t.builds)} note={`${t.fresh_builds} built fresh`} />
-        <Tile label="Agent turns" value={String(t.turns)} note="changes made in chat" />
+        <Tile label="Chats" value={String(t.chats)} note={`${t.turns} turns`} />
         <Tile label="Visitors a day" value={t.visitors_per_day.toFixed(1)} note="on days with visits" />
-        <Tile label="Fresh build, median" value={secs(t.build_p50_ms)} note={`p95 ${secs(t.build_p95_ms)}`} />
-        <Tile label="Agent turn, median" value={secs(t.turn_p50_ms)} note={`p95 ${secs(t.turn_p95_ms)}`} />
+        <Tile label="Turn, median" value={secs(t.turn_p50_ms)} note={`p95 ${secs(t.turn_p95_ms)}`} />
+        <Tile label="Model calls a turn" value={t.model_calls_per_turn == null ? "–" : t.model_calls_per_turn.toFixed(1)} note="on average" />
+        <Tile label="Ended by code" value={pct(t.code_finished_rate)} note="no model call to finish" />
         <Tile label="Thumbs up" value={f.votes ? pct(f.up / f.votes) : "–"} note={`${f.votes} vote${f.votes === 1 ? "" : "s"}`} />
       </dl>
 
@@ -91,9 +91,10 @@ function Body({ stats }: { stats: Stats }) {
           </h2>
           <dl className="mt-3 divide-y divide-line">
             <Row label="Requests that failed" value={pct(t.error_rate)} />
-            <Row label="Agent turns that gave up (carts left as they were)" value={pct(t.give_up_rate)} />
-            <Row label="Fresh builds that needed a repair call" value={pct(t.repair_rate)} />
-            <Row label="Builds answered from the cache" value={pct(t.cache_hit_rate)} />
+            <Row label="Turns that gave up (cart left as it was)" value={pct(t.give_up_rate)} />
+            <Row label="Big changes held for the shopper to confirm" value={pct(t.confirm_rate)} />
+            <Row label="First messages answered from the cache" value={pct(t.turn_cache_rate)} />
+            {t.builds > 0 && <Row label="Old 3-cart builds that needed a repair call" value={pct(t.repair_rate)} />}
           </dl>
         </section>
 
@@ -103,8 +104,8 @@ function Body({ stats }: { stats: Stats }) {
           </h2>
           <dl className="mt-3 divide-y divide-line">
             <Row label="Total, last 30 days" value={usd(t.cost_usd)} />
-            <Row label="Per fresh cart build" value={usd(t.cost_per_build)} />
-            <Row label="Per agent turn" value={usd(t.cost_per_turn)} />
+            <Row label="Per turn" value={usd(t.cost_per_turn)} />
+            {t.builds > 0 && <Row label="Per old 3-cart build" value={usd(t.cost_per_build)} />}
           </dl>
           <p className="mt-2 text-sm text-ink-soft">gpt-5.4-mini list prices, with cached input at its lower rate. Answers from the cache cost nothing.</p>
         </section>
@@ -115,7 +116,7 @@ function Body({ stats }: { stats: Stats }) {
           <h2 id="steps" className="font-display text-2xl">
             Where the time goes
           </h2>
-          <p className="mt-1 text-sm text-ink-soft">Each model call, from the request log&apos;s traces. A cart build makes one plan call, then three cart calls at once.</p>
+          <p className="mt-1 text-sm text-ink-soft">Each model call, from the request log&apos;s traces. A clean turn makes one: code checks the cart and writes the reply.</p>
           <table className="mt-3 w-full text-left text-sm">
             <thead className="text-ink-soft">
               <tr>

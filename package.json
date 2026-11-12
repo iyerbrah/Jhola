@@ -11,14 +11,10 @@
     "test": "vitest run",
     "catalog:build": "tsx scripts/build-catalog.ts",
     "catalog:check": "tsx scripts/check-coverage.ts",
-    "try": "tsx scripts/try.ts",
-    "try:agent": "tsx scripts/try-agent.ts",
     "check:contrast": "tsx scripts/check-contrast.ts",
-    "eval": "tsx scripts/eval.ts",
-    "eval:ci": "tsx scripts/eval-ci.ts",
-    "eval:agent": "tsx scripts/eval-agent.ts",
-    "eval:agent:snapshot": "tsx scripts/snapshot-agent-carts.ts",
-    "warm": "tsx scripts/warm-cache.ts"
+    "bench:solve": "tsx scripts/bench-solve.ts",
+    "try:chat": "tsx scripts/try-chat.ts",
+    "eval:chat": "tsx scripts/eval-chat.ts"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.2.0",
@@ -38,6 +34,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.28",
+    "fast-check": "^4.10.2",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",

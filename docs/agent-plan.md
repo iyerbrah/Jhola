@@ -1,3 +1,5 @@
+> **Historical.** This is the design of the cart editor agent that edited the 3-cart builder's carts. Jhola has since been rebuilt as one shopping agent that builds and edits a single cart: see the [README](../README.md) for how it works now.
+
 # Cart editor agent: design plan
 
 Nov 9, 2026 · @Ram · **Status: built** (PRs #5–#13). What changed from this plan is at the end.

@@ -1,0 +1,17 @@
+{
+  "ran_at": "2026-11-12T20:27:42.426Z",
+  "sessions": 3000,
+  "catalog_size": 4187,
+  "valid_rate": 1,
+  "within_budget_when_possible": 1,
+  "budget_sessions": 1524,
+  "budget_possible": 753,
+  "mean_budget_used": 0.702,
+  "stable_rate": 1,
+  "lines_per_cart": 8,
+  "substitutions_per_cart": 0.25,
+  "extras_dropped_per_cart": 0.65,
+  "ms_p50": 0.43,
+  "ms_p95": 0.8,
+  "ms_max": 18.25
+}

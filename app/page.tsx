@@ -1,7 +1,7 @@
-import { CartBuilder } from "@/components/CartBuilder";
+import { Jhola } from "@/components/jhola/Jhola";
 import { catalog } from "@/lib/catalog";
 
-// The page gets the product count, not the catalog: the browser downloads that only when carts need it.
+// The page gets the product count, not the catalog: the browser downloads that only when a swap needs it.
 export default function Home() {
-  return <CartBuilder catalogSize={catalog.length} />;
+  return <Jhola catalogSize={catalog.length} />;
 }

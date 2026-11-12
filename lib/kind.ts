@@ -43,3 +43,11 @@ export function isSameKind(p: Product, alt: Product): boolean {
   const b = forms(alt);
   return a.size === b.size && [...a].every((f) => b.has(f));
 }
+
+/** Does a product count as the requested kind ("dark_chocolate", "dark chocolate", ...)? */
+export function matchesKind(p: Product, kind: string): boolean {
+  const k = kind.toLowerCase().trim().replace(/[\s-]+/g, "_");
+  if (p.sub_category === k || p.tags.includes(k)) return true;
+  const text = `${p.name} ${p.sub_category} ${p.tags.join(" ")}`.toLowerCase().replace(/_/g, " ");
+  return text.includes(k.replace(/_/g, " ").replace(/s$/, ""));
+}

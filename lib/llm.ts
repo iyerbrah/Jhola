@@ -1,24 +1,6 @@
 import OpenAI from "openai";
-import { zodTextFormat } from "openai/helpers/zod";
-import type { z } from "zod";
-import { CartSchema, PlanSchema, type Cart, type Plan } from "./schema";
-
-export type ChatMessage = { role: "user" | "assistant"; content: string };
 
 export type LlmUsage = { input_tokens: number; cached_tokens: number; output_tokens: number };
-
-export type LlmResult<T> = { output: T; usage: LlmUsage; model: string };
-
-type CallArgs = { instructions: string; messages: ChatMessage[] };
-type RepairArgs = CallArgs & { /** True when the fix needs sums (budget, item count): let the model think. */ needsMath?: boolean };
-
-/** The two calls the pipeline makes. Tests pass a fake with the same shape. */
-export type LlmClient = {
-  plan: (args: CallArgs) => Promise<LlmResult<Plan>>;
-  cart: (args: CallArgs) => Promise<LlmResult<Cart>>;
-  /** Same output as cart. Thinks only when needsMath is set (budget or item-count fixes). */
-  repairCart: (args: RepairArgs) => Promise<LlmResult<Cart>>;
-};
 
 /** Why a call failed. Safe to show: it never contains the key or the prompt. */
 export type LlmErrorKind = "missing_key" | "bad_key" | "quota" | "timeout" | "bad_output" | "provider";
@@ -43,8 +25,6 @@ export function classifyError(err: unknown): LlmErrorKind {
   return "provider";
 }
 
-type Effort = "none" | "low" | "medium" | "high";
-
 let client: OpenAI | null = null;
 
 /** Who serves the model: "openrouter" (default) or "openai" directly. OpenRouter speaks the same API at another address. */
@@ -62,12 +42,12 @@ export function apiKeyName(): "OPENAI_API_KEY" | "OPENROUTER_API_KEY" {
   return isOpenRouter() ? "OPENROUTER_API_KEY" : "OPENAI_API_KEY";
 }
 
-/** The shared client. Also used by the cart editor agent (lib/agent/model.ts). */
+/** The shared client (lib/chat/model.ts). */
 export function getClient(): OpenAI {
   const keyName = apiKeyName();
   const apiKey = process.env[keyName];
   if (!apiKey) throw new LlmError(`${keyName} is not set`, "missing_key");
-  // A normal call takes 1-5 s. buildCarts retries once itself, so the SDK doesn't.
+  // A normal call takes 1-5 s. The agent loop retries once itself, so the SDK doesn't.
   client ??= new OpenAI({
     apiKey,
     timeout: Number(process.env.LLM_TIMEOUT_MS) || 12_000,
@@ -78,7 +58,7 @@ export function getClient(): OpenAI {
 }
 
 /**
- * The model for every call (cart builder and agent): gpt-5.4-mini, through OpenRouter by default.
+ * The model the agent runs on: gpt-5.4-mini, through OpenRouter by default.
  * Each provider has its own model setting, so switching LLM_PROVIDER is the only change needed.
  */
 export function modelName(): string {
@@ -102,53 +82,3 @@ export function toUsage(u: { input_tokens?: number; output_tokens?: number; inpu
     output_tokens: u?.output_tokens ?? 0,
   };
 }
-
-async function structuredCall<S extends z.ZodType>(
-  schema: S,
-  name: string,
-  effort: Effort,
-  { instructions, messages }: CallArgs,
-): Promise<LlmResult<z.infer<S>>> {
-  const model = modelName();
-  try {
-    const response = await getClient().responses.parse({
-      model,
-      instructions,
-      input: messages,
-      text: { format: zodTextFormat(schema, name) },
-      max_output_tokens: 3000,
-      ...openAiOnly({
-        // Same key for every call, so the long rules + catalog prefix stays cached.
-        prompt_cache_key: "jhola-builder-v1",
-        // Optional: OpenAI's faster, pricier tiers (e.g. "priority"). Unset = the standard tier.
-        ...(process.env.LLM_SERVICE_TIER ? { service_tier: process.env.LLM_SERVICE_TIER as "priority" } : {}),
-      }),
-      ...(isReasoningModel(model) ? { reasoning: { effort } } : {}),
-    });
-    const output = response.output_parsed;
-    if (!output) throw new LlmError(`No parsable ${name} output (status: ${response.status})`, "bad_output");
-    return {
-      output: output as z.infer<S>,
-      model: response.model,
-      usage: toUsage(response.usage),
-    };
-  } catch (err) {
-    if (err instanceof LlmError) throw err;
-    throw new LlmError(err instanceof Error ? err.message : String(err), classifyError(err));
-  }
-}
-
-const effort = (value: string | undefined, fallback: Effort) => (value || fallback) as Effort;
-
-/**
- * No call "thinks" (reasoning effort none): evals showed thinking added 2-5 s per call
- * without better carts. Code does the parts that need care: it checks every rule,
- * does all sums and fits over-budget carts itself before any repair call.
- * The one exception: a repair that must fix a budget or item count thinks a little.
- */
-export const openAiClient: LlmClient = {
-  plan: (args) => structuredCall(PlanSchema, "plan", effort(process.env.LLM_PLAN_EFFORT, "none"), args),
-  cart: (args) => structuredCall(CartSchema, "cart", effort(process.env.LLM_CART_EFFORT, "none"), args),
-  repairCart: ({ needsMath, ...args }) =>
-    structuredCall(CartSchema, "cart", needsMath ? "low" : effort(process.env.LLM_REPAIR_EFFORT, "none"), args),
-};

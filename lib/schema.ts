@@ -1,5 +1,4 @@
 import { z } from "zod";
-import type { Requirements } from "./requirements";
 
 export const CATEGORIES = [
   "dairy",
@@ -45,6 +44,8 @@ const ProductSchema = z.object({
   mrp: z.number().int().positive().optional(),
   in_stock: z.boolean(),
   tags: z.array(z.string()),
+  /** Seller-written text. Untrusted: the agent sees it only through lib/cart/safety.ts. */
+  description: z.string().max(300).optional(),
 });
 
 export type Product = z.infer<typeof ProductSchema>;
@@ -52,120 +53,6 @@ export type Category = (typeof CATEGORIES)[number];
 export type Unit = (typeof UNITS)[number];
 
 export const CatalogSchema = z.array(ProductSchema);
-
-// ---------- LLM output ----------
-// Strict structured output: every field is required, "missing" values are null.
-// Two kinds of call: one PLAN call, then one CART call per variant (run in parallel).
-
-const STATUSES = ["ok", "partial", "cannot_fulfil"] as const;
-
-const ConstraintsSchema = z.object({
-  budget_inr: z.number().nullable(),
-  item_count: z.number().int().nullable(),
-  item_kind: z.string().nullable(),
-});
-
-/** Step 1: what to build. No product IDs yet. */
-export const PlanSchema = z.object({
-  status: z.enum(STATUSES),
-  message: z.string(),
-  assumptions: z.array(z.string()),
-  suggestions: z.array(z.string()),
-  constraints: ConstraintsSchema,
-  /** Catalog sub_categories the shopper named that every cart must contain (e.g. "chicken biryani" -> ["chicken"]). */
-  must_include: z.array(z.string()),
-  variants: z.array(
-    z.object({
-      name: z.string(),
-      reason: z.string(),
-      shopping_list: z.string(),
-      /** Kinds of product (sub_categories) the shopping list needs. Code shows the cart call only these kinds' products. */
-      kinds: z.array(z.string()),
-    }),
-  ),
-});
-
-const LlmItemSchema = z.object({
-  product_id: z.string(),
-  /** How much of this product the cart needs, in the product's unit (g, ml or pcs). 0 = just use qty. */
-  need: z.number(),
-  /** The model's pack count. Code recomputes it from `need` when it can (see tidyCart). */
-  qty: z.number().int(),
-  optional: z.boolean(),
-  note: z.string(),
-});
-
-/** Step 2: one cart, mapped to product IDs. */
-export const CartSchema = z.object({
-  items: z.array(LlmItemSchema),
-  // The model's own sum of non-optional items, written after the items so it
-  // actually adds them up (helps it respect budgets). Code never uses it for pricing.
-  model_total_inr: z.number(),
-});
-
-export type Plan = z.infer<typeof PlanSchema>;
-export type PlanVariant = Plan["variants"][number];
-export type Cart = z.infer<typeof CartSchema>;
-export type LlmItem = z.infer<typeof LlmItemSchema>;
-
-/** A plan variant joined with its cart. */
-export type LlmVariant = { name: string; reason: string } & Cart;
-
-/** The full answer assembled from the plan and the carts. This is what gets validated. */
-export type LlmOutput = Omit<Plan, "variants"> & { variants: LlmVariant[] };
-
-// ---------- API ----------
-
-export const BuildCartsRequestSchema = z.object({
-  query: z.string().trim().min(3, "Query is too short").max(300, "Query is too long (max 300 characters)"),
-});
-
-export type PricedItem = {
-  product_id: string;
-  name: string;
-  brand: string;
-  pack_label: string;
-  price: number;
-  qty: number;
-  line_total: number;
-  optional: boolean;
-  note: string;
-  sub_category: string;
-  /** From the catalog, so the browser can tell food from non-food and read diet tags without loading the catalog. */
-  category: Category;
-  tags: string[];
-};
-
-export type PricedVariant = {
-  name: string;
-  reason: string;
-  items: PricedItem[];
-  total: number;
-};
-
-export type BuildCartsResponse = {
-  status: (typeof STATUSES)[number];
-  message: string;
-  assumptions: string[];
-  suggestions: string[];
-  variants: PricedVariant[];
-  /** What every cart was built to satisfy (budget, item count, named ingredients). Edits are checked against it. */
-  requirements: Requirements;
-  meta: {
-    latency_ms: number;
-    model: string;
-    repaired: boolean;
-    /** True when the answer came from the answer cache (no LLM call). */
-    cached?: boolean;
-    /** This request's ID in the request log, for feedback and for linking agent turns to their build. */
-    request_id?: string;
-    /** Time spent in each step (plan call, parallel cart calls, repair). */
-    steps_ms?: { plan: number; carts: number; repair: number };
-    input_tokens: number;
-    cached_tokens: number;
-    output_tokens: number;
-  };
-};
 
 /** "200 g", "1 kg" (shown as kg/L when it reads better), "6 pcs" */
 export function packLabel(p: Pick<Product, "pack_size" | "unit">): string {

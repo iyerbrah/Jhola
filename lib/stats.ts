@@ -29,10 +29,16 @@ export type Stats = {
     cost_usd: number;
     cost_per_build: number | null;
     cost_per_turn: number | null;
+    /** Shopping-agent chats (distinct sessions) and how the agent's turns went. */
+    chats: number;
+    model_calls_per_turn: number | null;
+    code_finished_rate: number | null;
+    confirm_rate: number | null;
+    turn_cache_rate: number | null;
   };
   feedback: { votes: number; up: number; on_carts: number; on_replies: number };
   daily: DayStats[];
-  /** Average and p95 time of each kind of model call: plan, cart and repair for builds; one row for agent turns. */
+  /** Average and p95 time of each kind of model call: one row for agent turns, plus plan, cart and repair for older builds. */
   steps: StepStats[];
 };
 
@@ -59,7 +65,12 @@ export async function queryStats(sql: Sql, days = 30): Promise<Stats> {
       (avg(repaired::int) filter (where kind = 'build' and not cached and status <> 'error'))::float8 as repair_rate,
       coalesce(sum(cost_usd), 0)::float8                                                             as cost_usd,
       (avg(cost_usd) filter (where kind = 'build' and not cached and status <> 'error'))::float8     as cost_per_build,
-      (avg(cost_usd) filter (where kind = 'agent' and status <> 'error'))::float8                    as cost_per_turn
+      (avg(cost_usd) filter (where kind = 'agent' and status <> 'error'))::float8                    as cost_per_turn,
+      count(distinct meta ->> 'session_id') filter (where kind = 'agent' and meta ->> 'chat' = 'true')::int as chats,
+      (avg(model_calls) filter (where kind = 'agent' and meta ->> 'chat' = 'true' and not cached and status <> 'error'))::float8 as model_calls_per_turn,
+      (avg((meta ->> 'finished_by' = 'code')::int) filter (where kind = 'agent' and meta ->> 'chat' = 'true' and status in ('done', 'confirm') and not cached))::float8 as code_finished_rate,
+      (avg((status = 'confirm')::int) filter (where kind = 'agent' and meta ->> 'chat' = 'true' and status <> 'error'))::float8 as confirm_rate,
+      (avg(cached::int) filter (where kind = 'agent' and meta ->> 'chat' = 'true' and status <> 'error'))::float8 as turn_cache_rate
     from requests
     where created_at >= ${since}`;
 
@@ -121,6 +132,11 @@ export async function queryStats(sql: Sql, days = 30): Promise<Stats> {
       cost_usd: Number(t.cost_usd),
       cost_per_build: num(t.cost_per_build),
       cost_per_turn: num(t.cost_per_turn),
+      chats: t.chats,
+      model_calls_per_turn: num(t.model_calls_per_turn),
+      code_finished_rate: num(t.code_finished_rate),
+      confirm_rate: num(t.confirm_rate),
+      turn_cache_rate: num(t.turn_cache_rate),
     },
     feedback: { votes: f.votes, up: f.up, on_carts: f.on_carts, on_replies: f.on_replies },
     daily: daily.map((d) => ({ day: d.day, builds: d.builds, turns: d.turns, visitors: d.visitors, cost_usd: Number(d.cost_usd) })),

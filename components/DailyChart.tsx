@@ -1,15 +1,15 @@
 import type { DayStats } from "@/lib/stats";
 
 /**
- * Requests per day: cart builds and agent turns stacked, one bar per day. Plain SVG rendered on the
+ * Requests per day: chat turns and old 3-cart builds stacked, one bar per day. Plain SVG rendered on the
  * server, so it ships no JavaScript. Each day has a hover target (its <title> is the tooltip) and a
  * table with the same numbers sits below the chart (the marigold is under 3:1 contrast on its own).
  * Colors were checked with the dataviz validator: indigo #5a6fd6 and marigold #c98500 stay distinct
  * for every kind of color blindness (ΔE 28.5).
  */
 export const SERIES = [
-  { key: "builds", label: "Cart builds", color: "#5a6fd6" },
-  { key: "turns", label: "Agent turns", color: "#c98500" },
+  { key: "builds", label: "Old 3-cart builds", color: "#5a6fd6" },
+  { key: "turns", label: "Chat turns", color: "#c98500" },
 ] as const;
 
 const W = 720;
@@ -46,7 +46,7 @@ export function DailyChart({ daily }: { daily: DayStats[] }) {
           </span>
         ))}
       </div>
-      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Cart builds and agent turns per day. The table below has the same numbers.">
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Chat turns (and old 3-cart builds) per day. The table below has the same numbers.">
         {ticks.map((t) => (
           <g key={t}>
             <line x1={PAD.left} x2={W - PAD.right} y1={y(t)} y2={y(t)} stroke="var(--color-line)" strokeWidth={1} />
@@ -63,7 +63,7 @@ export function DailyChart({ daily }: { daily: DayStats[] }) {
           const tTop = y(total);
           return (
             <g key={d.day} className="group">
-              <title>{`${label(d.day)}: ${d.builds} cart build${d.builds === 1 ? "" : "s"}, ${d.turns} agent turn${d.turns === 1 ? "" : "s"}, ${d.visitors} visitor${d.visitors === 1 ? "" : "s"}`}</title>
+              <title>{`${label(d.day)}: ${d.builds} old build${d.builds === 1 ? "" : "s"}, ${d.turns} chat turn${d.turns === 1 ? "" : "s"}, ${d.visitors} visitor${d.visitors === 1 ? "" : "s"}`}</title>
               {/* A hover target the full height of the plot, wider than the bar. */}
               <rect x={PAD.left + i * slot} y={PAD.top} width={slot} height={plotH} fill="transparent" className="group-hover:fill-mist/60" />
               {d.builds > 0 && <rect x={x} y={bTop} width={barW} height={y(0) - bTop} rx={Math.min(4, barW / 2)} fill={SERIES[0].color} />}

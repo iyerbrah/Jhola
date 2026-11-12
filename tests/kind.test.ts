@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { fitToBudget } from "@/lib/budget";
 import { indexCatalog } from "@/lib/catalog";
-import { swapOptions, toEditable } from "@/lib/cartState";
-import { isSameKind } from "@/lib/kind";
-import { priceVariants } from "@/lib/price";
-import type { LlmVariant, Product } from "@/lib/schema";
+import { solve } from "@/lib/cart/solve";
+import { isSameKind, matchesKind } from "@/lib/kind";
+import type { Product } from "@/lib/schema";
 
 // The real catalog files rice flour and rice cakes under "rice", and cumin powder next to whole cumin.
 const base: Pick<Product, "category" | "unit" | "in_stock" | "tags"> = { category: "atta_rice_dal", unit: "g", in_stock: true, tags: [] };
@@ -37,20 +35,25 @@ describe("isSameKind", () => {
 });
 
 describe("rice never becomes rice flour", () => {
-  const ponni: LlmVariant = {
-    name: "Budget",
-    reason: "",
-    model_total_inr: 51,
-    items: [{ product_id: "p201", need: 0, qty: 1, optional: false, note: "" }],
-  };
-
-  it("in the Swap list", () => {
-    const cart = toEditable(priceVariants([ponni], index)[0]);
-    expect(swapOptions(cart, cart.items[0], products).map((p) => p.id)).toEqual(["p202"]);
+  it("when the solver substitutes a sold-out rice", () => {
+    const soldOut = products.map((p) => (p.id === "p201" ? { ...p, in_stock: false } : p));
+    const session = {
+      brief: { summary: "", people: 2, budget_inr: null, diet: null, quality: "balanced" as const, rules: [], assumptions: [], plan: [] },
+      needs: [{ id: "rice", group: "dish", label: "Rice", kind: "rice", amount: 100, unit: "g" as const, per_person: true, role: "core" as const, ticked: true, count: null, prefer: null, why: "", confidence: "sure" as const }],
+      pins: [{ need_id: "rice", product_id: "p201", qty: null }],
+      picks: {},
+      choices: {},
+    };
+    const cart = solve(session, { products: soldOut, index: indexCatalog(soldOut) });
+    expect(cart.lines[0].product.id).toBe("p202");
+    expect(cart.lines[0].substitution?.wanted.id).toBe("p201");
   });
+});
 
-  it("when fitting a cart to a budget", () => {
-    // Only rice flour (₹41) would get this under ₹45; plain rice can't, so the cart is left for the repair call.
-    expect(fitToBudget(ponni, 45, index, products)).toBeNull();
+describe("matchesKind", () => {
+  it("matches by kind, tag or name", () => {
+    expect(matchesKind(byId("p201"), "rice")).toBe(true);
+    expect(matchesKind(byId("p206"), "cumin")).toBe(true);
+    expect(matchesKind(byId("p205"), "rice")).toBe(false);
   });
 });

@@ -25,3 +25,6 @@ export function costUsd(model: string, u: Usage): number | null {
   const uncached = Math.max(0, u.input_tokens - u.cached_tokens);
   return (uncached * p.input + u.cached_tokens * p.cached + u.output_tokens * p.output) / 1_000_000;
 }
+
+/** For showing what a turn cost in rupees. A fixed rate, not a live one: good enough for "₹0.40 to run". */
+export const USD_TO_INR = 88;

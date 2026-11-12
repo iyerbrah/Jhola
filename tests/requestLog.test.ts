@@ -1,90 +1,104 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { AgentTurnResult } from "@/lib/agent/loop";
 import { ensureSchema, type Sql } from "@/lib/db";
-import { agentRecord, buildRecord, createMemoryRequestLog, createPgRequestLog, errorRecord, type RequestRecord } from "@/lib/requestLog";
-import { priceVariants } from "@/lib/price";
-import type { BuildCartsResponse } from "@/lib/schema";
+import { chatRecord } from "@/lib/chat/log";
+import { solveSession, type ChatTurnResult } from "@/lib/chat/loop";
+import { createPgShareStore } from "@/lib/chat/share";
+import { diffCarts } from "@/lib/cart/diff";
+import { createMemoryRequestLog, createPgRequestLog, errorRecord, maskPii, maskRecord, type RequestRecord } from "@/lib/requestLog";
 import { visitorId } from "@/lib/visitor";
-import { biryaniCarts, index as agentIndex } from "./agentFixtures";
-import { budget, classic, index, shortcut } from "./fixtures";
+import { ctx, pastaNeeds, session } from "./cartFixtures";
 
-const response = (over: Partial<BuildCartsResponse> = {}): BuildCartsResponse => ({
-  status: "ok",
-  message: "Built for 4.",
-  assumptions: ["Assumed 4 people"],
-  suggestions: [],
-  variants: priceVariants([classic, budget, shortcut], index),
-  requirements: { budget_inr: null, item_count: null, item_kind: null, must_include: ["paneer"], diet: null },
-  meta: { latency_ms: 4200, model: "gpt-5.4-mini", repaired: true, input_tokens: 62000, cached_tokens: 58000, output_tokens: 1400 },
+const before = solveSession(session(pastaNeeds()), ctx);
+const after = solveSession({ ...before.session, brief: { ...before.session.brief, people: 6 } }, ctx);
+
+const result = (over: Partial<ChatTurnResult> = {}): ChatTurnResult => ({
+  status: "done",
+  stop_reason: "finished",
+  reply: "Done: pasta 1 → 2.",
+  question: null,
+  session: { ...after.session, brief: { ...after.session.brief, summary: "Pasta night, 6 people" } },
+  cart: after.cart,
+  checks: after.checks,
+  diff: diffCarts(before.cart, after.cart),
+  note: [],
+  pending: null,
+  meta: { trace_id: "t", finished_by: "code", model: "gpt-5.4-mini", model_calls: 1, tool_calls: 1, latency_ms: 1800, cost_usd: 0.002, cost_inr: 0.18, steps: [{ kind: "model", name: "gpt-5.4-mini", ok: true, ms: 1500, input_tokens: 9000, cached_tokens: 8000, output_tokens: 120 }, { kind: "tool", name: "update_brief", ok: true, ms: 1 }], input_tokens: 9000, cached_tokens: 8000, output_tokens: 120 },
   ...over,
 });
 
-const build = (over: Partial<RequestRecord> = {}): RequestRecord => ({
-  ...buildRecord({
-    id: randomUUID(),
-    visitor: "v1",
-    query: "paneer for 4",
-    res: response(),
-    cached: false,
-    steps: [
-      { kind: "model", name: "plan", attempt: 1, ok: true, ms: 900, input_tokens: 20000, cached_tokens: 19000, output_tokens: 300 },
-      { kind: "model", name: "cart:1", attempt: 2, ok: true, ms: 1500 },
-    ],
-  }),
+const chat = (over: Partial<RequestRecord> = {}, r: ChatTurnResult = result(), extra: { message?: string; session_id?: string; parent_id?: string | null; cached?: boolean } = {}): RequestRecord => ({
+  ...chatRecord({ id: randomUUID(), parent_id: extra.parent_id ?? null, session_id: extra.session_id ?? "s1", visitor: "v1", message: extra.message ?? "make it 6 people", before: before.cart, result: r, cached: extra.cached ?? false }),
   ...over,
 });
 
-const turn = (): AgentTurnResult => {
-  const before = biryaniCarts();
-  const after = [{ ...before[0], items: before[0].items.slice(1) }, before[1], before[2]];
-  return {
-    status: "done",
-    stop_reason: "finished",
-    reply: "Removed the chicken.",
-    carts: after,
-    changes: [{ cart: 1, name: "Budget", removed: [{ product_id: "p002", name: "Chicken", qty: 2 }], added: [], qty_changed: [], requirements: [], total_before: 534, total_after: 114 }],
-    meta: { trace_id: "t", finished_by: "code", model: "gpt-5.4-mini", model_calls: 1, tool_calls: 1, latency_ms: 1800, cost_usd: 0.002, input_tokens: 3000, cached_tokens: 2800, output_tokens: 40 },
-  };
-};
-
-describe("turning results into records", () => {
-  it("keeps a build's carts, items, cost and steps, and the answer's text in meta", () => {
-    const r = build();
-    expect(r).toMatchObject({ kind: "build", status: "ok", cached: false, repaired: true, latency_ms: 4200 });
-    expect(r.cost_usd).toBeCloseTo((4000 * 0.75 + 58000 * 0.075 + 1400 * 4.5) / 1e6, 8);
-    expect(r.carts.map((c) => c.name)).toEqual(["Classic", "Budget", "Shortcut"]);
-    expect(r.carts[0].items[0]).toEqual({ product_id: "p001", qty: 2, price: 95, optional: false, included: true, note: "" });
-    expect(r.meta).toMatchObject({ message: "Built for 4.", assumptions: ["Assumed 4 people"] });
-    expect(r.steps).toHaveLength(2);
+describe("turning a chat turn into a record", () => {
+  it("keeps the cart before and after, the trace, the cost and what was said", () => {
+    const r = chat();
+    expect(r).toMatchObject({ kind: "agent", status: "done", stop_reason: "finished", cached: false, model_calls: 1, tool_calls: 1, cost_usd: 0.002 });
+    expect(r.carts.map((c) => `${c.role}:${c.position}`)).toEqual(["before:0", "after:0"]);
+    expect(r.carts[1].total).toBe(after.cart.total);
+    expect(r.carts[1].items.find((it) => it.product_id === after.cart.lines[0].product.id)).toMatchObject({ qty: after.cart.lines[0].packs, included: true });
+    expect(r.meta).toMatchObject({ chat: true, session_id: "s1", reply: "Done: pasta 1 → 2.", summary: "Pasta night, 6 people", finished_by: "code" });
+    expect(r.steps.map((s) => s.name)).toEqual(["gpt-5.4-mini", "update_brief"]);
   });
 
-  it("makes a cache hit free", () => {
-    const r = buildRecord({ id: randomUUID(), visitor: "v", query: "q", res: response(), cached: true, steps: [] });
-    expect(r.cost_usd).toBe(0);
-  });
-
-  it("keeps an agent turn's carts before it, and after it only when something changed", () => {
-    const r = agentRecord({ id: randomUUID(), parent_id: null, visitor: "v", message: "no chicken", before: biryaniCarts(), result: turn(), steps: [] });
-    expect(r.carts.map((c) => `${c.role}:${c.position}`)).toEqual(["before:0", "before:1", "before:2", "after:0", "after:1", "after:2"]);
-    expect(r.carts[3].total).toBe(114);
-    const unchanged = agentRecord({ id: randomUUID(), parent_id: null, visitor: "v", message: "why?", before: biryaniCarts(), result: { ...turn(), changes: [] }, steps: [] });
-    expect(unchanged.carts.map((c) => c.role)).toEqual(["before", "before", "before"]);
+  it("keeps only the cart before when nothing changed, and makes a cache hit free", () => {
+    const same = chat({}, result({ cart: before.cart, diff: diffCarts(before.cart, before.cart) }));
+    expect(same.carts.map((c) => c.role)).toEqual(["before"]);
+    expect(chat({}, result(), { cached: true })).toMatchObject({ cached: true, cost_usd: 0, steps: [] });
   });
 });
 
 describe("memory request log", () => {
-  it("lists model-built answers newest first, rebuilt with names from the catalog", async () => {
-    const log = createMemoryRequestLog(500, index);
-    await log.record(build({ query: "first" }));
-    await log.record(build({ query: "cached", cached: true }));
-    await log.record(errorRecord({ id: randomUUID(), kind: "build", visitor: "v", query: "broken", error_kind: "timeout", latency_ms: 50 }));
-    await log.record(build({ query: "second" }));
-    const entries = await log.recentBuilds(10);
-    expect(entries.map((e) => e.query)).toEqual(["second", "first"]);
-    expect(entries[0].variants[0].items[0]).toMatchObject({ name: "Fresh Paneer", brand: "Amul", pack_label: "200 g", line_total: 190 });
-    expect(entries[0].meta).toMatchObject({ latency_ms: 4200, repaired: true, model: "gpt-5.4-mini" });
+  it("lists chat turns newest first, with the cart each one left", async () => {
+    const log = createMemoryRequestLog(500);
+    await log.record(chat({}, result(), { message: "first" }));
+    await log.record(errorRecord({ id: randomUUID(), kind: "agent", visitor: "v", query: "broken", error_kind: "timeout", latency_ms: 50 }));
+    await log.record(chat({}, result(), { message: "second" }));
+    const entries = await log.recentTurns(10);
+    expect(entries.map((e) => e.message)).toEqual(["second", "first"]);
+    expect(entries[0]).toMatchObject({ session_id: "s1", status: "done", total: after.cart.total, items: after.cart.lines.filter((l) => l.counted).length, finished_by: "code", summary: "Pasta night, 6 people" });
+  });
+});
+
+describe("masking personal details", () => {
+  it.each([
+    ["call me on 9876543210", "call me on [phone]"],
+    ["+91 98765 43210 after 6pm", "[phone] after 6pm"],
+    ["+91-9876543210", "[phone]"],
+    ["919876543210", "[phone]"],
+    ["09876543210 is my number", "[phone] is my number"],
+    ["0091 98765-43210", "[phone]"],
+    ["98765-43210 or 7012345678", "[phone] or [phone]"],
+    ["mail ram.iyer+jhola@example.co.in please", "mail [email] please"],
+    ["a@b.com and 8123456789", "[email] and [phone]"],
+  ])("masks %j", (text, masked) => {
+    expect(maskPii(text)).toBe(masked);
+  });
+
+  it.each(["paneer for 4 under ₹600", "2 kg atta, 500 g toor dal", "order 12345678901234", "landline 1234567890", "p2744", "5:15PM", "@home snacks"])("leaves %j alone", (text) => {
+    expect(maskPii(text)).toBe(text);
+  });
+
+  it("masks the message, the reply in meta and item notes, and nothing else", () => {
+    const r = chat({ query: "pasta for 4, call 9876543210", meta: { reply: "Sent to a@b.com", summary: "Ring +91 98765 43210", budget: 600 } });
+    r.carts[0].items[0].note = "for a@b.com";
+    const m = maskRecord(r);
+    expect(m.query).toBe("pasta for 4, call [phone]");
+    expect(m.meta).toEqual({ reply: "Sent to [email]", summary: "Ring [phone]", budget: 600 });
+    expect(m.carts[0].items[0]).toMatchObject({ product_id: r.carts[0].items[0].product_id, note: "for [email]" });
+    expect(m.visitor).toBe(r.visitor);
+    expect(r.query).toBe("pasta for 4, call 9876543210"); // the caller's record isn't changed
+  });
+
+  it("is applied before a record is stored", async () => {
+    const log = createMemoryRequestLog(500);
+    await log.record(chat({}, result(), { message: "eggs, my email is x@y.in" }));
+    await log.record(chat({}, result(), { message: "deliver to 9876543210" }));
+    expect(log.records.map((r) => r.query)).toEqual(["deliver to [phone]", "eggs, my email is [email]"]);
+    expect((await log.recentTurns(1))[0].message).toBe("deliver to [phone]");
   });
 });
 
@@ -131,64 +145,67 @@ describe.skipIf(!url)("Postgres request log", () => {
     await ensureSchema(sql);
     await sql.unsafe((await import("@/lib/db")).SCHEMA);
     const tables = await sql`select table_name from information_schema.tables where table_schema = ${schema} order by 1`;
-    expect(tables.map((t) => t.table_name)).toEqual(["cart_items", "carts", "feedback", "requests", "trace_steps"]);
+    expect(tables.map((t) => t.table_name)).toEqual(["cart_items", "carts", "feedback", "requests", "shared_carts", "trace_steps"]);
   });
 
-  it("stores a build with its carts, items and steps, and lists it with names from the catalog", async () => {
-    const log = createPgRequestLog(sql, index);
-    const r = build({ query: "pg build" });
+  it("stores a turn with its carts, items and steps, and lists it", async () => {
+    const log = createPgRequestLog(sql);
+    const parent = randomUUID();
+    const r = chat({}, result(), { message: "pg turn", parent_id: parent });
     await log.record(r);
-    const [row] = await sql`select kind, status, cached, cost_usd, meta->>'message' as message from requests where id = ${r.id}`;
-    expect(row).toMatchObject({ kind: "build", status: "ok", cached: false, message: "Built for 4." });
-    expect(Number(row.cost_usd)).toBeCloseTo(r.cost_usd!, 6);
+    const [row] = await sql`select kind, status, parent_id, cost_usd, meta->>'session_id' as session_id, meta->>'finished_by' as finished_by from requests where id = ${r.id}`;
+    expect(row).toMatchObject({ kind: "agent", status: "done", parent_id: parent, session_id: "s1", finished_by: "code" });
+    expect(Number(row.cost_usd)).toBeCloseTo(0.002, 6);
+    const carts = await sql`select role, total from carts where request_id = ${r.id} order by role`;
+    expect(carts.map((c) => c.role)).toEqual(["after", "before"]);
     const [{ n: items }] = await sql`select count(*)::int as n from cart_items i join carts c on c.id = i.cart_id where c.request_id = ${r.id}`;
     expect(items).toBe(r.carts.reduce((s, c) => s + c.items.length, 0));
-    const steps = await sql`select step, name, attempt from trace_steps where request_id = ${r.id} order by step`;
-    expect(steps.map((s) => `${s.step}:${s.name}:${s.attempt}`)).toEqual(["1:plan:1", "2:cart:1:2"]);
+    const steps = await sql`select step, kind, name from trace_steps where request_id = ${r.id} order by step`;
+    expect(steps.map((s) => `${s.step}:${s.kind}:${s.name}`)).toEqual(["1:model:gpt-5.4-mini", "2:tool:update_brief"]);
 
-    const [entry] = await log.recentBuilds(1);
-    expect(entry).toMatchObject({ id: r.id, query: "pg build", status: "ok", message: "Built for 4." });
-    expect(entry.variants.map((v) => v.name)).toEqual(["Classic", "Budget", "Shortcut"]);
-    expect(entry.variants[0].items[0]).toMatchObject({ name: "Fresh Paneer", qty: 2, line_total: 190 });
-    expect(entry.cost_usd).toBeCloseTo(r.cost_usd!, 6);
+    const [entry] = await log.recentTurns(1);
+    expect(entry).toMatchObject({ id: r.id, message: "pg turn", status: "done", total: after.cart.total, session_id: "s1" });
   });
 
-  it("stores an agent turn with its before and after carts and its build as parent", async () => {
-    const log = createPgRequestLog(sql, agentIndex);
-    const parent = randomUUID();
-    const r = agentRecord({ id: randomUUID(), parent_id: parent, visitor: "v", message: "no chicken", before: biryaniCarts(), result: turn(), steps: [{ kind: "tool", name: "remove_item", ok: true, ms: 1 }] });
+  it("stores the message with phone numbers and emails masked", async () => {
+    const log = createPgRequestLog(sql);
+    const r = chat({}, result(), { message: "call +91 98765 43210 or a@b.com" });
     await log.record(r);
-    const carts = await sql`select role, count(*)::int as n from carts where request_id = ${r.id} group by role order by role`;
-    expect(carts.map((c) => `${c.role}:${c.n}`)).toEqual(["after:3", "before:3"]);
-    const [row] = await sql`select parent_id, stop_reason, meta->>'finished_by' as finished_by from requests where id = ${r.id}`;
-    expect(row).toEqual({ parent_id: parent, stop_reason: "finished", finished_by: "code" });
+    const [row] = await sql`select query from requests where id = ${r.id}`;
+    expect(row.query).toBe("call [phone] or [email]");
   });
 
   it("saves, changes and takes back votes, one per visitor, and refuses unknown or mismatched targets", async () => {
-    const log = createPgRequestLog(sql, index);
-    const b = build();
-    await log.record(b);
-    const f = { request_id: b.id, target: "cart" as const, cart_position: 1, visitor: "v1" };
+    const log = createPgRequestLog(sql);
+    const t = chat();
+    await log.record(t);
+    const f = { request_id: t.id, target: "reply" as const, cart_position: -1, visitor: "v1" };
     expect(await log.rate({ ...f, rating: 1 })).toBe("saved");
     expect(await log.rate({ ...f, rating: -1 })).toBe("saved");
     expect(await log.rate({ ...f, visitor: "v2", rating: 1 })).toBe("saved");
-    const votes = await sql`select visitor, rating from feedback where request_id = ${b.id} order by visitor`;
+    const votes = await sql`select visitor, rating from feedback where request_id = ${t.id} order by visitor`;
     expect(votes.map((v) => `${v.visitor}:${v.rating}`)).toEqual(["v1:-1", "v2:1"]);
     expect(await log.rate({ ...f, rating: 0 })).toBe("cleared");
-    const [{ n }] = await sql`select count(*)::int as n from feedback where request_id = ${b.id}`;
-    expect(n).toBe(1);
-    expect(await log.rate({ ...f, cart_position: 2, rating: 1 })).toBe("saved");
-    expect(await log.rate({ ...f, request_id: b.id, target: "reply", cart_position: -1, rating: 1 })).toBe("mismatch");
+    expect(await log.rate({ ...f, target: "cart", cart_position: 0, rating: 1 })).toBe("saved");
+    expect(await log.rate({ ...f, target: "cart", cart_position: 2, rating: 1 })).toBe("mismatch");
     expect(await log.rate({ ...f, request_id: randomUUID(), rating: 1 })).toBe("unknown");
   });
 
   it("stores a request whole or not at all", async () => {
-    const log = createPgRequestLog(sql, index);
-    const r = build();
+    const log = createPgRequestLog(sql);
+    const r = chat();
     await log.record(r);
     // The same id again fails on the primary key, and none of its carts are left behind.
     await expect(log.record({ ...r, query: "duplicate" })).rejects.toThrow();
     const [{ n }] = await sql`select count(*)::int as n from carts where request_id = ${r.id}`;
-    expect(n).toBe(3);
+    expect(n).toBe(2);
+  });
+
+  it("saves a shared cart and loads it back", async () => {
+    const shares = createPgShareStore(sql);
+    const id = await shares.save(after.session);
+    expect(id).toMatch(/^[A-Za-z0-9_-]{10}$/);
+    expect(await shares.load(id)).toMatchObject({ needs: after.session.needs, brief: { people: 6 } });
+    expect(await shares.load("nope")).toBeNull();
   });
 });

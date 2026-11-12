@@ -3,8 +3,9 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import catalogJson from "@/data/catalog.json";
 import ledgerJson from "@/data/catalog/ids.json";
-import agentCarts from "@/evals/agent/carts.json";
-import { buildCatalog, parseCsv, parseSize, type Row } from "@/scripts/catalog/build";
+import supplementJson from "@/data/supplement.json";
+import evalSessions from "@/evals/chat/sessions.json";
+import { buildCatalog, isGiftOrKit, parseCsv, parseSize, type Row, type SupplementItem } from "@/scripts/catalog/build";
 import { CatalogSchema, isFood, type Product } from "@/lib/schema";
 
 // Real BigBasket rows, picked because each one was misfiled or is a case the pipeline must handle.
@@ -51,6 +52,15 @@ describe("catalog pipeline: kinds", () => {
     expect(report.dropped).toMatchObject({ "category not sold": 1, "multipack or combo": 2 });
   });
 
+  it("drops gift sets, trial packs and combos, but keeps a kit that is the product itself", () => {
+    for (const n of ["Lavender Try Me Personal Care Gift Set", "Mach3 Gift Pack", "Broom & Dustpan Combo - Plastic", "Pro 4 Shaving Trial Kit For Men", "Coffee Prep Gift Kit", "Teen Monthly Essential Period Kit", "Glow Up Essentials Kit"]) expect(isGiftOrKit(n), n).toBe(true);
+    for (const n of ["Mini Precision Screwdriver Kit", "Makeup Brushes Kit - Trio", "Gold Radiance & Rejuvenation Facial Kit", "Lux Soft Touch Soap", "Kitchen Towel", "Kit Kat"]) expect(isGiftOrKit(n), n).toBe(false);
+    const row = { ...rows[0], ProductName: "Lavender Try Me Personal Care Gift Set" } as Row;
+    const { catalog, report } = build([row]);
+    expect(catalog).toHaveLength(0);
+    expect(report.dropped["gift set or kit"]).toBe(1);
+  });
+
   it("parses pack sizes and rejects multipacks", () => {
     expect(parseSize("1 kg")).toEqual({ pack_size: 1000, unit: "g" });
     expect(parseSize("1.5 L")).toEqual({ pack_size: 1500, unit: "ml" });
@@ -93,6 +103,15 @@ describe("catalog pipeline: stable IDs", () => {
     expect(build(rows, first.ledger, previous).catalog.find((p) => p.id === paneer.id)?.in_stock).toBe(false);
   });
 
+  it("carries a hand-added product's description through, and gives it the next ID", () => {
+    const first = build();
+    const sauce: SupplementItem = { name: "Tomato Basil Pasta Sauce", brand: "Test Kitchen", category: "sauces_spreads", sub_category: "sauce", pack_size: 400, unit: "g", price: 179, description: "Slow-cooked tomatoes." };
+    const { catalog } = buildCatalog({ rows, supplement: [sauce], ledger: first.ledger, previous: first.catalog });
+    const max = Math.max(...first.catalog.map((p) => Number(p.id.slice(1))));
+    expect(find(catalog, "Tomato Basil Pasta Sauce")).toMatchObject({ id: `p${String(max + 1).padStart(3, "0")}`, description: "Slow-cooked tomatoes.", tags: ["veg", "vegan", "jain"] });
+    expect(catalog.filter((p) => p.description)).toHaveLength(1);
+  });
+
   it("without a ledger, takes IDs from the previous catalog by brand, name and size", () => {
     const first = build();
     const renumbered = first.catalog.map((p, i) => ({ ...p, id: `p${String(500 + i).padStart(3, "0")}` }));
@@ -106,15 +125,49 @@ describe("the committed catalog", () => {
   const ids = new Set(catalog.map((p) => p.id));
   const ledger = ledgerJson as Record<string, string>;
 
-  it("has every product the agent eval's starting carts use", () => {
-    const used = Object.values(agentCarts as Record<string, { carts: { items: { product_id: string }[] }[] }>).flatMap((s) => s.carts.flatMap((c) => c.items.map((it) => it.product_id)));
-    expect(used.filter((id) => !ids.has(id))).toEqual([]);
+  it("stocks every kind the chat eval's starting sessions plan with", () => {
+    const kinds = new Set(catalog.filter((p) => p.in_stock).map((p) => p.sub_category));
+    const used = Object.values(evalSessions as Record<string, { needs: { kind: string }[] }>).flatMap((s) => s.needs.map((n) => n.kind));
+    expect(used.filter((k) => !kinds.has(k))).toEqual([]);
+  });
+
+  it("keeps bread for loaves: pav, bread sticks, shortbread and yeast have kinds of their own", () => {
+    const bread = catalog.filter((p) => p.sub_category === "bread").map((p) => p.name);
+    expect(bread.length).toBeGreaterThan(0);
+    expect(bread.filter((n) => /\bpav\b|\bbuns?\b|stick|short ?bread|yeast/i.test(n))).toEqual([]);
   });
 
   it("matches its ID ledger one to one", () => {
     const values = Object.values(ledger);
     expect(new Set(values).size).toBe(values.length);
     expect([...ids].filter((id) => !values.includes(id))).toEqual([]);
+  });
+
+  it("has every hand-added product, under its ledger ID, as a rebuild would write it", () => {
+    const supplement = supplementJson as SupplementItem[];
+    const missing = supplement.filter((s) => {
+      const id = ledger[`sup:${s.brand}|${s.name}|${s.pack_size}${s.unit}`];
+      // No ID: a BigBasket row of the same brand, name and size won the de-duplication.
+      if (!id) return !catalog.some((p) => `${p.brand}|${p.name}|${p.pack_size}${p.unit}`.toLowerCase() === `${s.brand}|${s.name}|${s.pack_size}${s.unit}`.toLowerCase());
+      const p = catalog.find((x) => x.id === id);
+      return !p || (Object.keys(s) as (keyof SupplementItem)[]).some((k) => p[k] !== s[k]);
+    });
+    expect(missing).toEqual([]);
+  });
+
+  it("has the planted demo product exactly as the pipeline builds it from the supplement", () => {
+    const planted = (supplementJson as SupplementItem[]).filter((s) => s.description);
+    expect(planted).toHaveLength(1);
+    const committed = catalog.find((p) => p.description === planted[0].description)!;
+    // Built without it in the previous catalog, so its stock is the pipeline's own pick, not carried over.
+    const rebuilt = buildCatalog({ rows: [], supplement: planted, ledger, previous: catalog.filter((p) => p.id !== committed.id) }).catalog;
+    expect(rebuilt.find((p) => p.id === committed.id)).toEqual(committed);
+    // Its ID comes from the ledger, so a rebuild that appends products never renumbers it.
+    expect(ledger[`sup:${planted[0].brand}|${planted[0].name}|${planted[0].pack_size}${planted[0].unit}`]).toBe(committed.id);
+  });
+
+  it("has no gift set, trial pack or combo in stock", () => {
+    expect(catalog.filter((p) => p.in_stock && isGiftOrKit(p.name)).map((p) => p.name)).toEqual([]);
   });
 
   it("gives non-food no diet tags", () => {

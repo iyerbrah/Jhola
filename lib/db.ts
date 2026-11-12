@@ -89,6 +89,12 @@ create table if not exists feedback (
   updated_at    timestamptz not null default now(),
   unique (request_id, target, cart_position, visitor)
 );
+
+create table if not exists shared_carts (
+  id         text primary key,     -- 10 url-safe characters
+  session    jsonb not null,       -- brief, needs and pins: the cart is solved again from it
+  created_at timestamptz not null default now()
+);
 `;
 
 // Next gives each route its own copy of a module, so module-level variables aren't shared between

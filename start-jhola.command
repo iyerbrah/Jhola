@@ -19,6 +19,14 @@ fi
 
 [ -d node_modules ] || npm ci
 
+# Already running (from another window, or a preview)? Open it instead of starting a second server:
+# two dev servers share the .next folder and break each other's build cache.
+if curl -s -o /dev/null http://localhost:3000; then
+  echo "Jhola is already running at http://localhost:3000, so this just opens it."
+  open -a Safari http://localhost:3000
+  exit 0
+fi
+
 # Open Safari once the server answers.
 (
   until curl -s -o /dev/null http://localhost:3000; do sleep 1; done

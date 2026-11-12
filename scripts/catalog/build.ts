@@ -13,7 +13,7 @@ import { CatalogSchema, isFood, type Category, type Product, type Unit } from ".
 // ---------- Limits ----------
 
 /** Most products kept per kind (all sizes counted). Food keeps nearly everything; non-food keeps a varied few. */
-export const PER_KIND = { food: 100, nonFood: 10 };
+export const PER_KIND = { food: 100, nonFood: 40 };
 const SIZES_PER_PRODUCT = 2;
 /** Skip bulk packs nobody buys for one order. Non-food comes in bigger counts (diapers, tissues). */
 const MAX_PACK = { food: { g: 5000, ml: 5000, pcs: 30 }, nonFood: { g: 5000, ml: 5000, pcs: 200 } };
@@ -109,7 +109,11 @@ const KEYWORDS: [RegExp, string, Category[]?][] = [
   [/ketchup|sauce/i, "sauce"],
   [/papad/i, "papad"],
   [/peanut butter|\bjam\b|marmalade|spread/i, "spread"],
-  [/cookie|biscuit|wafer|rusk/i, "biscuits"],
+  [/cookie|biscuit|wafer|rusk|short ?bread/i, "biscuits"],
+  // Bread-shaped things that aren't a loaf: a sandwich needs bread, pav bhaji needs pav.
+  [/\bpav\b|\bbuns?\b/i, "pav_buns", ["bakery"]],
+  [/bread ?sticks?|lavash|grissini/i, "bread_sticks_lavash", ["bakery", "snacks"]],
+  [/\byeast\b|baking (powder|soda)/i, "baking_essentials", ["bakery", "sauces_spreads", "masalas_spices"]],
   [/nachos?/i, "nachos"],
   [/chips|crisps|rings|puffs|kurkure/i, "chips"],
   [/coffee/i, "coffee", ["beverages"]],
@@ -465,6 +469,16 @@ function median(xs: number[]): number {
   return s[Math.floor(s.length / 2)];
 }
 
+/**
+ * Gift sets, trial packs and combos: several products sold as one, which no shopping request means
+ * ("soap" is never a lavender gift set). A kit that is itself the product (a screwdriver kit, a set of
+ * makeup brushes, a facial kit) stays.
+ */
+const GIFT_OR_KIT = /\b(gift (set|box|pack|kit)|try me|combo|trial kit|essentials? kit|period kit)\b|\bkit\b/i;
+const KIT_PRODUCT = /\b(tools?|screwdriver|brush(es)?|facial|colou?r|hair removal|feeding|first aid|repair|sewing)\s+kit\b/i;
+export const isGiftOrKit = (name: string) =>
+  GIFT_OR_KIT.test(name.replace(/\bkit ?kat\b/gi, "")) && !(KIT_PRODUCT.test(name) && !/\b(gift|try me|combo|trial)\b/i.test(name));
+
 function drafts(rows: Row[], supplement: SupplementItem[], report: Report, skips: HomeSkip[]): Draft[] {
   const drop = (reason: string) => (report.dropped[reason] = (report.dropped[reason] ?? 0) + 1);
   const out: Draft[] = [];
@@ -492,6 +506,10 @@ function drafts(rows: Row[], supplement: SupplementItem[], report: Report, skips
     const name = cleanName(r.ProductName);
     if (name.length < 2) {
       drop("no name");
+      continue;
+    }
+    if (isGiftOrKit(r.ProductName)) {
+      drop("gift set or kit");
       continue;
     }
     const sub = subCategoryFor(r.ProductName, r.SubCategory, category, skips);

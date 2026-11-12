@@ -1,7 +1,6 @@
-# The eval checks, against the real model, paid with the OPENROUTER_API_KEY secret:
-# - the cart builder: 11 queries vs evals/baseline.json (about $0.17)
-# - the cart editor agent: 6 scenarios vs evals/agent/baseline.json (about $0.02)
-# Both reports go into one PR comment, and the run fails if either check fails.
+# The shopping agent's eval check, against the real model, paid with the OPENROUTER_API_KEY secret:
+# the ci scenarios of evals/chat/scenarios.json (plus the ci build queries) vs evals/chat/baseline.json,
+# about $0.08. The report goes into one PR comment, and the run fails if the check fails.
 #
 # Opt-in, because every run costs money: it runs only when a PR gets the "run-evals" label
 # (remove and re-add the label to run it again after more pushes), or from the Actions tab.
@@ -23,7 +22,7 @@ concurrency:
 
 jobs:
   eval:
-    name: Eval check (11 queries + 6 agent scenarios, real model)
+    name: Shopping agent eval check (real model)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # Only for the run-evals label. PRs from forks don't get repo secrets, so the check can't run there.
@@ -43,30 +42,19 @@ jobs:
 
       - run: npm ci
 
-      - name: Run the cart builder eval check
+      - name: Run the shopping agent eval check
         id: eval
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         run: |
           set +e
-          npm run eval:ci
+          npm run eval:chat -- --ci
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
 
-      - name: Run the agent eval check
-        id: agent
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: |
-          set +e
-          npm run eval:agent -- --ci
-          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
-
-      # One report for one comment: the cart builder's (which starts with the comment marker), then the agent's.
-      - name: Combine the reports
+      - name: Make sure there's a report
         if: always()
         run: |
           if [ ! -f evals/ci-report.md ]; then printf '<!-- jhola-eval -->\n## ❌ Eval check: no report (it crashed; see the run log)\n' > evals/ci-report.md; fi
-          if [ -f evals/ci-agent-report.md ]; then printf '\n' >> evals/ci-report.md && cat evals/ci-agent-report.md >> evals/ci-report.md; fi
 
       - name: Add the report to the run summary
         if: always() && hashFiles('evals/ci-report.md') != ''
@@ -88,8 +76,8 @@ jobs:
             gh pr comment "$PR" --repo "$REPO" --body-file evals/ci-report.md
           fi
 
-      - name: Fail if either eval check failed
-        if: steps.eval.outputs.exit_code != '0' || steps.agent.outputs.exit_code != '0'
+      - name: Fail if the eval check failed
+        if: steps.eval.outputs.exit_code != '0'
         run: |
-          echo "An eval check failed (cart builder exit ${{ steps.eval.outputs.exit_code }}, agent exit ${{ steps.agent.outputs.exit_code }}). See the PR comment or the run summary."
+          echo "The eval check failed (exit ${{ steps.eval.outputs.exit_code }}). See the PR comment or the run summary."
           exit 1

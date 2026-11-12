@@ -4,7 +4,7 @@ import { FeedbackRequestSchema, handleFeedback, type FeedbackDeps } from "@/lib/
 import { createMemoryLimiter } from "@/lib/ratelimit";
 import { createMemoryRequestLog, type RequestLog, type RequestRecord } from "@/lib/requestLog";
 
-const cart = (position: number) => ({ role: "result" as const, position, name: `Cart ${position + 1}`, reason: "", total: 100, items: [] });
+const cart = (role: "result" | "before" | "after", position: number) => ({ role, position, name: `Cart ${position + 1}`, reason: "", total: 100, items: [] });
 const request = (kind: "build" | "agent", over: Partial<RequestRecord> = {}): RequestRecord => ({
   id: randomUUID(),
   kind,
@@ -15,7 +15,8 @@ const request = (kind: "build" | "agent", over: Partial<RequestRecord> = {}): Re
   latency_ms: 1,
   catalog_size: 1,
   meta: {},
-  carts: kind === "build" ? [cart(0), cart(1), cart(2)] : [],
+  // An old 3-cart build, or a chat turn with its cart before and after.
+  carts: kind === "build" ? [cart("result", 0), cart("result", 1), cart("result", 2)] : [cart("before", 0), cart("after", 0)],
   steps: [],
   ...over,
 });
@@ -52,10 +53,10 @@ describe("FeedbackRequestSchema", () => {
 
 describe("POST /api/feedback", () => {
   it("saves a vote, changes it, and takes it back", async () => {
-    const { deps, log, build } = await setup();
-    const vote = (rating: number) => handleFeedback(post({ request_id: build.id, target: "cart", cart: 2, rating }), deps);
+    const { deps, log, turn } = await setup();
+    const vote = (rating: number) => handleFeedback(post({ request_id: turn.id, target: "cart", cart: 0, rating }), deps);
     expect((await vote(1)).status).toBe(204);
-    expect([...log.votes.values()]).toEqual([expect.objectContaining({ request_id: build.id, target: "cart", cart_position: 2, rating: 1 })]);
+    expect([...log.votes.values()]).toEqual([expect.objectContaining({ request_id: turn.id, target: "cart", cart_position: 0, rating: 1 })]);
     expect((await vote(-1)).status).toBe(204);
     expect([...log.votes.values()].map((v) => v.rating)).toEqual([-1]);
     expect((await vote(0)).status).toBe(204);
@@ -63,38 +64,36 @@ describe("POST /api/feedback", () => {
   });
 
   it("keeps one vote per visitor, and a reply's vote apart from the carts'", async () => {
-    const { deps, log, build, turn } = await setup();
-    await handleFeedback(post({ request_id: build.id, target: "cart", cart: 0, rating: 1 }, "1.1.1.1"), deps);
-    await handleFeedback(post({ request_id: build.id, target: "cart", cart: 0, rating: -1 }, "2.2.2.2"), deps);
+    const { deps, log, turn } = await setup();
+    await handleFeedback(post({ request_id: turn.id, target: "cart", cart: 0, rating: 1 }, "1.1.1.1"), deps);
+    await handleFeedback(post({ request_id: turn.id, target: "cart", cart: 0, rating: -1 }, "2.2.2.2"), deps);
     await handleFeedback(post({ request_id: turn.id, target: "reply", rating: 1 }, "1.1.1.1"), deps);
     expect(log.votes.size).toBe(3);
     expect([...log.votes.values()].find((v) => v.target === "reply")?.cart_position).toBe(-1);
   });
 
-  it("refuses unknown requests, the wrong target, and bad input", async () => {
-    const { deps, build, turn } = await setup();
+  it("refuses unknown requests, old 3-cart builds, and bad input", async () => {
+    const { deps, build } = await setup();
     expect((await handleFeedback(post({ request_id: randomUUID(), target: "cart", cart: 0, rating: 1 }), deps)).status).toBe(404);
     expect((await handleFeedback(post({ request_id: build.id, target: "reply", rating: 1 }), deps)).status).toBe(400);
-    expect((await handleFeedback(post({ request_id: turn.id, target: "cart", cart: 0, rating: 1 }), deps)).status).toBe(400);
+    expect((await handleFeedback(post({ request_id: build.id, target: "cart", cart: 0, rating: 1 }), deps)).status).toBe(400);
     expect((await handleFeedback(post("not json"), deps)).status).toBe(400);
   });
 
-  it("refuses a cart the build didn't have", async () => {
-    const { deps, log } = await setup();
-    const partial = request("build", { carts: [cart(0)] });
-    await log.record(partial);
-    expect((await handleFeedback(post({ request_id: partial.id, target: "cart", cart: 2, rating: 1 }), deps)).status).toBe(400);
+  it("refuses a cart the turn didn't have", async () => {
+    const { deps, turn } = await setup();
+    expect((await handleFeedback(post({ request_id: turn.id, target: "cart", cart: 2, rating: 1 }), deps)).status).toBe(400);
   });
 
   it("rate-limits votes per person", async () => {
-    const { deps, build } = await setup({ limiter: createMemoryLimiter({ perHour: 2, perDay: 100 }) });
-    for (let i = 0; i < 2; i++) await handleFeedback(post({ request_id: build.id, target: "cart", cart: 0, rating: 1 }), deps);
-    expect((await handleFeedback(post({ request_id: build.id, target: "cart", cart: 0, rating: 1 }), deps)).status).toBe(429);
+    const { deps, turn } = await setup({ limiter: createMemoryLimiter({ perHour: 2, perDay: 100 }) });
+    for (let i = 0; i < 2; i++) await handleFeedback(post({ request_id: turn.id, target: "cart", cart: 0, rating: 1 }), deps);
+    expect((await handleFeedback(post({ request_id: turn.id, target: "cart", cart: 0, rating: 1 }), deps)).status).toBe(429);
   });
 
   it("answers 503 if the log can't be reached", async () => {
-    const broken: RequestLog = { record: async () => {}, recentBuilds: async () => [], rate: async () => { throw new Error("db down"); } };
-    const { deps, build } = await setup({ requestLog: broken });
-    expect((await handleFeedback(post({ request_id: build.id, target: "cart", cart: 0, rating: 1 }), deps)).status).toBe(503);
+    const broken: RequestLog = { record: async () => {}, recentTurns: async () => [], rate: async () => { throw new Error("db down"); } };
+    const { deps, turn } = await setup({ requestLog: broken });
+    expect((await handleFeedback(post({ request_id: turn.id, target: "cart", cart: 0, rating: 1 }), deps)).status).toBe(503);
   });
 });

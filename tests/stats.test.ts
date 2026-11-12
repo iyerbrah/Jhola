@@ -57,17 +57,21 @@ describe.skipIf(!url)("stats queries (Postgres)", () => {
     ];
     const cached = [req("build", { cached: true, latency_ms: 10, cost_usd: 0, visitor: "v4" }), req("build", { cached: true, latency_ms: 12, cost_usd: 0, visitor: "v4" })];
     const failed = req("build", { status: "error", error_kind: "timeout", latency_ms: 50000, cost_usd: null, visitor: "v5", carts: [] });
+    // Chat turns in three chats: two ended by code, one held for confirmation, one that gave up.
+    const before = [{ role: "before" as const, position: 0, name: "Pasta night", reason: "", total: 400, items: [] }];
     const turns = [
-      req("agent", { latency_ms: 1500, visitor: "v1", steps: [{ kind: "model", name: "gpt-5.4-mini", ok: true, ms: 1400 }, { kind: "tool", name: "swap_item", ok: true, ms: 1 }] }),
-      req("agent", { latency_ms: 2500, visitor: "v6" }),
-      req("agent", { latency_ms: 3500, visitor: "v6" }),
-      req("agent", { latency_ms: 4500, visitor: "v7", status: "gave_up" }),
+      req("agent", { latency_ms: 1500, visitor: "v1", model_calls: 1, carts: before, meta: { chat: true, session_id: "s1", finished_by: "code" }, steps: [{ kind: "model", name: "gpt-5.4-mini", ok: true, ms: 1400 }, { kind: "tool", name: "set_needs", ok: true, ms: 1 }] }),
+      req("agent", { latency_ms: 2500, visitor: "v6", model_calls: 2, carts: before, meta: { chat: true, session_id: "s1", finished_by: "model" } }),
+      req("agent", { latency_ms: 3500, visitor: "v6", model_calls: 1, carts: before, status: "confirm", meta: { chat: true, session_id: "s2", finished_by: "code" } }),
+      req("agent", { latency_ms: 4500, visitor: "v7", model_calls: 6, status: "gave_up", meta: { chat: true, session_id: "s3" } }),
     ];
     const old = req("build", { latency_ms: 99000, visitor: "v8", created_at: new Date(Date.now() - 40 * 86400_000) });
     for (const r of [...fresh, ...cached, failed, ...turns, old]) await log.record(r);
-    await log.rate({ request_id: fresh[1].id, target: "cart", cart_position: 0, rating: 1, visitor: "v1" });
-    await log.rate({ request_id: fresh[2].id, target: "cart", cart_position: 0, rating: 1, visitor: "v2" });
-    await log.rate({ request_id: fresh[3].id, target: "cart", cart_position: 0, rating: -1, visitor: "v3" });
+    expect(await log.rate({ request_id: turns[0].id, target: "cart", cart_position: 0, rating: 1, visitor: "v1" })).toBe("saved");
+    expect(await log.rate({ request_id: turns[1].id, target: "cart", cart_position: 0, rating: 1, visitor: "v2" })).toBe("saved");
+    expect(await log.rate({ request_id: turns[2].id, target: "reply", cart_position: -1, rating: -1, visitor: "v3" })).toBe("saved");
+    // Old 3-cart builds can't be rated any more.
+    expect(await log.rate({ request_id: fresh[1].id, target: "cart", cart_position: 0, rating: 1, visitor: "v1" })).toBe("mismatch");
 
     stats = await queryStats(sql, 30);
   });
@@ -103,6 +107,15 @@ describe.skipIf(!url)("stats queries (Postgres)", () => {
     expect(t.cost_per_turn).toBeCloseTo(0.002, 6);
   });
 
+  it("computes the shopping agent's numbers over chat turns", () => {
+    const t = stats.totals;
+    expect(t.chats).toBe(3);
+    expect(t.model_calls_per_turn).toBeCloseTo((1 + 2 + 1 + 6) / 4, 6);
+    expect(t.code_finished_rate).toBeCloseTo(2 / 3, 6); // finished turns only: done or confirm
+    expect(t.confirm_rate).toBeCloseTo(1 / 4, 6);
+    expect(t.turn_cache_rate).toBe(0);
+  });
+
   it("buckets days in India time, with every day present, and counts each day's visitors", () => {
     expect(stats.daily).toHaveLength(30);
     const today = stats.daily.at(-1)!;
@@ -114,7 +127,7 @@ describe.skipIf(!url)("stats queries (Postgres)", () => {
   });
 
   it("totals feedback, and times each kind of successful model call", () => {
-    expect(stats.feedback).toEqual({ votes: 3, up: 2, on_carts: 3, on_replies: 0 });
+    expect(stats.feedback).toEqual({ votes: 3, up: 2, on_carts: 2, on_replies: 1 });
     expect(stats.steps.map((s) => [s.step, s.calls, s.avg_ms])).toEqual([
       ["plan", 2, 1000],
       ["cart", 1, 2000],

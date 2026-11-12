@@ -45,4 +45,3 @@ next-env.d.ts
 
 # PR eval check report (posted as a PR comment, not committed)
 /evals/ci-report.md
-/evals/ci-agent-report.md

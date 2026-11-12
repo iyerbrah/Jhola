@@ -1,8 +1,7 @@
 import { ImageResponse } from "next/og";
-import { EXAMPLE } from "@/lib/example";
 
 // The link-preview card (1200x630) shown when the site is shared on LinkedIn, Slack, WhatsApp or email.
-export const alt = "Jhola: type one line, get three ready-to-order carts";
+export const alt = "Jhola: a shopping agent that turns one line into one ready cart";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -13,8 +12,12 @@ const SOFT = "#b9c1e6";
 const MARIGOLD = "#f0a202";
 const LEAF = "#2f9a5c";
 
-// The same real answer as the home page's preview card, by first word ("Budget"), so three pills fit.
-const CARTS = EXAMPLE.carts.map((c, i) => ({ name: c.name.split(" ")[0], total: `₹${c.total}`, tier: [LEAF, MARIGOLD, CHALK][i] }));
+// The checklist every cart gets, as on the home page's preview card.
+const CHECKS = [
+  { text: "All in stock", tier: LEAF },
+  { text: "Under ₹600", tier: MARIGOLD },
+  { text: "No onions", tier: CHALK },
+];
 
 /** Fetch a Google Font as TTF for just the characters we draw. Returns null if offline. */
 async function googleFont(family: string, weight: number, text: string): Promise<ArrayBuffer | null> {
@@ -27,11 +30,11 @@ async function googleFont(family: string, weight: number, text: string): Promise
   }
 }
 
-const HEADLINE = "One line in. Three ready carts out.";
-const SUBLINE = `“${EXAMPLE.query}” → three priced carts from 2,700+ real Indian groceries and household essentials.`;
+const HEADLINE = "One line in. One ready cart out.";
+const SUBLINE = "“Pasta night for 4, vegetarian, around ₹600” → a cart from 4,100+ real Indian groceries, then change anything by chatting.";
 
 export default async function OpengraphImage() {
-  const body = CARTS.map((c) => c.name + c.total).join("") + SUBLINE + "0123456789,+";
+  const body = CHECKS.map((c) => c.text).join("") + SUBLINE + "✓0123456789,+";
   const [display, sans, sansBold] = await Promise.all([
     googleFont("Yatra+One", 400, "Jhola" + HEADLINE),
     googleFont("Mukta", 500, body),
@@ -73,9 +76,9 @@ export default async function OpengraphImage() {
         </div>
 
         <div style={{ display: "flex", gap: 20 }}>
-          {CARTS.map((c) => (
+          {CHECKS.map((c) => (
             <div
-              key={c.name}
+              key={c.text}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -88,8 +91,7 @@ export default async function OpengraphImage() {
               }}
             >
               <div style={{ width: 14, height: 14, borderRadius: 7, background: c.tier }} />
-              <span>{c.name}</span>
-              <span style={{ fontWeight: 700 }}>{money(c.total)}</span>
+              <span style={{ fontWeight: 700 }}>{money(c.text)}</span>
             </div>
           ))}
         </div>
