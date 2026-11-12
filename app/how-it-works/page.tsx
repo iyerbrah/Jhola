@@ -3,6 +3,8 @@ import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { REPO_URL, SiteFooter } from "@/components/SiteFooter";
+import { SignHeadline, SiteHeader } from "@/components/SiteHeader";
+import { button, H2, StatBoard } from "@/components/ui";
 import type { ChatSummary } from "@/evals/chatScore";
 import { catalog } from "@/lib/catalog";
 import { isFood } from "@/lib/schema";
@@ -25,7 +27,11 @@ function read<T>(file: string): T | null {
 function latestChatRun(): { summary: ChatSummary; date: string } | null {
   try {
     const dir = path.join(process.cwd(), "evals/chat/results");
-    const f = fs.readdirSync(dir).filter((x) => x.endsWith(".json") && !x.endsWith("-ci.json")).sort().at(-1);
+    const f = fs
+      .readdirSync(dir)
+      .filter((x) => x.endsWith(".json") && !x.endsWith("-ci.json"))
+      .sort()
+      .at(-1);
     if (!f) return null;
     const run = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
     return { summary: run.summary, date: f.slice(0, 10) };
@@ -89,22 +95,25 @@ const STACK = [
 const pct = (x: number | null | undefined) => (x == null ? "n/a" : `${Math.round(x * 100)}%`);
 
 function Steps({ steps, numbered = true }: { steps: { title: string; body: string }[]; numbered?: boolean }) {
+  const List = numbered ? "ol" : "ul";
   return (
-    <ol className="space-y-4">
+    <List className="divide-y divide-line border-y-2 border-sign">
       {steps.map((step, i) => (
-        <li key={step.title} className="flex gap-4 rounded-2xl border-2 border-line bg-paper p-5">
-          {numbered && (
-            <span className="num flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink font-display text-lg text-on-ink" aria-hidden>
-              {i + 1}
+        <li key={step.title} className="flex gap-4 py-5">
+          {numbered ? (
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-sign pt-1" aria-hidden>
+              <span className="painted num text-xl leading-none">{i + 1}</span>
             </span>
+          ) : (
+            <span className="mt-1.5 h-3 w-3 shrink-0 rotate-45 bg-turmeric" aria-hidden />
           )}
           <div>
-            <h3 className="text-lg font-bold text-ink">{step.title}</h3>
-            <p className="mt-1 text-ink-soft">{step.body}</p>
+            <h3 className="wide text-lg font-semibold text-ink">{step.title}</h3>
+            <p className="mt-1 leading-relaxed text-ink-soft">{step.body}</p>
           </div>
         </li>
       ))}
-    </ol>
+    </List>
   );
 }
 
@@ -151,75 +160,63 @@ export default function HowItWorks() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="hero-band">
-        <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-          <header className="flex items-center justify-between py-5">
-            <Link href="/" className="font-display text-3xl leading-none text-on-ink">
-              Jhola
-            </Link>
-            <Link href="/" className="text-sm font-semibold text-on-ink underline decoration-marigold decoration-2 underline-offset-4">
-              Build a cart
-            </Link>
-          </header>
-          <h1 className="rise mt-8 max-w-3xl font-display text-5xl leading-[1.05] text-on-ink sm:text-6xl">The model reasons. Code guarantees.</h1>
-          <p className="rise mt-5 max-w-2xl text-lg leading-relaxed text-on-ink-soft" style={{ "--i": 1 } as React.CSSProperties}>
+      <SiteHeader current="how">
+        <SignHeadline title="The model reasons. Code guarantees.">
+          <p>
             Jhola is a shopping agent you chat with. It turns one sentence into one ready cart from {catalog.length.toLocaleString("en-IN")} real Indian groceries and household essentials, then changes it as you ask. The model decides what you need; a solver in code decides which products, how many and what it costs, so every cart is in stock, in budget and true to your rules.
+            The model decides what you need; a solver in code decides which products, how many and what it costs, so every cart is in stock, in budget and true to your rules.
           </p>
-        </div>
-      </div>
+        </SignHeadline>
+      </SiteHeader>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6">
-        <section className="mt-12 grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+        <section className="mt-14 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-14">
           <div>
-            <h2 className="font-display text-3xl text-ink">One chat, one cart</h2>
-            <p className="mt-3 max-w-md text-ink-soft">
-              The agent plans, acts through tools, reads what really happened and acts again, until its own checks pass. Most turns take a single model call, because code ends a turn itself once the cart is right.
+            <h2 className={H2}>One chat, one cart</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-ink-soft">
+              The agent plans, acts through tools, reads what really happened and acts again, until its own checks pass. Most turns take a single model call, because code ends a turn itself once the
+              cart is right.
             </p>
           </div>
           <Steps steps={AGENT} />
         </section>
 
-        <section className="mt-16 grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+        <section className="mt-16 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-14">
           <div>
-            <h2 className="font-display text-3xl text-ink">What code guarantees</h2>
-            <p className="mt-3 max-w-md text-ink-soft">The parts that must never go wrong don&apos;t depend on the model getting them right.</p>
+            <h2 className={H2}>What code guarantees</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-ink-soft">The parts that must never go wrong don&apos;t depend on the model getting them right.</p>
           </div>
           <Steps steps={GUARANTEES} numbered={false} />
         </section>
 
         {metrics.length > 0 && (
           <section className="mt-16">
-            <h2 className="font-display text-3xl text-ink">Measured, not guessed</h2>
-            <p className="mt-3 max-w-2xl text-ink-soft">
-              About 80 scripted chats run against the real model and are checked in code, with no AI judge{run ? ` (latest run ${run.date})` : ""}. A pull request that changes answers runs the PR subset and fails if it breaks a rule or scores below the baseline.
+            <h2 className={H2}>Measured, not guessed</h2>
+            <p className="mt-3 max-w-2xl leading-relaxed text-ink-soft">
+              About 80 scripted chats run against the real model and are checked in code, with no AI judge{run ? ` (latest run ${run.date})` : ""}. A pull request that changes answers runs the PR
+              subset and fails if it breaks a rule or scores below the baseline.
             </p>
-            <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {metrics.map(([label, value, note]) => (
-                <div key={label} className="rounded-2xl border-2 border-ink bg-paper px-5 py-4 shadow-lift">
-                  <dt className="text-sm text-ink-soft">{label}</dt>
-                  <dd className="num mt-1 font-display text-3xl leading-tight text-ink">{value}</dd>
-                  <dd className="mt-1 text-sm text-ink-soft">{note}</dd>
-                </div>
-              ))}
-            </dl>
-            <Link href="/evals" className="mt-4 inline-block font-semibold text-ink underline decoration-marigold decoration-2 underline-offset-4">
+            <div className="mt-6">
+              <StatBoard items={metrics} />
+            </div>
+            <Link href="/evals" className={button("quiet", "mt-6 inline-block")}>
               See every result, and every failure
             </Link>
           </section>
         )}
 
-        <section className="mt-16 grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+        <section className="mt-16 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-14">
           <div>
-            <h2 className="font-display text-3xl text-ink">The data behind it</h2>
-            <p className="mt-3 max-w-md text-ink-soft">What the live site records, how it&apos;s checked, and where the products come from.</p>
+            <h2 className={H2}>The data behind it</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-ink-soft">What the live site records, how it&apos;s checked, and where the products come from.</p>
           </div>
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
             {DATA.map((d) => (
-              <li key={d.title} className="rounded-2xl border-2 border-line bg-paper p-5">
-                <h3 className="text-lg font-bold text-ink">{d.title}</h3>
-                <p className="mt-1 text-ink-soft">{d.body}</p>
+              <li key={d.title} className="border-t-[3px] border-sign pt-3">
+                <h3 className="wide text-lg font-semibold text-ink">{d.title}</h3>
+                <p className="mt-1 leading-relaxed text-ink-soft">{d.body}</p>
                 {d.link && (
-                  <Link href={d.link.href} className="mt-2 inline-block font-semibold text-ink underline decoration-marigold decoration-2 underline-offset-4">
+                  <Link href={d.link.href} className={button("quiet", "mt-2 inline-block")}>
                     {d.link.text}
                   </Link>
                 )}
@@ -228,29 +225,29 @@ export default function HowItWorks() {
           </ul>
         </section>
 
-        <section className="mt-16 grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+        <section className="mt-16 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-14">
           <div>
-            <h2 className="font-display text-3xl text-ink">Built with</h2>
-            <p className="mt-3 max-w-md text-ink-soft">
+            <h2 className={H2}>Built with</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-ink-soft">
               The full design and how each part is tested are in the{" "}
-              <a href={`${REPO_URL}#readme`} className="font-semibold text-ink underline underline-offset-4">
+              <a href={`${REPO_URL}#readme`} className={button("quiet")}>
                 README
               </a>
               .
             </p>
           </div>
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <dl className="divide-y divide-line border-y-2 border-sign">
             {STACK.map(([name, why]) => (
-              <li key={name} className="rounded-2xl bg-paper px-5 py-4">
-                <p className="font-bold text-ink">{name}</p>
-                <p className="text-sm text-ink-soft">{why}</p>
-              </li>
+              <div key={name} className="grid gap-1 py-3 sm:grid-cols-[14rem_1fr] sm:gap-4">
+                <dt className="font-semibold text-ink">{name}</dt>
+                <dd className="text-ink-soft">{why}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         </section>
 
         <div className="mt-14">
-          <Link href="/" className="inline-block rounded-xl border-2 border-ink bg-paper px-5 py-3 font-bold text-ink shadow-[5px_5px_0_var(--color-marigold)]">
+          <Link href="/" className={button("primary", "inline-block px-5 py-3")}>
             Try it: build a cart
           </Link>
         </div>

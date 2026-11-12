@@ -3,13 +3,13 @@ import type { DayStats } from "@/lib/stats";
 /**
  * Requests per day: chat turns and old 3-cart builds stacked, one bar per day. Plain SVG rendered on the
  * server, so it ships no JavaScript. Each day has a hover target (its <title> is the tooltip) and a
- * table with the same numbers sits below the chart (the marigold is under 3:1 contrast on its own).
- * Colors were checked with the dataviz validator: indigo #5a6fd6 and marigold #c98500 stay distinct
- * for every kind of color blindness (ΔE 28.5).
+ * table with the same numbers sits below the chart (the pale series is under 3:1 contrast on its own).
+ * The two series differ by lightness, not just hue (sign green #0a5a32 over a pale sage #a9c2b2),
+ * so they stay apart for every kind of colour blindness.
  */
 export const SERIES = [
-  { key: "builds", label: "Old 3-cart builds", color: "#5a6fd6" },
-  { key: "turns", label: "Chat turns", color: "#c98500" },
+  { key: "builds", label: "Old 3-cart builds", color: "#a9c2b2" },
+  { key: "turns", label: "Chat turns", color: "#0a5a32" },
 ] as const;
 
 const W = 720;
@@ -65,7 +65,7 @@ export function DailyChart({ daily }: { daily: DayStats[] }) {
             <g key={d.day} className="group">
               <title>{`${label(d.day)}: ${d.builds} old build${d.builds === 1 ? "" : "s"}, ${d.turns} chat turn${d.turns === 1 ? "" : "s"}, ${d.visitors} visitor${d.visitors === 1 ? "" : "s"}`}</title>
               {/* A hover target the full height of the plot, wider than the bar. */}
-              <rect x={PAD.left + i * slot} y={PAD.top} width={slot} height={plotH} fill="transparent" className="group-hover:fill-mist/60" />
+              <rect x={PAD.left + i * slot} y={PAD.top} width={slot} height={plotH} fill="transparent" className="group-hover:fill-sign-soft/70" />
               {d.builds > 0 && <rect x={x} y={bTop} width={barW} height={y(0) - bTop} rx={Math.min(4, barW / 2)} fill={SERIES[0].color} />}
               {d.turns > 0 && <rect x={x} y={tTop} width={barW} height={Math.max(1, bTop - tTop - (d.builds > 0 ? 2 : 0))} rx={Math.min(4, barW / 2)} fill={SERIES[1].color} />}
               {i % every === 0 && (
@@ -79,7 +79,7 @@ export function DailyChart({ daily }: { daily: DayStats[] }) {
         <line x1={PAD.left} x2={W - PAD.right} y1={y(0)} y2={y(0)} stroke="var(--color-ink-soft)" strokeWidth={1} />
       </svg>
       <details className="mt-3 text-sm">
-        <summary className="cursor-pointer font-semibold text-ink">Show as a table</summary>
+        <summary className="cursor-pointer font-semibold text-ink underline decoration-line decoration-2 underline-offset-4 hover:decoration-rani">Show as a table</summary>
         <table className="mt-2 w-full max-w-md text-left">
           <thead className="text-ink-soft">
             <tr>

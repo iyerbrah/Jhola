@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { rupees } from "@/components/format";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SignHeadline, SiteHeader } from "@/components/SiteHeader";
+import { PANEL, PriceTag } from "@/components/ui";
 import { catalog, catalogIndex } from "@/lib/catalog";
 import { solveSession } from "@/lib/chat/loop";
 import { defaultShareStore, SHARE_ID } from "@/lib/chat/share";
@@ -22,44 +23,56 @@ export default async function SharedCart({ params }: { params: Promise<{ id: str
   const { cart, checks, session: solved } = solveSession(session, { products: catalog, index: catalogIndex });
   const lines = cart.lines.filter((l) => l.counted);
 
+  const passed = checks.filter((c) => c.status === "pass");
+
   return (
-    <div className="mx-auto max-w-2xl px-4 sm:px-6">
-      <header className="flex items-center justify-between py-5">
-        <Link href="/" className="font-display text-3xl leading-none text-ink">
-          Jhola
-        </Link>
-      </header>
-      <main>
-        <p className="text-ink-soft">A cart shared from Jhola</p>
-        <h1 className="font-display text-4xl leading-tight">{solved.brief.summary || "A shared cart"}</h1>
-        <p className="mt-2 text-sm text-leaf">{checks.filter((c) => c.status === "pass").map((c) => `✓ ${c.label}`).join(" · ")}</p>
-        <article className="relative mt-8 rounded-3xl border-2 border-t-[6px] border-ink bg-paper p-5 shadow-lift" style={{ "--tier": "var(--color-marigold)", borderTopColor: "var(--color-marigold)" } as React.CSSProperties}>
-          <span className="jhola-handle" aria-hidden />
-          <ul className="divide-y divide-line">
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader>
+        <SignHeadline title={solved.brief.summary || "A shared cart"}>
+          <p>A cart shared from Jhola, solved again just now against today&apos;s stock and prices.</p>
+        </SignHeadline>
+      </SiteHeader>
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 pt-10 sm:px-6">
+        <article aria-label="The shared cart" className={`${PANEL} overflow-hidden`}>
+          <div className="flex items-center justify-between gap-3 bg-sign px-5 py-3.5 shadow-[0_4px_0_var(--color-turmeric)]">
+            <h2 className="font-sign text-2xl leading-tight text-on-sign">The cart</h2>
+            <PriceTag amount={cart.total} label="Total" />
+          </div>
+          {passed.length > 0 && (
+            <ul aria-label="Checks" className="mx-5 mt-5 flex flex-wrap gap-x-3.5 gap-y-0.5 rounded-md bg-sign-soft px-3 py-2 text-sm text-sign">
+              {passed.map((c) => (
+                <li key={c.id}>
+                  <span aria-hidden>✓ </span>
+                  {c.label}
+                </li>
+              ))}
+            </ul>
+          )}
+          <ul className="divide-y divide-line px-5">
             {lines.map((l) => (
-              <li key={`${l.need_id}:${l.product.id}`} className="flex justify-between gap-3 py-2.5">
+              <li key={`${l.need_id}:${l.product.id}`} className="flex justify-between gap-3 py-3">
                 <span className="min-w-0">
                   <span className="block font-semibold">{l.product.name}</span>
                   <span className="block text-sm text-ink-soft">
                     {l.packs} × {l.product.brand}, {l.product.pack_label}
-                    {l.why ? <span className="text-leaf"> · {l.why}</span> : null}
                   </span>
+                  {l.why ? <span className="mt-1 inline-block rounded-full bg-sign-soft px-2 py-0.5 text-xs font-semibold text-sign">{l.why}</span> : null}
                 </span>
-                <span className="num shrink-0 font-semibold">{rupees(l.line_total)}</span>
+                <span className="num shrink-0 font-bold">{rupees(l.line_total)}</span>
               </li>
             ))}
           </ul>
-          <div className="mt-3 flex items-baseline justify-between border-t-2 border-ink pt-3">
+          <div className="flex items-baseline justify-between border-t-2 border-sign px-5 py-4">
             <span className="font-semibold">
               Total for {lines.length} {lines.length === 1 ? "item" : "items"}
             </span>
-            <span className="num font-display text-3xl text-leaf">{rupees(cart.total)}</span>
+            <span className="num font-sign text-[2rem] leading-none">{rupees(cart.total)}</span>
           </div>
         </article>
         <OpenInJhola session={solved} />
         <p className="mt-3 text-sm text-ink-soft">Prices and stock are as of now, so they can differ from when it was shared.</p>
+        <SiteFooter />
       </main>
-      <SiteFooter />
     </div>
   );
 }

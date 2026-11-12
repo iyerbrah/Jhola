@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Jhola: a cloth bag in indigo with a marigold handle -->
-  <rect width="64" height="64" rx="14" fill="#1f2a5a"/>
-  <path d="M22 26 V20 a10 10 0 0 1 20 0 V26" fill="none" stroke="#f0a202" stroke-width="5" stroke-linecap="round"/>
-  <path d="M14 26 H50 L46 52 a4 4 0 0 1 -4 3.5 H22 a4 4 0 0 1 -4 -3.5 Z" fill="#f6f7f4"/>
-  <path d="M24 38 H40" stroke="#1f2a5a" stroke-width="3" stroke-linecap="round"/>
+  <!-- Jhola: a turmeric cloth bag with a rani-pink handle, on signboard green -->
+  <rect width="64" height="64" rx="12" fill="#0a5a32"/>
+  <path d="M23 27 V21 a9 9 0 0 1 18 0 V27" fill="none" stroke="#ec4d86" stroke-width="5" stroke-linecap="round"/>
+  <path d="M14 26 H50 L46.5 51 a4.5 4.5 0 0 1 -4.4 3.8 H21.9 a4.5 4.5 0 0 1 -4.4 -3.8 Z" fill="#f5b81c"/>
+  <path d="M24 38 H40" stroke="#0a5a32" stroke-width="3" stroke-linecap="round"/>
 </svg>

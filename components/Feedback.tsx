@@ -53,8 +53,8 @@ function Thumb({ up, pressed, onClick }: { up: boolean; pressed: boolean; onClic
       onClick={onClick}
       aria-pressed={pressed}
       aria-label={up ? "Yes, good" : "No, not good"}
-      className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${
-        pressed ? "border-ink bg-ink text-on-ink" : "border-line bg-paper text-ink-soft hover:border-ink hover:text-ink"
+      className={`flex h-8 w-8 items-center justify-center rounded-md border transition-colors ${
+        pressed ? "border-sign bg-sign text-on-sign" : "border-line bg-paper text-ink-soft hover:border-sign hover:text-sign"
       }`}
     >
       <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden className={up ? "" : "rotate-180"}>

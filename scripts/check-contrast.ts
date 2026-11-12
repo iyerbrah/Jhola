@@ -26,37 +26,30 @@ const ratio = (a: string, b: string) => {
   const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x);
   return (hi + 0.05) / (lo + 0.05);
 };
-/** The colour you get when `top` sits over `base` at the given opacity. */
-const mix = (base: string, top: string, alpha: number) =>
-  "#" + rgb(base).map((b, i) => Math.round(b * (1 - alpha) + rgb(top)[i] * alpha).toString(16).padStart(2, "0")).join("");
-
-// The hero's brightest spot: the marigold glow (38%) over indigo.
-const glow = mix(color("ink"), color("marigold"), 0.38);
-
 // [text, background, where it's used, large text?]
 const PAIRS: [string, string, string, boolean?][] = [
-  [color("ink"), color("chalk"), "body text on the page"],
-  [color("ink"), color("paper"), "text on cards"],
-  [color("ink-soft"), color("chalk"), "secondary text on the page"],
-  [color("ink-soft"), color("paper"), "secondary text on cards"],
-  [color("on-ink"), color("ink"), "hero text, dark buttons"],
-  [color("on-ink"), color("ink-deep"), "hero text, darkest corner"],
-  [color("on-ink-soft"), color("ink"), "hero subcopy"],
-  [color("on-ink-soft"), color("ink-deep"), "hero subcopy, darkest corner"],
-  [color("on-ink"), glow, "hero headline over the marigold glow", true],
-  [color("ink"), color("marigold"), "Place order button"],
-  [color("leaf"), color("paper"), "cart totals on cards"],
-  [color("leaf"), color("leaf-soft"), "OK badge (history)"],
-  [color("marigold-text"), color("marigold-soft"), "Partial badge (history)"],
-  [color("ink-soft"), color("mist"), "No carts badge (history)"],
-  [color("chilli"), color("chilli-soft"), "error box"],
+  [color("ink"), color("wall"), "body text on the page"],
+  [color("ink"), color("paper"), "text on the cart, sheets and tables"],
+  [color("ink-soft"), color("wall"), "secondary text on the page"],
+  [color("ink-soft"), color("paper"), "secondary text in the cart"],
+  [color("on-sign"), color("sign"), "nav, sheet titles, green buttons, your messages"],
+  [color("on-sign"), color("sign-deep"), "green buttons on hover"],
+  [color("on-sign-soft"), color("sign"), "sign subcopy, nav links"],
+  [color("turmeric"), color("sign"), "painted lettering on the sign", true],
+  [color("ink"), color("turmeric"), "price tags, checkout button"],
+  [color("ink"), color("turmeric-deep"), "checkout button on hover"],
+  [color("sign"), color("paper"), "green text and secondary buttons"],
+  [color("sign"), color("sign-soft"), "why tags, checks, diet chip"],
+  [color("sign"), color("wall"), "suggestion ticks' notes"],
+  [color("turmeric-text"), color("turmeric-soft"), "I understood, stand-ins, the list being written"],
+  [color("turmeric-text"), color("paper"), "warnings on a line"],
+  [color("rani"), color("paper"), "focus ring, model steps in the trace"],
+  [color("rani"), color("rani-soft"), "Your pick tag"],
+  [color("ink"), color("rani-soft"), "a just-changed cart line"],
+  [color("ink-soft"), color("rani-soft"), "a just-changed cart line, second row"],
+  [color("chilli"), color("paper"), "errors and removals"],
+  [color("chilli"), color("chilli-soft"), "flagged listing, error box"],
   [color("ink"), color("chilli-soft"), "error box text"],
-  [color("ink"), color("mist"), "your message in the cart chat"],
-  [color("leaf"), color("chalk"), "totals in the chat's change list"],
-  [color("ink-soft"), color("chalk"), "requirement changes in the change list"],
-  [color("ink"), color("marigold-soft"), "a just-changed cart line"],
-  [color("ink-soft"), color("marigold-soft"), "a just-changed cart line, second row"],
-  [color("leaf"), color("marigold-soft"), "a just-changed cart line, its note"],
 ];
 
 let failed = 0;

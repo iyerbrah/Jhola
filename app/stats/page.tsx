@@ -3,6 +3,8 @@ import Link from "next/link";
 import { DailyChart } from "@/components/DailyChart";
 import { usd } from "@/components/format";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SignHeadline, SiteHeader } from "@/components/SiteHeader";
+import { button, H2, Notice, StatBoard } from "@/components/ui";
 import { loadStats, type Stats } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
@@ -26,36 +28,34 @@ export default async function StatsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6">
-      <header className="flex items-center justify-between py-5">
-        <Link href="/" className="font-display text-3xl leading-none text-ink">
-          Jhola
-        </Link>
-        <Link href="/" className="text-sm font-semibold underline underline-offset-4">
-          Build a cart
-        </Link>
-      </header>
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader current="stats">
+        <SignHeadline title="How the live site is doing">
+          <p>
+            The last 30 days of jhola.ramiyer.tech, straight from its request log in Postgres, updated every minute. Only totals are shown: no requests, and no addresses (visitors are counted with a
+            daily code that can&apos;t be traced back).
+          </p>
+        </SignHeadline>
+      </SiteHeader>
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6">
+        {failed ? (
+          <Notice>The request log can&apos;t be reached right now. The site itself keeps working; check back in a minute.</Notice>
+        ) : !stats ? (
+          <Notice>These numbers come from the live site&apos;s database, which isn&apos;t connected here.</Notice>
+        ) : stats.totals.requests === 0 ? (
+          <Notice>
+            No requests yet in the last 30 days.{" "}
+            <Link href="/" className={button("quiet")}>
+              Build a cart
+            </Link>{" "}
+            and they&apos;ll show up here.
+          </Notice>
+        ) : (
+          <Body stats={stats} />
+        )}
 
-      <h1 className="font-display text-4xl text-ink sm:text-5xl">How the live site is doing</h1>
-      <p className="mt-2 max-w-2xl text-lg text-ink-soft">
-        The last 30 days of jhola.ramiyer.tech, straight from its request log in Postgres, updated every minute. Only totals are shown: no requests,
-        and no addresses (visitors are counted with a daily code that can&apos;t be traced back).
-      </p>
-
-      {failed ? (
-        <Notice>The request log can&apos;t be reached right now. The site itself keeps working; check back in a minute.</Notice>
-      ) : !stats ? (
-        <Notice>These numbers come from the live site&apos;s database, which isn&apos;t connected here.</Notice>
-      ) : stats.totals.requests === 0 ? (
-        <Notice>
-          No requests yet in the last 30 days. <Link href="/" className="font-semibold underline underline-offset-4">Build a cart</Link> and
-          they&apos;ll show up here.
-        </Notice>
-      ) : (
-        <Body stats={stats} />
-      )}
-
-      <SiteFooter />
+        <SiteFooter />
+      </main>
     </div>
   );
 }
@@ -65,17 +65,22 @@ function Body({ stats }: { stats: Stats }) {
   const f = stats.feedback;
   return (
     <>
-      <dl className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-        <Tile label="Chats" value={String(t.chats)} note={`${t.turns} turns`} />
-        <Tile label="Visitors a day" value={t.visitors_per_day.toFixed(1)} note="on days with visits" />
-        <Tile label="Turn, median" value={secs(t.turn_p50_ms)} note={`p95 ${secs(t.turn_p95_ms)}`} />
-        <Tile label="Model calls a turn" value={t.model_calls_per_turn == null ? "–" : t.model_calls_per_turn.toFixed(1)} note="on average" />
-        <Tile label="Ended by code" value={pct(t.code_finished_rate)} note="no model call to finish" />
-        <Tile label="Thumbs up" value={f.votes ? pct(f.up / f.votes) : "–"} note={`${f.votes} vote${f.votes === 1 ? "" : "s"}`} />
-      </dl>
+      <div className="mt-10">
+        <StatBoard
+          cols={6}
+          items={[
+            ["Chats", String(t.chats), `${t.turns} turns`],
+            ["Visitors a day", t.visitors_per_day.toFixed(1), "on days with visits"],
+            ["Turn, median", secs(t.turn_p50_ms), `p95 ${secs(t.turn_p95_ms)}`],
+            ["Model calls a turn", t.model_calls_per_turn == null ? "–" : t.model_calls_per_turn.toFixed(1), "on average"],
+            ["Ended by code", pct(t.code_finished_rate), "no model call to finish"],
+            ["Thumbs up", f.votes ? pct(f.up / f.votes) : "–", `${f.votes} vote${f.votes === 1 ? "" : "s"}`],
+          ]}
+        />
+      </div>
 
-      <section className="mt-10 rounded-3xl border-2 border-ink bg-paper p-5 sm:p-6" aria-labelledby="per-day">
-        <h2 id="per-day" className="font-display text-2xl">
+      <section className="mt-10 rounded-md border-2 border-sign bg-paper p-5 sm:p-6" aria-labelledby="per-day">
+        <h2 id="per-day" className={H2}>
           Requests per day
         </h2>
         <p className="mt-1 text-sm text-ink-soft">India time. Hover a day for its numbers.</p>
@@ -85,8 +90,8 @@ function Body({ stats }: { stats: Stats }) {
       </section>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <section className="rounded-3xl border-2 border-line bg-paper p-5 sm:p-6" aria-labelledby="reliability">
-          <h2 id="reliability" className="font-display text-2xl">
+        <section className="rounded-md border-2 border-line bg-paper p-5 sm:p-6" aria-labelledby="reliability">
+          <h2 id="reliability" className={H2}>
             Reliability
           </h2>
           <dl className="mt-3 divide-y divide-line">
@@ -98,8 +103,8 @@ function Body({ stats }: { stats: Stats }) {
           </dl>
         </section>
 
-        <section className="rounded-3xl border-2 border-line bg-paper p-5 sm:p-6" aria-labelledby="cost">
-          <h2 id="cost" className="font-display text-2xl">
+        <section className="rounded-md border-2 border-line bg-paper p-5 sm:p-6" aria-labelledby="cost">
+          <h2 id="cost" className={H2}>
             Cost
           </h2>
           <dl className="mt-3 divide-y divide-line">
@@ -112,8 +117,8 @@ function Body({ stats }: { stats: Stats }) {
       </div>
 
       {stats.steps.length > 0 && (
-        <section className="mt-6 rounded-3xl border-2 border-line bg-paper p-5 sm:p-6" aria-labelledby="steps">
-          <h2 id="steps" className="font-display text-2xl">
+        <section className="mt-6 rounded-md border-2 border-line bg-paper p-5 sm:p-6" aria-labelledby="steps">
+          <h2 id="steps" className={H2}>
             Where the time goes
           </h2>
           <p className="mt-1 text-sm text-ink-soft">Each model call, from the request log&apos;s traces. A clean turn makes one: code checks the cart and writes the reply.</p>
@@ -143,16 +148,6 @@ function Body({ stats }: { stats: Stats }) {
   );
 }
 
-function Tile({ label, value, note }: { label: string; value: string; note: string }) {
-  return (
-    <div className="rounded-2xl border-2 border-ink bg-paper px-4 py-3">
-      <dt className="text-sm text-ink-soft">{label}</dt>
-      <dd className="num font-display text-2xl leading-tight text-ink">{value}</dd>
-      <dd className="text-xs text-ink-soft">{note}</dd>
-    </div>
-  );
-}
-
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-2">
@@ -160,8 +155,4 @@ function Row({ label, value }: { label: string; value: string }) {
       <dd className="num font-semibold text-ink">{value}</dd>
     </div>
   );
-}
-
-function Notice({ children }: { children: React.ReactNode }) {
-  return <p className="mt-8 max-w-2xl rounded-2xl border-l-4 border-marigold bg-paper px-4 py-3 text-lg">{children}</p>;
 }

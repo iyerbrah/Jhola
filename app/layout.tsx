@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Mukta, Yatra_One } from "next/font/google";
+import { Anek_Latin, Bakbak_One } from "next/font/google";
 import "./globals.css";
 
-const yatra = Yatra_One({ variable: "--font-yatra", weight: "400", subsets: ["latin"] });
-const mukta = Mukta({ variable: "--font-mukta", weight: ["400", "500", "600", "700"], subsets: ["latin"] });
+// Bakbak One: an Indian hand-lettered poster face, for the sign. Anek Latin (variable, with a width axis) for everything else.
+const bakbak = Bakbak_One({ variable: "--font-bakbak", weight: "400", subsets: ["latin", "latin-ext"] });
+const anek = Anek_Latin({ variable: "--font-anek", subsets: ["latin", "latin-ext"], axes: ["wdth"] });
 
 // The public address, used for link previews (og:url, og:image). Read at build time: on the server
 // it comes from /opt/jhola/.env.production.local (https://jhola.ramiyer.tech).
@@ -23,13 +24,13 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#1f2a5a",
+  themeColor: "#0a5a32",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     // Font variables go on <html> so the theme tokens (defined on :root) can see them.
-    <html lang="en" className={`${yatra.variable} ${mukta.variable}`}>
+    <html lang="en" className={`${bakbak.variable} ${anek.variable}`}>
       <body>{children}</body>
     </html>
   );
