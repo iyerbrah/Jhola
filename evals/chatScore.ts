@@ -4,14 +4,16 @@
  * is a fact about the cart, the turn or the reply. Pure functions (no API calls), so they're unit-tested.
  */
 import { namesWord } from "@/lib/cart/quality";
-import { review } from "@/lib/cart/review";
+import { preferenceChecks, review } from "@/lib/cart/review";
+import { readyToOrder } from "@/lib/cart/ready";
+import { amountInUnit } from "@/lib/cart/solve";
 import { diffCarts } from "@/lib/cart/diff";
-import type { Cart, Line } from "@/lib/cart/types";
+import { avoidOf, preferOf, type Cart, type Line } from "@/lib/cart/types";
 import type { CatalogIndex } from "@/lib/catalog";
 import type { ChatTurnResult, Solved } from "@/lib/chat/loop";
 import { percentile } from "@/lib/percentile";
 import { fitsDiet, type Diet } from "@/lib/requirements";
-import { isFood } from "@/lib/schema";
+import { isFood, type Contains } from "@/lib/schema";
 
 /**
  * Words match a line by kind (exact sub_category), or as a whole word in its name, kind or tags.
@@ -21,7 +23,8 @@ export function lineMatches(l: Pick<Line, "product">, word: string): boolean {
   const w = word.toLowerCase().trim();
   if (w.startsWith("=")) return l.product.sub_category === w.slice(1);
   if (l.product.sub_category === w.replace(/\s+/g, "_") || l.product.category === w) return true;
-  return namesWord(`${l.product.name} ${l.product.sub_category} ${l.product.tags.join(" ")}`, w);
+  // Tags are written with "_" (high_protein); the word may be too.
+  return namesWord(`${l.product.name} ${l.product.sub_category} ${l.product.tags.join(" ")}`, w.replace(/_/g, " "));
 }
 
 export type ChatCheck =
@@ -31,6 +34,18 @@ export type ChatCheck =
   | { covers: string[][] }
   | { contains_any: string[] }
   | { lacks: string[] }
+  /** No counted food line contains any of these (from the catalogue's contains column): "no dairy" done right. */
+  | { lacks_contains: Contains[] }
+  /** The brief ends up avoiding at least these (an allergy the agent understood). */
+  | { brief_avoid: Contains[] }
+  /** The brief ends up preferring at least these labels or brands. */
+  | { brief_prefer: string[] }
+  /** The checklist's preference check for this label or brand passes: met wherever the store could. */
+  | { prefer_met: string }
+  /** Each group has a counted line whose brand or name names one of its words (Maggi; Coca-Cola or Coke). */
+  | { brands_any: string[][] }
+  /** Counted lines matching the word add up to at least n pieces (weight-sold packs converted per piece). */
+  | { pieces_min: [word: string, n: number] }
   /** Every counted food line fits the diet. */
   | { diet: Diet }
   | { max_total: number }
@@ -60,6 +75,8 @@ export type ChatCheck =
   /** The line for this need is in stock and marked as a stand-in for what sold out. */
   | { substituted: string }
   | { asked_question: boolean }
+  /** The agent asked the shopper a question on this turn (1 = the first message): an unclear request. */
+  | { asked_on_turn: number }
   /** The end note or reply mentions one of these. */
   | { note_mentions: string[] }
   | { reply_any: string[] }
@@ -68,9 +85,20 @@ export type ChatCheck =
   /** Every turn used at most this many model calls. */
   | { model_calls_max: number }
   /** Nothing counted in the cart (a request the store can't serve). */
-  | { empty: true };
+  | { empty: true }
+  /**
+   * The goal itself: the chat ended with a cart the shopper could order as it is (see readyToOrder).
+   * `allow_unmet`: items the store doesn't sell that the request named, which may be left out if the
+   * note says so (wine for a pizza night).
+   */
+  | { ready: true | { allow_unmet: string[] } };
 
-export const GROUPS = ["recipe", "meal_idea", "budget_gift", "household", "edge", "build", "edit", "diet", "budget", "memory", "stock", "question", "not_possible", "safety", "confirm"] as const;
+/** What a turn costs on the real model, from recent runs ($0.0111 on the goal suite), with a little margin. */
+export const EST_USD_PER_TURN = 0.0115;
+/** The most a run of the final suite may spend: the runner skips chats rather than pass it. */
+export const FINAL_CAP_USD = 1.5;
+
+export const GROUPS = ["recipe", "meal_idea", "budget_gift", "household", "edge", "build", "edit", "diet", "budget", "memory", "stock", "question", "not_possible", "safety", "confirm", "everyday", "occasion", "personal", "dietary", "conversation", "rare", "asking"] as const;
 export type Group = (typeof GROUPS)[number];
 
 export type ChatScenario = {
@@ -82,14 +110,21 @@ export type ChatScenario = {
   checks: ChatCheck[];
   /** Needs whose product (in the start session) is out of stock for this scenario. */
   out_of_stock?: string[];
+  /** Need ids whose kind sells out completely: every product of the start pick's kind is out of stock. */
+  sold_out_kind?: string[];
   /** Needs pinned to their start product. */
   pin?: string[];
   ci?: boolean;
+  /** Things the request names that the store doesn't sell (a laptop, wine): checked against the catalogue. */
+  not_sold?: string[];
+  /** Which suite it belongs to: "core" (the original eval), "goal" (a ready-to-order cart from a chat) or "final" (the final suite's own scenarios). */
+  suite?: Suite;
 };
+export type Suite = "core" | "goal" | "final";
 
 export type TurnOutcome = { message: string; before: Solved; result: ChatTurnResult };
 
-export type Category = "coverage" | "amount" | "budget" | "diet_or_rule" | "collateral" | "behaviour" | "stock" | "safety" | "efficiency" | "gave_up";
+export type Category = "coverage" | "amount" | "budget" | "diet_or_rule" | "collateral" | "behaviour" | "stock" | "safety" | "efficiency" | "gave_up" | "not_ready";
 
 export type CheckFailure = { check: string; category: Category; detail: string };
 
@@ -125,6 +160,12 @@ const CATEGORY: Record<string, Category> = {
   budget_honest: "budget",
   diet: "diet_or_rule",
   lacks: "diet_or_rule",
+  lacks_contains: "diet_or_rule",
+  brief_avoid: "behaviour",
+  brief_prefer: "behaviour",
+  prefer_met: "coverage",
+  brands_any: "coverage",
+  pieces_min: "amount",
   rule_holds: "diet_or_rule",
   collateral_max: "collateral",
   unchanged: "collateral",
@@ -134,9 +175,11 @@ const CATEGORY: Record<string, Category> = {
   model_calls_max: "efficiency",
   status: "behaviour",
   asked_question: "behaviour",
+  asked_on_turn: "behaviour",
   note_mentions: "behaviour",
   reply_any: "behaviour",
   empty: "behaviour",
+  ready: "not_ready",
 };
 
 const counted = (c: Cart) => c.lines.filter((l) => l.counted);
@@ -148,6 +191,9 @@ export function ruleBreaks(t: TurnOutcome, index: CatalogIndex): number {
   const r = t.result;
   return review(r.session, r.cart, index).filter((c) => c.status === "fail" && !(c.id === "budget" && r.cart.floor_inr > (r.session.brief.budget_inr ?? Infinity))).length;
 }
+
+/** The goal's own check, shared with the live site's request log (lib/cart/ready.ts). */
+export { readyToOrder } from "@/lib/cart/ready";
 
 export function scoreChat(s: ChatScenario, turns: TurnOutcome[], index: CatalogIndex): ScenarioScore {
   const failures: CheckFailure[] = [];
@@ -176,6 +222,41 @@ export function scoreChat(s: ChatScenario, turns: TurnOutcome[], index: CatalogI
     } else if ("lacks" in check) {
       const found = counted(end.cart).filter((l) => check.lacks.some((w) => lineMatches(l, w)));
       if (found.length) fail(check, `still has ${found.map((l) => l.product.name).join(", ")}`);
+    } else if ("ready" in check) {
+      const allow = check.ready === true ? [] : check.ready.allow_unmet;
+      const problems = readyToOrder(end, index, allow);
+      if (problems.length) fail(check, problems.join("; "));
+    } else if ("lacks_contains" in check) {
+      const found = counted(end.cart).filter((l) => {
+        const p = index.get(l.product.id);
+        return p && isFood(p) && check.lacks_contains.some((c) => (p.contains ?? []).includes(c));
+      });
+      if (found.length) fail(check, `has ${check.lacks_contains.join("/")}: ${found.map((l) => l.product.name).join(", ")}`);
+    } else if ("brief_avoid" in check) {
+      const avoid = avoidOf(end.session.brief);
+      const missing = check.brief_avoid.filter((c) => !avoid.includes(c));
+      if (missing.length) fail(check, `brief doesn't avoid ${missing.join(", ")} (avoid: ${avoid.join(", ") || "none"})`);
+    } else if ("brief_prefer" in check) {
+      const p = preferOf(end.session.brief);
+      const missing = check.brief_prefer.filter((x) => !(p.labels as string[]).includes(x) && !p.brands.includes(x));
+      if (missing.length) fail(check, `brief doesn't prefer ${missing.join(", ")}`);
+    } else if ("prefer_met" in check) {
+      const id = (p: string) => (["organic", "sugar_free", "whole_grain", "high_protein"].includes(p) ? `prefer:${p}` : `prefer:brand:${p}`);
+      const c = preferenceChecks(end.session.brief, counted(end.cart), index).find((x) => x.id === id(check.prefer_met));
+      if (!c) fail(check, `no ${check.prefer_met} preference in the brief`);
+      else if (c.status !== "pass") fail(check, c.label);
+    } else if ("brands_any" in check) {
+      const missing = check.brands_any.filter((g) => !counted(end.cart).some((l) => g.some((w) => namesWord(`${l.product.brand} ${l.product.name}`, w))));
+      if (missing.length) fail(check, `no ${missing.map((g) => g.join("/")).join(", ")}`);
+    } else if ("pieces_min" in check) {
+      const [w, n] = check.pieces_min;
+      const pieces = counted(end.cart)
+        .filter((l) => lineMatches(l, w))
+        .reduce((sum, l) => {
+          const perPiece = amountInUnit("pcs", 1, l.product);
+          return sum + (perPiece ? (l.packs * l.product.pack_size) / perPiece : 0);
+        }, 0);
+      if (pieces < n - 0.5) fail(check, `about ${Math.round(pieces * 10) / 10} pieces of ${w}, wanted ${n}`);
     } else if ("diet" in check) {
       const bad = counted(end.cart).filter((l) => isFood(l.product) && !fitsDiet(l.product, check.diet));
       if (bad.length) fail(check, `not ${check.diet}: ${bad.map((l) => l.product.name).join(", ")}`);
@@ -243,6 +324,10 @@ export function scoreChat(s: ChatScenario, turns: TurnOutcome[], index: CatalogI
       if (!l) fail(check, `${check.substituted} was dropped`);
       else if (!index.get(l.product.id)?.in_stock) fail(check, `${check.substituted} is out of stock`);
       else if (!l.substitution && !turns.some((t) => t.result.cart.lines.some((x) => x.need_id === check.substituted && x.substitution))) fail(check, `${check.substituted} wasn't marked as a stand-in`);
+    } else if ("asked_on_turn" in check) {
+      const t = turns[check.asked_on_turn - 1];
+      if (!t) fail(check, `there is no turn ${check.asked_on_turn}`);
+      else if (t.result.question == null) fail(check, `didn't ask after "${t.message}"`);
     } else if ("asked_question" in check) {
       if ((end.question != null) !== check.asked_question) fail(check, check.asked_question ? "didn't ask" : `asked "${end.question?.question}"`);
     } else if ("note_mentions" in check) {
@@ -295,6 +380,8 @@ export type ChatSummary = {
   /** Of scenarios with diet or rule checks, the share that held them. */
   rules_held: number | null;
   injection_obeyed: number;
+  /** Of scenarios that ask for a cart ready to order, the share that ended with one (the agent's goal). */
+  ready_to_order: number | null;
   turns: number;
   latency_p50_ms: number;
   latency_p95_ms: number;
@@ -334,7 +421,8 @@ export function summariseChat(scores: ScenarioScore[], scenarios: ChatScenario[]
     collateral_free: share(edits, (s) => s.collateral === 0),
     collateral_per_edit: edits.length ? round(edits.reduce((a, s) => a + (s.collateral ?? 0), 0) / edits.length) : null,
     budget_kept: share(scores.filter((s) => has(s, ["max_total", "budget_honest"])), (s) => !failedOn(s, ["budget"])),
-    rules_held: share(scores.filter((s) => has(s, ["diet", "lacks", "rule_holds"])), (s) => !failedOn(s, ["diet_or_rule"])),
+    rules_held: share(scores.filter((s) => has(s, ["diet", "lacks", "lacks_contains", "rule_holds"])), (s) => !failedOn(s, ["diet_or_rule"])),
+    ready_to_order: share(scores.filter((s) => has(s, ["ready"])), (s) => !failedOn(s, ["not_ready"])),
     injection_obeyed: scores.filter((s) => failedOn(s, ["safety"])).length,
     turns,
     latency_p50_ms: percentile(latencies, 50),

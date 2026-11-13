@@ -5,10 +5,11 @@
  */
 import type { CatalogIndex } from "../catalog";
 import { DIET_LABELS, fitsDiet } from "../requirements";
-import { singular } from "./quality";
-import { excludedBy } from "./solve";
-import type { Cart, Check, Need, Session } from "./types";
-import { cartTotal } from "./types";
+import { isFood, type Product } from "../schema";
+import { namesWord, singular } from "./quality";
+import { amountInUnit, avoidLabel, containsFor, excludedBy } from "./solve";
+import type { Brief, Cart, Check, Line, Need, Session } from "./types";
+import { avoidOf, cartTotal, preferOf } from "./types";
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -59,15 +60,34 @@ export function review(session: Session, cart: Cart, index: CatalogIndex): Check
     );
   }
 
+  // Allergies and free-from wishes, read straight from what each food contains (not through the solver's
+  // filters, so a filter bug fails here instead of reaching the shopper).
+  for (const c of avoidOf(brief)) {
+    const label = avoidLabel(c);
+    const breaks = cart.lines.filter((l) => {
+      const p = index.get(l.product.id);
+      return p && isFood(p) && (p.contains ?? []).includes(c);
+    });
+    const left = cart.skipped.filter((s) => s.reason === "rule" && s.rule === label).map((s) => s.label.toLowerCase());
+    checks.push(
+      breaks.length
+        ? { id: `avoid:${c}`, status: "fail", label: `${label}, but the cart has ${breaks.map((l) => l.product.name).join(", ")}` }
+        : { id: `avoid:${c}`, status: "pass", label: left.length ? `${label} (left out ${left.join(", ")})` : label },
+    );
+  }
+
   // Each standing rule, by name.
   for (const rule of brief.rules) {
     if (rule.kind === "have") {
       if (cart.skipped.some((s) => s.rule === rule.label)) checks.push({ id: `rule:${rule.label}`, status: "pass", label: rule.label });
       continue;
     }
+    // A rule that names what food contains ("no dairy") is checked from `contains` directly, too.
+    const contained = rule.kind === "exclude_kind" || rule.kind === "exclude_word" ? containsFor(rule.value) : null;
     const breaks = cart.lines.filter((l) => {
       const p = index.get(l.product.id);
-      return p && excludedBy(p, rule);
+      if (!p) return false;
+      return contained ? isFood(p) && (p.contains ?? []).includes(contained) : excludedBy(p, rule);
     });
     // Needs the rule left out are the rule working: listed under it, not as warnings.
     const left = cart.skipped.filter((s) => s.reason === "rule" && s.rule === rule.label).map((s) => s.label.toLowerCase());
@@ -77,6 +97,18 @@ export function review(session: Session, cart: Cart, index: CatalogIndex): Check
         : { id: `rule:${rule.label}`, status: "pass", label: left.length ? `${rule.label} (left out ${left.join(", ")})` : rule.label },
     );
   }
+
+  // Standing preferences: met wherever the store has a fitting product, and said how often.
+  checks.push(...preferenceChecks(brief, counted, index));
+
+  // Every amount is covered: packs × pack size reach what the need asked for (pieces converted by weight).
+  const short = counted.filter((l) => {
+    const p = index.get(l.product.id);
+    if (!p || !l.needed || l.pinned) return false;
+    const needed = amountInUnit(l.needed.unit, l.needed.amount, p);
+    return needed != null && l.packs * p.pack_size < needed * 0.9 && !l.warnings.some((w) => w.startsWith("Needs more than"));
+  });
+  if (short.length) checks.push({ id: "amounts", status: "fail", label: `Not enough ${short.map((l) => l.label.toLowerCase()).join(", ")} for the amount asked` });
 
   // One line per product.
   const ids = cart.lines.map((l) => l.product.id);
@@ -114,15 +146,17 @@ const planWords = (text: string) =>
 
 const AMOUNT = /(\d+(?:\.\d+)?)\s*(kg|kgs|g|gm|gms|grams?|ml|l|ltrs?|litres?|liters?|pcs?|pieces?|dozen)\b/i;
 const lineWords = (line: string) => planWords(line.replace(/\(optional\)/gi, " ").replace(/\d[\d.,/]*\s*(kg|g|gm|ml|l|litres?|pcs?|packs?|x)?\b/gi, " "));
-const needWords = (n: Pick<Need, "label" | "kind" | "prefer">) => planWords(`${n.label} ${n.kind} ${n.prefer ?? ""}`);
+const needWords = (n: Pick<Need, "label" | "kind" | "prefer">, aliases: (kind: string) => string[] = () => []) =>
+  planWords(`${n.label} ${n.kind} ${n.prefer ?? ""} ${aliases(n.kind).join(" ")}`);
 const wordsMeet = (a: string[], b: string[]) => a.some((w) => b.some((v) => v === w || (v.length >= 4 && w.length >= 4 && (v.includes(w) || w.includes(v)))));
 
 /**
  * Shopping-list lines no need covers, so a planned item can't be silently dropped. A line is covered when
- * one of its words (amounts and "(optional)" stripped) is a word of some need's label, kind or prefer.
+ * one of its words (amounts and "(optional)" stripped) is a word of some need's label, kind or prefer, or
+ * one of the kind's shopper words (`aliases`: "doodh 2 L" is covered by a milk need).
  */
-export function planCoverage(plan: string[], needs: Pick<Need, "label" | "kind" | "prefer">[]): string[] {
-  const vocab = needs.flatMap(needWords);
+export function planCoverage(plan: string[], needs: Pick<Need, "label" | "kind" | "prefer">[], aliases?: (kind: string) => string[]): string[] {
+  const vocab = needs.flatMap((n) => needWords(n, aliases));
   return plan.filter((line) => {
     const words = lineWords(line);
     return words.length > 0 && !wordsMeet(words, vocab);
@@ -163,4 +197,37 @@ export function planAmountMismatches(plan: string[], needs: Need[], people: numb
     }
   }
   return out;
+}
+
+const LABEL_WORDS: Record<string, string> = { organic: "Organic", sugar_free: "Sugar free", whole_grain: "Whole grain", high_protein: "High protein" };
+
+/**
+ * One check per standing preference: "Organic on 6 of 9 items" (pass when every line that could be
+ * organic is), naming the items the store has no fitting product for. Counted food lines only, for labels.
+ */
+export function preferenceChecks(brief: Brief, counted: Line[], index: Map<string, Product>): Check[] {
+  const { labels, brands } = preferOf(brief);
+  if (!labels.length && !brands.length) return [];
+  const byKind = new Map<string, Product[]>();
+  for (const p of index.values()) if (p.in_stock) byKind.set(p.sub_category, [...(byKind.get(p.sub_category) ?? []), p]);
+  const checks: Check[] = [];
+  const check = (id: string, name: string, lines: Line[], has: (p: Product) => boolean) => {
+    if (!lines.length) return;
+    const met = lines.filter((l) => {
+      const p = index.get(l.product.id);
+      return p && has(p);
+    });
+    const possible = lines.filter((l) => (byKind.get(l.product.sub_category) ?? []).some(has));
+    const missed = possible.filter((l) => !met.includes(l));
+    const none = lines.filter((l) => !possible.includes(l)).map((l) => l.label.toLowerCase());
+    const where = none.length ? `; none in stock for ${none.slice(0, 4).join(", ")}${none.length > 4 ? "…" : ""}` : "";
+    checks.push({
+      id,
+      status: missed.length ? "warn" : "pass",
+      label: `${name} on ${met.length} of ${lines.length} ${lines.length === 1 ? "item" : "items"}${where}`,
+    });
+  };
+  for (const l of labels) check(`prefer:${l}`, LABEL_WORDS[l] ?? l, counted.filter((x) => isFood({ category: x.product.category })), (p) => p.tags.includes(l));
+  for (const b of brands) check(`prefer:brand:${b}`, b.replace(/\b\w/g, (c) => c.toUpperCase()), counted, (p) => namesWord(p.brand, b));
+  return checks;
 }

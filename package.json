@@ -3,18 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "npm run --silent catalog:build",
     "dev": "next dev",
+    "prebuild": "npm run --silent catalog:build",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "pretypecheck": "npm run --silent catalog:build",
     "typecheck": "next typegen && tsc --noEmit",
+    "pretest": "npm run --silent catalog:build",
     "test": "vitest run",
     "catalog:build": "tsx scripts/build-catalog.ts",
-    "catalog:check": "tsx scripts/check-coverage.ts",
+    "catalog:coverage": "tsx scripts/catalog-coverage.ts",
     "check:contrast": "tsx scripts/check-contrast.ts",
     "bench:solve": "tsx scripts/bench-solve.ts",
     "try:chat": "tsx scripts/try-chat.ts",
-    "eval:chat": "tsx scripts/eval-chat.ts"
+    "eval:chat": "tsx scripts/eval-chat.ts",
+    "postinstall": "npm run --silent catalog:build"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.2.0",

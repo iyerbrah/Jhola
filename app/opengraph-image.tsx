@@ -1,3 +1,4 @@
+import report from "@/data/catalog/report.json";
 import { ImageResponse } from "next/og";
 
 // The link-preview card (1200x630) shown when the site is shared on LinkedIn, Slack, WhatsApp or email.
@@ -30,7 +31,7 @@ async function googleFont(family: string, weight: number, text: string): Promise
 }
 
 const HEADLINE = "One line in. One ready cart out.";
-const SUBLINE = "“Pasta night for 4, vegetarian, around ₹600” → a cart from 4,100+ real Indian groceries, then change anything by chatting.";
+const SUBLINE = `“Pasta night for 4, vegetarian, around ₹600” → a cart from ${(Math.floor(report.products / 100) * 100).toLocaleString("en-IN")}+ real Indian grocery products, then change anything by chatting.`;
 
 export default async function OpengraphImage() {
   const body = CHECKS.join("") + SUBLINE + "0123456789,+";

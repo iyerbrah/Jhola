@@ -10,7 +10,7 @@ Oct 25, 2026 · @Ram
 > - **Logs:** they go to the server's journal (`journalctl -u jhola`), not Vercel's logs, and `maxDuration` is gone. The API gives up at 50 s and nginx waits 70 s.
 > - **Cache:** answers are cached for 30 days, not 24 hours.
 > - **Pipeline:** one plan call, then three cart calls in parallel, instead of one call. The plan sees an index of the kinds of product, and each cart call sees only the products of its kinds, not the whole catalog.
-> - **Catalog:** 2,744 products (one a planted prompt-injection demo), including household and personal care, not about 1,000 grocery items. It's built by a tested pipeline with stable IDs.
+> - **Catalog:** a grocery catalogue of 3,322 products in 226 kinds (food and drink, plus household, cleaning, personal care, baby and pet essentials; one a planted prompt-injection demo), not about 300 items. One CSV file, `data/grocery.csv`, is the source of truth; a tested build checks every row and keeps IDs stable. Columns added since v1: `contains` (allergens, for "no dairy" and "nut allergy" rules) and `search_terms` (shopper words such as "dahi"); `mrp` was removed.
 > - **Beyond v1:** a cart editor agent ([docs/agent-plan.md](docs/agent-plan.md)), a Postgres request log with 👍/👎 feedback and a public `/stats` page, and eval checks on every pull request.
 
 ## Overview

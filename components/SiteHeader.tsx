@@ -1,12 +1,11 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-export type Page = "home" | "evals" | "how" | "stats" | "history";
+export type Page = "home" | "results" | "how" | "history";
 
 const NAV: { page: Page; href: string; label: string; devOnly?: boolean }[] = [
   { page: "history", href: "/history", label: "History", devOnly: true },
-  { page: "evals", href: "/evals", label: "Results" },
-  { page: "stats", href: "/stats", label: "Live stats" },
+  { page: "results", href: "/results", label: "Results" },
   { page: "how", href: "/how-it-works", label: "How it works" },
 ];
 

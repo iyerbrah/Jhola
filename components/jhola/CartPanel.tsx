@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Action } from "@/lib/chat/session";
 import { DIET_LABELS } from "@/lib/requirements";
 import { QUALITIES, type Brief, type Cart, type Check, type Line, type Need } from "@/lib/cart/types";
+import report from "@/data/catalog/report.json";
 import { rupees } from "../format";
 import { button, chip, PANEL, PriceTag } from "../ui";
 import { LineRow } from "./LineRow";
@@ -182,6 +183,7 @@ export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, fl
               Total for {counted.length} {counted.length === 1 ? "item" : "items"}
             </p>
             <p className="num font-sign text-[2rem] leading-none text-ink">{rupees(cart.total)}</p>
+            <p className="mt-1 text-xs text-ink-soft">Approximate prices, {report.prices_as_of}</p>
           </div>
           <button type="button" onClick={onCheckout} disabled={busy || !counted.length} className={button("buy")}>
             Review &amp; checkout
@@ -223,7 +225,7 @@ function Preferences({ brief, disabled, onTap }: { brief: Brief; disabled: boole
     </button>
   );
   const step = "flex h-6 w-6 items-center justify-center rounded-full text-base leading-none hover:bg-sign-soft disabled:opacity-30";
-  const hasAny = brief.people != null || brief.budget_inr != null || brief.diet || brief.rules.length > 0 || brief.summary;
+  const hasAny = brief.people != null || brief.budget_inr != null || brief.diet || brief.rules.length > 0 || (brief.avoid ?? []).length > 0 || brief.summary;
   if (!hasAny) return null;
   return (
     <div role="group" aria-label="Your preferences">
@@ -295,6 +297,21 @@ function Preferences({ brief, disabled, onTap }: { brief: Brief; disabled: boole
             {x(r.label, () => onTap({ type: "remove_rule", label: r.label }, `Removed "${r.label}"`))}
           </span>
         ))}
+        {(brief.avoid ?? []).map((c) => (
+          <span key={`avoid-${c}`} className={chip("diet")}>
+            No {c}
+            {x(`No ${c}`, () => onTap({ type: "remove_avoid", value: c }, `${cap(c)} is fine now`))}
+          </span>
+        ))}
+        {[...(brief.prefer?.labels ?? []), ...(brief.prefer?.brands ?? [])].map((v) => {
+          const label = cap(v.replace(/_/g, " "));
+          return (
+            <span key={`prefer-${v}`} className={chip("pref")}>
+              Prefer {label}
+              {x(`Prefer ${label}`, () => onTap({ type: "remove_prefer", value: v }, `No preference for ${label}`))}
+            </span>
+          );
+        })}
       </div>
       <div className="mt-2.5 inline-flex rounded-full border border-line bg-wall p-0.5 text-sm" role="radiogroup" aria-label="Quality">
         {QUALITIES.map((q) => (

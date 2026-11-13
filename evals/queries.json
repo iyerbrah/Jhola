@@ -3,7 +3,7 @@
   { "group": "recipe", "query": "dal tadka for 3", "expected_status": "ok", "must_include_any": [["dal"], ["tomato", "onion"]] },
   { "group": "recipe", "query": "chicken biryani for 6", "expected_status": "ok", "must_include_any": [["chicken"], ["basmati", "rice"], ["onion"]], "ci": true },
   { "group": "recipe", "query": "rajma chawal for 2", "expected_status": "ok", "must_include_any": [["rajma"], ["rice"]] },
-  { "group": "recipe", "query": "chole bhature for 4", "expected_status": "ok", "must_include_any": [["chana", "chole"], ["maida", "atta", "bhatura", "flour"]] },
+  { "group": "recipe", "query": "chole bhature for 4", "expected_status": "ok", "must_include_any": [["chana", "chole"], ["maida", "atta", "flour"]] },
   { "group": "recipe", "query": "palak paneer for 2", "expected_status": "ok", "must_include_any": [["paneer"], ["spinach", "palak"]] },
   { "group": "recipe", "query": "egg curry for 3", "expected_status": "ok", "must_include_any": [["egg"], ["onion"], ["tomato"]] },
   { "group": "recipe", "query": "fish curry and rice for 3", "expected_status": "ok", "must_include_any": [["fish"], ["rice"]] },
@@ -27,7 +27,7 @@
   { "group": "budget_gift", "query": "3 different green teas for a tea lover", "expected_status": "ok", "item_count": 3, "item_kind": "green_tea", "must_include_any": [["green tea"]] },
   { "group": "budget_gift", "query": "drinks for a house party of 10 under ₹1000", "expected_status": "ok", "budget_inr": 1000 },
 
-  { "group": "household", "query": "cleaning supplies for a new flat", "expected_status": "ok", "must_include_any": [["floor cleaner", "disinfectant", "lizol"], ["dishwash", "dish wash"], ["toilet"]], "ci": true },
+  { "group": "household", "query": "cleaning supplies for a new flat", "expected_status": "ok", "must_include_any": [["floor cleaner", "disinfectant"], ["dishwash", "dish wash"], ["toilet"]], "ci": true },
   { "group": "household", "query": "toiletries for a weekend trip for 2", "expected_status": "ok", "must_include_any": [["toothpaste"], ["soap", "body wash", "shower gel"], ["shampoo"]] },
   { "group": "household", "query": "newborn baby essentials under ₹2000", "expected_status": "ok", "budget_inr": 2000, "must_include_any": [["diaper"], ["wipes"]], "ci": true },
   { "group": "household", "query": "monthly restock of detergent, dishwash and toilet cleaner under ₹800", "expected_status": "ok", "budget_inr": 800, "must_include_any": [["detergent"], ["dishwash", "dish wash"], ["toilet"]] },

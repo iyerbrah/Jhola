@@ -1,11 +1,34 @@
 /**
- * The numbers behind the public /stats page, all computed in SQL over the request log.
+ * The live numbers behind the public /results page, all computed in SQL over the request log.
  * Days are India days (Asia/Kolkata). Percentiles use percentile_disc, the same nearest-rank method as
  * lib/percentile.ts and the evals. Only totals leave this file: no query text, no visitor IDs.
  */
 import { getSql, ensureSchema, type Sql } from "./db";
 
-export type DayStats = { day: string; builds: number; turns: number; visitors: number; cost_usd: number };
+export type DayStats = {
+  day: string;
+  builds: number;
+  turns: number;
+  visitors: number;
+  cost_usd: number;
+  /** Chats whose last turn was on this day and was judged, and the share of them that ended ready to order. */
+  judged_chats: number;
+  ready_rate: number | null;
+  /** Thumbs up and down given on this day. */
+  votes: number;
+  up: number;
+};
+
+/** Accuracy in production: every chat turn is judged like the eval judges a chat (lib/cart/ready.ts). */
+export type LiveAccuracy = {
+  /** Chats whose last turn was judged, and the share of them that ended with a cart ready to order. */
+  judged_chats: number;
+  ready_rate: number | null;
+  /** The share of judged turns whose cart failed a check (diet, allergy, rule, budget, stock, price). */
+  failed_check_rate: number | null;
+  /** The first turn ever judged: turns from before then weren't, so they don't count. */
+  tracked_since: string | null;
+};
 export type StepStats = { step: string; calls: number; avg_ms: number; p95_ms: number };
 
 export type Stats = {
@@ -37,6 +60,7 @@ export type Stats = {
     turn_cache_rate: number | null;
   };
   feedback: { votes: number; up: number; on_carts: number; on_replies: number };
+  accuracy: LiveAccuracy;
   daily: DayStats[];
   /** Average and p95 time of each kind of model call: one row for agent turns, plus plan, cart and repair for older builds. */
   steps: StepStats[];
@@ -74,6 +98,19 @@ export async function queryStats(sql: Sql, days = 30): Promise<Stats> {
     from requests
     where created_at >= ${since}`;
 
+  // Each judged chat once, by its last turn in the window (a chat can span days: it counts on its last one).
+  const lastTurns = sql`
+    select distinct on (meta ->> 'session_id') meta ->> 'session_id' as session_id, created_at, (meta ->> 'ready')::boolean as ready
+    from requests
+    where kind = 'agent' and meta ->> 'chat' = 'true' and meta ? 'ready' and status <> 'error' and created_at >= ${since}
+    order by meta ->> 'session_id', created_at desc`;
+  const [a] = await sql`
+    select (select count(*)::int from (${lastTurns}) l)                                     as judged_chats,
+           (select avg(ready::int)::float8 from (${lastTurns}) l)                          as ready_rate,
+           (select avg(((meta ->> 'failed_checks')::int > 0)::int)::float8 from requests
+             where kind = 'agent' and meta ? 'ready' and status <> 'error' and created_at >= ${since}) as failed_check_rate,
+           (select to_char(min(created_at) at time zone 'Asia/Kolkata', 'YYYY-MM-DD') from requests where kind = 'agent' and meta ? 'ready') as tracked_since`;
+
   // Every day in the window, including days with nothing, so the chart has no gaps.
   const daily = await sql`
     with d as (
@@ -87,7 +124,11 @@ export async function queryStats(sql: Sql, days = 30): Promise<Stats> {
            count(r.id) filter (where r.kind = 'build')::int as builds,
            count(r.id) filter (where r.kind = 'agent')::int as turns,
            count(distinct r.visitor)::int                     as visitors,
-           coalesce(sum(r.cost_usd), 0)::float8               as cost_usd
+           coalesce(sum(r.cost_usd), 0)::float8               as cost_usd,
+           (select count(*)::int from (${lastTurns}) l where (l.created_at at time zone 'Asia/Kolkata')::date = d.day)        as judged_chats,
+           (select avg(l.ready::int)::float8 from (${lastTurns}) l where (l.created_at at time zone 'Asia/Kolkata')::date = d.day) as ready_rate,
+           (select count(*)::int from feedback f where (f.created_at at time zone 'Asia/Kolkata')::date = d.day)                as votes,
+           (select count(*)::int from feedback f where f.rating = 1 and (f.created_at at time zone 'Asia/Kolkata')::date = d.day) as up
     from d
     left join requests r on (r.created_at at time zone 'Asia/Kolkata')::date = d.day
     group by d.day
@@ -139,7 +180,18 @@ export async function queryStats(sql: Sql, days = 30): Promise<Stats> {
       turn_cache_rate: num(t.turn_cache_rate),
     },
     feedback: { votes: f.votes, up: f.up, on_carts: f.on_carts, on_replies: f.on_replies },
-    daily: daily.map((d) => ({ day: d.day, builds: d.builds, turns: d.turns, visitors: d.visitors, cost_usd: Number(d.cost_usd) })),
+    accuracy: { judged_chats: a.judged_chats, ready_rate: num(a.ready_rate), failed_check_rate: num(a.failed_check_rate), tracked_since: a.tracked_since ?? null },
+    daily: daily.map((d) => ({
+      day: d.day,
+      builds: d.builds,
+      turns: d.turns,
+      visitors: d.visitors,
+      cost_usd: Number(d.cost_usd),
+      judged_chats: d.judged_chats,
+      ready_rate: num(d.ready_rate),
+      votes: d.votes,
+      up: d.up,
+    })),
     steps: steps.map((s) => ({ step: s.step, calls: s.calls, avg_ms: s.avg_ms, p95_ms: Number(s.p95_ms) })),
   };
 }

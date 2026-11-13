@@ -2,7 +2,8 @@
  * A chat turn as a request-log record. Turns are stored with kind "agent" (the table's existing kind),
  * the cart before and after at position 0, and every model and tool step as trace steps.
  */
-import { catalog } from "../catalog";
+import { catalog, catalogIndex } from "../catalog";
+import { readyToOrder } from "../cart/ready";
 import type { CartRecord, RequestRecord, StepRecord } from "../requestLog";
 import type { Cart } from "../cart/types";
 import type { ChatTurnResult } from "./loop";
@@ -60,6 +61,10 @@ export function chatRecord(a: {
       note: r.note,
       confirm: r.pending?.reason ?? null,
       finished_by: r.meta.finished_by ?? null,
+      // Accuracy in production, judged like the eval judges it (lib/cart/ready.ts): totals only reach /results.
+      ready: readyToOrder(r, catalogIndex).length === 0,
+      failed_checks: r.checks.filter((c) => c.status === "fail").length,
+      unmet_needs: r.cart.unmet.length,
     },
     carts: [cartRecord("before", a.before, r.session.brief.summary), ...(changed ? [cartRecord("after", r.cart, r.session.brief.summary)] : [])],
     steps: a.cached ? [] : steps,

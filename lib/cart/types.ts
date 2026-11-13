@@ -5,7 +5,7 @@
  */
 import { z } from "zod";
 import { DIETS } from "../requirements";
-import type { Category, Product, Unit } from "../schema";
+import { CONTAINS, LABELS, type Category, type Product, type Unit } from "../schema";
 
 export const QUALITIES = ["value", "balanced", "premium"] as const;
 export type Quality = (typeof QUALITIES)[number];
@@ -40,6 +40,23 @@ export const BriefSchema = z.object({
   diet: z.enum(DIETS).nullable(),
   quality: z.enum(QUALITIES),
   rules: z.array(RuleSchema).max(12),
+  /**
+   * What the shopper can't or won't eat, from what each food contains: an allergy ("nut allergy"), an
+   * intolerance ("lactose intolerant") or a free-from wish ("gluten free"). A hard filter, like a rule,
+   * on the catalogue's `contains` column only, so "Gluten Free" oats and "Eggless" cakes stay in.
+   */
+  avoid: z.array(z.enum(CONTAINS)).max(CONTAINS.length).optional(),
+  /**
+   * Standing preferences for the whole cart: labels ("we buy organic", "diabetic" -> sugar_free) and
+   * brands they like ("we like Amul"). Soft: they win when the store has a fitting product, and the
+   * checklist says how many lines met them. Never a reason to leave something out.
+   */
+  prefer: z
+    .object({
+      labels: z.array(z.enum(LABELS)).max(LABELS.length).default([]),
+      brands: z.array(z.string().trim().toLowerCase().min(1).max(40)).max(5).default([]),
+    })
+    .optional(),
   /** What the agent guessed, shown so the shopper can correct it ("Assumed 4 people"). */
   assumptions: z.array(z.string().trim().min(1).max(120)).max(5),
   /**
@@ -49,6 +66,12 @@ export const BriefSchema = z.object({
   plan: z.array(z.string().trim().min(1).max(80)).max(20).default([]),
 });
 export type Brief = z.infer<typeof BriefSchema>;
+export type Prefer = { labels: (typeof LABELS)[number][]; brands: string[] };
+
+/** The brief's allergies and free-from wishes (empty for briefs saved before they existed). */
+export const avoidOf = (b: Pick<Brief, "avoid">) => b.avoid ?? [];
+/** The brief's standing preferences (empty for briefs saved before they existed). */
+export const preferOf = (b: Pick<Brief, "prefer">): Prefer => ({ labels: b.prefer?.labels ?? [], brands: b.prefer?.brands ?? [] });
 
 export const NeedSchema = z.object({
   id: z.string().regex(/^[a-z0-9_-]{1,32}$/, "need ids are short lowercase words, like paneer or rice-1"),
@@ -117,7 +140,6 @@ export type LineProduct = {
   unit: Unit;
   pack_label: string;
   price: number;
-  mrp?: number;
   tags: string[];
 };
 
@@ -205,7 +227,6 @@ export function toLineProduct(p: Product, packLabel: string): LineProduct {
     unit: p.unit,
     pack_label: packLabel,
     price: p.price,
-    ...(p.mrp ? { mrp: p.mrp } : {}),
     tags: p.tags,
   };
 }

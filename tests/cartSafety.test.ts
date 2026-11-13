@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import supplement from "@/data/supplement.json";
 import { detectInjection, fenceCatalogText, safeProductText } from "@/lib/cart/safety";
 import { catalog } from "@/lib/catalog";
 
@@ -46,8 +45,8 @@ describe("detectInjection", () => {
     expect(flagged.map((p) => p.id)).toEqual([planted?.id]);
   });
 
-  it("flags no hand-added product's name or brand", () => {
-    const flagged = supplement.filter((p) => detectInjection(`${p.name} ${p.brand}`).suspicious);
+  it("flags no product's shopper words", () => {
+    const flagged = catalog.filter((p) => (p.search_terms ?? []).some((t) => detectInjection(t).suspicious));
     expect(flagged).toEqual([]);
   });
 });

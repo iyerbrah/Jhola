@@ -1,0 +1,46 @@
+[
+ {
+  "ran_at": "2026-11-12T23:38:46.519Z",
+  "model": "openai/gpt-5.4-mini",
+  "commit": "040ed34",
+  "note": "First run of the final suite",
+  "scenarios": 105,
+  "passed": 96,
+  "ready_to_order": 0.968,
+  "task_success": 0.914,
+  "rule_breaks": 0,
+  "rules_held": 1,
+  "budget_kept": 0.917,
+  "collateral_free": 1,
+  "asked_well": 1,
+  "cost_per_turn_usd": 0.008897,
+  "latency_p50_ms": 5540,
+  "spent_usd": 1.085,
+  "by_theme": {
+   "build": {
+    "scenarios": 30,
+    "passed": 28
+   },
+   "diet": {
+    "scenarios": 12,
+    "passed": 12
+   },
+   "money": {
+    "scenarios": 7,
+    "passed": 6
+   },
+   "edit": {
+    "scenarios": 27,
+    "passed": 24
+   },
+   "talk": {
+    "scenarios": 10,
+    "passed": 10
+   },
+   "limits": {
+    "scenarios": 19,
+    "passed": 16
+   }
+  }
+ }
+]

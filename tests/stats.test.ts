@@ -57,12 +57,13 @@ describe.skipIf(!url)("stats queries (Postgres)", () => {
     ];
     const cached = [req("build", { cached: true, latency_ms: 10, cost_usd: 0, visitor: "v4" }), req("build", { cached: true, latency_ms: 12, cost_usd: 0, visitor: "v4" })];
     const failed = req("build", { status: "error", error_kind: "timeout", latency_ms: 50000, cost_usd: null, visitor: "v5", carts: [] });
-    // Chat turns in three chats: two ended by code, one held for confirmation, one that gave up.
+    // Chat turns in three chats: two ended by code, one held for confirmation, one that gave up. s1 and s2 were
+    // judged for readiness (s1's last turn was ready, s2's wasn't); s3 was logged before judging began.
     const before = [{ role: "before" as const, position: 0, name: "Pasta night", reason: "", total: 400, items: [] }];
     const turns = [
-      req("agent", { latency_ms: 1500, visitor: "v1", model_calls: 1, carts: before, meta: { chat: true, session_id: "s1", finished_by: "code" }, steps: [{ kind: "model", name: "gpt-5.4-mini", ok: true, ms: 1400 }, { kind: "tool", name: "set_needs", ok: true, ms: 1 }] }),
-      req("agent", { latency_ms: 2500, visitor: "v6", model_calls: 2, carts: before, meta: { chat: true, session_id: "s1", finished_by: "model" } }),
-      req("agent", { latency_ms: 3500, visitor: "v6", model_calls: 1, carts: before, status: "confirm", meta: { chat: true, session_id: "s2", finished_by: "code" } }),
+      req("agent", { latency_ms: 1500, visitor: "v1", model_calls: 1, carts: before, created_at: indiaMidnight(1), meta: { chat: true, session_id: "s1", finished_by: "code", ready: false, failed_checks: 1, unmet_needs: 0 }, steps: [{ kind: "model", name: "gpt-5.4-mini", ok: true, ms: 1400 }, { kind: "tool", name: "set_needs", ok: true, ms: 1 }] }),
+      req("agent", { latency_ms: 2500, visitor: "v6", model_calls: 2, carts: before, meta: { chat: true, session_id: "s1", finished_by: "model", ready: true, failed_checks: 0, unmet_needs: 0 } }),
+      req("agent", { latency_ms: 3500, visitor: "v6", model_calls: 1, carts: before, status: "confirm", meta: { chat: true, session_id: "s2", finished_by: "code", ready: false, failed_checks: 0, unmet_needs: 1 } }),
       req("agent", { latency_ms: 4500, visitor: "v7", model_calls: 6, status: "gave_up", meta: { chat: true, session_id: "s3" } }),
     ];
     const old = req("build", { latency_ms: 99000, visitor: "v8", created_at: new Date(Date.now() - 40 * 86400_000) });
@@ -133,5 +134,18 @@ describe.skipIf(!url)("stats queries (Postgres)", () => {
       ["cart", 1, 2000],
       ["agent", 1, 1400],
     ]);
+  });
+
+  it("judges accuracy in production by each chat's last turn, and only chats that were judged", () => {
+    expect(stats.accuracy.judged_chats).toBe(2);
+    expect(stats.accuracy.ready_rate).toBeCloseTo(1 / 2, 6); // s1 ended ready (its first turn didn't count), s2 didn't
+    expect(stats.accuracy.failed_check_rate).toBeCloseTo(1 / 3, 6); // turns, not chats
+    expect(stats.accuracy.tracked_since).toBe(stats.daily.at(-1)!.day);
+  });
+
+  it("gives each day its judged chats, ready rate and votes", () => {
+    expect(stats.daily.at(-1)).toMatchObject({ judged_chats: 2, votes: 3, up: 2 });
+    expect(stats.daily.at(-1)!.ready_rate).toBeCloseTo(1 / 2, 6);
+    expect(stats.daily.at(-2)).toMatchObject({ judged_chats: 0, ready_rate: null, votes: 0, up: 0 });
   });
 });

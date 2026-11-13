@@ -18,8 +18,8 @@ export function SiteFooter() {
           <Link href="/how-it-works" className="font-semibold text-ink underline decoration-line decoration-2 underline-offset-4 hover:decoration-rani">
             How it works
           </Link>
-          <Link href="/stats" className="font-semibold text-ink underline decoration-line decoration-2 underline-offset-4 hover:decoration-rani">
-            Live stats
+          <Link href="/results" className="font-semibold text-ink underline decoration-line decoration-2 underline-offset-4 hover:decoration-rani">
+            Results
           </Link>
           <a href={REPO_URL} className="font-semibold text-ink underline decoration-line decoration-2 underline-offset-4 hover:decoration-rani">
             Source on GitHub

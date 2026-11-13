@@ -9,7 +9,7 @@ let loading: Promise<Product[]> | null = null;
 
 /**
  * The catalog, downloaded only once `enabled` is true (when there are carts to swap items in), so the
- * first page load doesn't carry ~4,200 products. null until it arrives. The server checked it already,
+ * first page load doesn't carry ~3,300 products. null until it arrives. The server checked it already,
  * so it isn't parsed again here.
  */
 export function useCatalog(enabled: boolean): Product[] | null {

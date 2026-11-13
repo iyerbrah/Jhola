@@ -6,7 +6,9 @@ import { REPO_URL, SiteFooter } from "@/components/SiteFooter";
 import { SignHeadline, SiteHeader } from "@/components/SiteHeader";
 import { button, H2, StatBoard } from "@/components/ui";
 import type { ChatSummary } from "@/evals/chatScore";
+import { LATEST_FILE } from "@/evals/history";
 import { catalog } from "@/lib/catalog";
+import report from "@/data/catalog/report.json";
 import { isFood } from "@/lib/schema";
 
 export const dynamic = "force-static";
@@ -23,18 +25,11 @@ function read<T>(file: string): T | null {
     return null;
   }
 }
-/** The newest full chat-eval run, read at build time. */
+/** The latest full run of the final eval (the one /results shows), read at build time. */
 function latestChatRun(): { summary: ChatSummary; date: string } | null {
   try {
-    const dir = path.join(process.cwd(), "evals/chat/results");
-    const f = fs
-      .readdirSync(dir)
-      .filter((x) => x.endsWith(".json") && !x.endsWith("-ci.json"))
-      .sort()
-      .at(-1);
-    if (!f) return null;
-    const run = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
-    return { summary: run.summary, date: f.slice(0, 10) };
+    const run = JSON.parse(fs.readFileSync(path.join(process.cwd(), LATEST_FILE), "utf8"));
+    return { summary: run.summary, date: String(run.meta.ran_at).slice(0, 10) };
   } catch {
     return null;
   }
@@ -47,7 +42,7 @@ const AGENT = [
   },
   {
     title: "Plan the needs",
-    body: "It writes what the request needs, not products: penne, 100 g a person, for the pasta; fresh cream, a guess, for the sauce. It reads a compact index of the 365 kinds of product in stock, so it plans with real kinds without searching.",
+    body: `It writes what the request needs, not products: penne, 100 g a person, for the pasta; fresh cream, a guess, for the sauce. It reads a compact index of the ${report.kinds} kinds of grocery in stock, with the words shoppers use for each ("dahi", "cold drink") and their usual pack sizes, so it plans with real kinds without searching.`,
   },
   {
     title: "Solve, in code",
@@ -125,6 +120,7 @@ export default function HowItWorks() {
   const metrics: [string, string, string][] = [
     ...(s
       ? ([
+          ["Carts ready to order", pct(s.ready_to_order ?? null), `of ${s.scenarios} scripted chats`],
           ["Scenarios passed", `${s.passed} / ${s.scenarios}`, "new chats, edits, diets, budgets, memory, stock, safety"],
           ["Rule breaks", String(s.rule_breaks), "in every turn's cart"],
           ["Edits that changed only what was asked", pct(s.collateral_free), "lines nobody asked about stayed put"],
@@ -145,12 +141,12 @@ export default function HowItWorks() {
     },
     {
       title: "Live numbers, in public",
-      body: "The stats page computes chats, speed, reliability, cost and feedback for the last 30 days straight from that log, in SQL. Totals only: no message text, and visitors are a daily code that can't be traced back.",
-      link: { href: "/stats", text: "See the live stats" },
+      body: "Every real chat is judged the same way the eval judges a scripted one: did it end with a cart ready to order? The Results page shows that rate day by day, next to speed, reliability, cost and feedback for the last 30 days, all computed in SQL from the log. Totals only: no message text, and visitors are a daily code that can't be traced back.",
+      link: { href: "/results", text: "See accuracy and live numbers" },
     },
     {
-      title: "A catalog built and checked by code",
-      body: `${catalog.length.toLocaleString("en-IN")} products (${food.toLocaleString("en-IN")} food, ${(catalog.length - food).toLocaleString("en-IN")} household and personal care) built from a public BigBasket dataset by a tested pipeline. IDs stay stable across rebuilds, misfilings are caught by rules, and every build writes a quality report.`,
+      title: "A grocery catalogue checked by code",
+      body: `${catalog.length.toLocaleString("en-IN")} grocery products in ${report.kinds} kinds (${food.toLocaleString("en-IN")} food and drink, ${(catalog.length - food).toLocaleString("en-IN")} household, cleaning and personal care), kept in one CSV file. A build checks every row: stable IDs, honest diet tags, what each food contains (dairy, gluten, nuts and more, so "no dairy" is a hard rule), and at least 3 choices in stock for every kind. A coverage check confirms that 120+ everyday grocery requests can be filled. Prices are approximate (${report.prices_as_of}).`,
     },
     {
       title: "Shareable carts",
@@ -163,7 +159,7 @@ export default function HowItWorks() {
       <SiteHeader current="how">
         <SignHeadline title="The model reasons. Code guarantees.">
           <p>
-            Jhola is a shopping agent you chat with. It turns one sentence into one ready cart from {catalog.length.toLocaleString("en-IN")} real Indian groceries and household essentials, then changes it as you ask. The model decides what you need; a solver in code decides which products, how many and what it costs, so every cart is in stock, in budget and true to your rules.
+            Jhola is a shopping agent you chat with. It turns one sentence into one ready cart from {catalog.length.toLocaleString("en-IN")} real Indian grocery products, then changes it as you ask.
             The model decides what you need; a solver in code decides which products, how many and what it costs, so every cart is in stock, in budget and true to your rules.
           </p>
         </SignHeadline>
@@ -193,14 +189,14 @@ export default function HowItWorks() {
           <section className="mt-16">
             <h2 className={H2}>Measured, not guessed</h2>
             <p className="mt-3 max-w-2xl leading-relaxed text-ink-soft">
-              About 80 scripted chats run against the real model and are checked in code, with no AI judge{run ? ` (latest run ${run.date})` : ""}. A pull request that changes answers runs the PR
+              {s?.scenarios ?? "About 100"} scripted chats run against the real model and are checked in code, with no AI judge{run ? ` (latest run ${run.date})` : ""}. A pull request that changes answers runs the PR
               subset and fails if it breaks a rule or scores below the baseline.
             </p>
             <div className="mt-6">
               <StatBoard items={metrics} />
             </div>
-            <Link href="/evals" className={button("quiet", "mt-6 inline-block")}>
-              See every result, and every failure
+            <Link href="/results" className={button("quiet", "mt-6 inline-block")}>
+              See accuracy over time, every result and every failure
             </Link>
           </section>
         )}
