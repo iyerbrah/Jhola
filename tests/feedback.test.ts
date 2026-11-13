@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { FeedbackRequestSchema, handleFeedback, type FeedbackDeps } from "@/lib/feedback";
+import { FeedbackRequestSchema, handleFeedback, type FeedbackDeps } from "@/lib/log/feedback";
 import { createMemoryLimiter } from "@/lib/ratelimit";
-import { createMemoryRequestLog, type RequestLog, type RequestRecord } from "@/lib/requestLog";
+import { createMemoryRequestLog, type RequestLog, type RequestRecord } from "@/lib/log/requestLog";
 
 const cart = (role: "result" | "before" | "after", position: number) => ({ role, position, name: `Cart ${position + 1}`, reason: "", total: 100, items: [] });
 const request = (kind: "build" | "agent", over: Partial<RequestRecord> = {}): RequestRecord => ({
@@ -92,7 +92,7 @@ describe("POST /api/feedback", () => {
   });
 
   it("answers 503 if the log can't be reached", async () => {
-    const broken: RequestLog = { record: async () => {}, recentTurns: async () => [], rate: async () => { throw new Error("db down"); } };
+    const broken: RequestLog = { ...createMemoryRequestLog(), rate: async () => { throw new Error("db down"); } };
     const { deps, turn } = await setup({ requestLog: broken });
     expect((await handleFeedback(post({ request_id: turn.id, target: "cart", cart: 0, rating: 1 }), deps)).status).toBe(503);
   });

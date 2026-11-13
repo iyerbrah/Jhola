@@ -20,7 +20,7 @@ import unitHints from "@/data/unit-hints.json";
 import type { CatalogIndex } from "../catalog";
 import { fitsDiet } from "../requirements";
 import { isFood, packLabel, type Contains, type Product } from "../schema";
-import { isSameKind, matchesKind } from "../kind";
+import { isSameKind, matchesKind } from "./kind";
 import { detectInjection } from "./safety";
 import { namesWord, oddSize, plainness, preferScore, QUALITY_TARGET, qualityScore, typicality } from "./quality";
 import {

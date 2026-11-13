@@ -3,8 +3,8 @@
  * set, memory otherwise. A snapshot is immutable; opening it in Jhola starts a new chat from it.
  */
 import { randomBytes } from "node:crypto";
-import { ensureSchema, getSql, type Sql } from "../db";
-import { maskPii } from "../requestLog";
+import { ensureSchema, getSql, type Sql } from "../log/db";
+import { maskPii } from "../log/requestLog";
 import { SessionSchema, type Session } from "../cart/types";
 
 export interface ShareStore {

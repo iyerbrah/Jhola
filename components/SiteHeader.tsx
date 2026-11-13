@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 
 export type Page = "home" | "results" | "how" | "history";
 
-const NAV: { page: Page; href: string; label: string; devOnly?: boolean }[] = [
-  { page: "history", href: "/history", label: "History", devOnly: true },
+const NAV: { page: Page; href: string; label: string }[] = [
+  { page: "history", href: "/history", label: "History" },
   { page: "results", href: "/results", label: "Results" },
   { page: "how", href: "/how-it-works", label: "How it works" },
 ];
@@ -35,7 +35,7 @@ export function SiteHeader({ current, children, onHome }: Props) {
             </Link>
           )}
           <nav aria-label="Site" className="flex flex-wrap items-center justify-end gap-x-5 gap-y-1 text-[15px] font-semibold">
-            {NAV.filter((n) => !n.devOnly || process.env.NODE_ENV !== "production").map((n) => (
+            {NAV.map((n) => (
               <Link
                 key={n.page}
                 href={n.href}

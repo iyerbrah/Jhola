@@ -17,7 +17,7 @@ const RANI_BRIGHT = "#ec4d86";
 const INK = "#1e2a22";
 
 // The checklist every cart gets, as on the home page's board.
-const CHECKS = ["All in stock", "Under ₹600", "No onions"];
+const CHECKS = ["All in stock", "Under ₹600", "Vegetarian"];
 
 /** Fetch a Google Font as TTF for just the characters we draw. Returns null if offline. */
 async function googleFont(family: string, weight: number, text: string): Promise<ArrayBuffer | null> {

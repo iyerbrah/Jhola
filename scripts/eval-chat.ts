@@ -1,6 +1,6 @@
 /**
  * npm run eval:chat: plays every chat eval scenario against the real model and scores it in code.
- * Saves evals/chat/results/<time>.json (the public /evals page reads the newest one).
+ * Saves evals/chat/results/<time>.json (the public /results page reads the newest full run).
  *
  *   npm run eval:chat -- --note="..."    # THE eval, with a line on what changed since the last run (shown on /results)
  *   npm run eval:chat                    # THE eval (the final suite): 105 chats, 122 turns, about $1.40, capped at $1.50

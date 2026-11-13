@@ -1,10 +1,10 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import type { Sql } from "@/lib/db";
+import type { Sql } from "@/lib/log/db";
 import { percentile } from "@/lib/percentile";
-import { createPgRequestLog, type RequestRecord } from "@/lib/requestLog";
-import { queryStats, type Stats } from "@/lib/stats";
+import { createPgRequestLog, type RequestRecord } from "@/lib/log/requestLog";
+import { queryStats, type Stats } from "@/lib/log/stats";
 
 const url = process.env.TEST_DATABASE_URL;
 if (process.env.REQUIRE_DB_TESTS === "1" && !url) throw new Error("REQUIRE_DB_TESTS=1 but TEST_DATABASE_URL isn't set");
@@ -74,6 +74,11 @@ describe.skipIf(!url)("stats queries (Postgres)", () => {
     // Old 3-cart builds can't be rated any more.
     expect(await log.rate({ request_id: fresh[1].id, target: "cart", cart_position: 0, rating: 1, visitor: "v1" })).toBe("mismatch");
 
+    // One order, from a run whose chat wasn't logged, rated 4 stars after 3 messages.
+    const order = { id: randomUUID(), number: "JH-111111", session_id: randomUUID(), request_id: null, visitor: "v1", total: 500, items: 4, lines: [], failed: [], messages: 3 };
+    await log.placeOrder(order);
+    await log.rateOrder({ order_id: order.id, stars: 4, comment: null, name: null });
+
     stats = await queryStats(sql, 30);
   });
 
@@ -84,34 +89,26 @@ describe.skipIf(!url)("stats queries (Postgres)", () => {
   });
 
   it("counts requests in the window only (not the one from 40 days ago)", () => {
-    expect(stats.totals).toMatchObject({ requests: 13, builds: 9, fresh_builds: 6, turns: 4 });
+    expect(stats.totals).toMatchObject({ requests: 13, turns: 4 });
   });
 
   it("gives the same p50 and p95 as the evals' percentile()", () => {
-    const fresh = [1000, 2000, 3000, 4000, 10000, 5000];
     const turns = [1500, 2500, 3500, 4500];
-    expect(stats.totals.build_p50_ms).toBe(percentile(fresh, 50));
-    expect(stats.totals.build_p95_ms).toBe(percentile(fresh, 95));
     expect(stats.totals.turn_p50_ms).toBe(percentile(turns, 50));
     expect(stats.totals.turn_p95_ms).toBe(percentile(turns, 95));
-    expect([stats.totals.build_p50_ms, stats.totals.build_p95_ms, stats.totals.turn_p50_ms]).toEqual([3000, 10000, 2500]);
+    expect(stats.totals.turn_p50_ms).toBe(2500);
   });
 
   it("computes the rates over the right requests", () => {
     const t = stats.totals;
     expect(t.error_rate).toBeCloseTo(1 / 13, 6);
     expect(t.give_up_rate).toBeCloseTo(1 / 4, 6);
-    expect(t.cache_hit_rate).toBeCloseTo(2 / 8, 6); // failures left out
-    expect(t.repair_rate).toBeCloseTo(1 / 6, 6); // fresh builds only
     expect(t.cost_usd).toBeCloseTo(6 * 0.01 + 4 * 0.002, 6);
-    expect(t.cost_per_build).toBeCloseTo(0.01, 6);
     expect(t.cost_per_turn).toBeCloseTo(0.002, 6);
   });
 
   it("computes the shopping agent's numbers over chat turns", () => {
     const t = stats.totals;
-    expect(t.chats).toBe(3);
-    expect(t.model_calls_per_turn).toBeCloseTo((1 + 2 + 1 + 6) / 4, 6);
     expect(t.code_finished_rate).toBeCloseTo(2 / 3, 6); // finished turns only: done or confirm
     expect(t.confirm_rate).toBeCloseTo(1 / 4, 6);
     expect(t.turn_cache_rate).toBe(0);
@@ -124,11 +121,10 @@ describe.skipIf(!url)("stats queries (Postgres)", () => {
     expect(today).toMatchObject({ builds: 8, turns: 4, visitors: 7 });
     expect(yesterday).toMatchObject({ builds: 1, turns: 0, visitors: 1 });
     expect(stats.daily.slice(0, -2).every((d) => d.builds === 0 && d.turns === 0)).toBe(true);
-    expect(stats.totals.visitors_per_day).toBe(4); // (7 + 1) / 2 days with visits
   });
 
   it("totals feedback, and times each kind of successful model call", () => {
-    expect(stats.feedback).toEqual({ votes: 3, up: 2, on_carts: 2, on_replies: 1 });
+    expect(stats.feedback).toEqual({ votes: 3, up: 2 });
     expect(stats.steps.map((s) => [s.step, s.calls, s.avg_ms])).toEqual([
       ["plan", 2, 1000],
       ["cart", 1, 2000],
@@ -147,5 +143,12 @@ describe.skipIf(!url)("stats queries (Postgres)", () => {
     expect(stats.daily.at(-1)).toMatchObject({ judged_chats: 2, votes: 3, up: 2 });
     expect(stats.daily.at(-1)!.ready_rate).toBeCloseTo(1 / 2, 6);
     expect(stats.daily.at(-2)).toMatchObject({ judged_chats: 0, ready_rate: null, votes: 0, up: 0 });
+  });
+
+  it("counts runs, orders, messages to order and stars: the success metrics", () => {
+    // Three chats and one run that only has an order.
+    expect(stats.success).toMatchObject({ runs: 4, ordered: 1, order_rate: 0.25, messages_median: 3, messages_mean: 3, ratings: 1, avg_stars: 4, votes: 1, up: 0, turns: 4 });
+    expect(stats.daily.at(-1)).toMatchObject({ runs: 4, orders: 1 });
+    expect(stats.daily.at(-2)).toMatchObject({ runs: 0, orders: 0 });
   });
 });

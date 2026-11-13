@@ -5,6 +5,7 @@ import { diffCarts } from "@/lib/cart/diff";
 import type { Brief, Need, Session } from "@/lib/cart/types";
 import { solveSession } from "@/lib/chat/loop";
 import { Gallery } from "./Gallery";
+import { seedSampleRun } from "./sampleRun";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "UI gallery", robots: { index: false } };
@@ -30,7 +31,7 @@ const need = (id: string, kind: string, amount: number, unit: Need["unit"], o: P
  * Every state of the chat and the cart on one page, from a cart the real solver builds over the real
  * catalog: no model call, so the UI can be checked for free. Development only, like /history.
  */
-export default function UiGallery() {
+export default async function UiGallery() {
   if (process.env.NODE_ENV === "production") notFound();
 
   const brief: Brief = {
@@ -78,5 +79,6 @@ export default function UiGallery() {
   const before = { ...cart, lines: cart.lines.slice(1), total: cart.total - 120 } as typeof cart;
   const diff = diffCarts(before, cart);
 
+  await seedSampleRun(solved.cart, brief.summary);
   return <Gallery session={solved.session} cart={cart} checks={checks} diff={diff} />;
 }

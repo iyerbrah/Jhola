@@ -4,7 +4,7 @@
  */
 import { catalog, catalogIndex } from "../catalog";
 import { readyToOrder } from "../cart/ready";
-import type { CartRecord, RequestRecord, StepRecord } from "../requestLog";
+import type { CartRecord, RequestRecord, StepRecord } from "../log/requestLog";
 import type { Cart } from "../cart/types";
 import type { ChatTurnResult } from "./loop";
 
@@ -31,6 +31,9 @@ export function chatRecord(a: {
 }): RequestRecord {
   const r = a.result;
   const steps: StepRecord[] = r.meta.steps.map((s) => ({ ...s, name: s.name.slice(0, 80) }));
+  // Accuracy in production, judged like the eval judges it (lib/cart/ready.ts). The reasons are shown
+  // only behind the admin key on History; the yes or no is public.
+  const notReady = readyToOrder(r, catalogIndex);
   const changed = r.status === "done" && (r.diff.added.length || r.diff.removed.length || r.diff.swapped.length || r.diff.packs.length);
   return {
     id: a.id,
@@ -61,8 +64,8 @@ export function chatRecord(a: {
       note: r.note,
       confirm: r.pending?.reason ?? null,
       finished_by: r.meta.finished_by ?? null,
-      // Accuracy in production, judged like the eval judges it (lib/cart/ready.ts): totals only reach /results.
-      ready: readyToOrder(r, catalogIndex).length === 0,
+      ready: notReady.length === 0,
+      not_ready: notReady,
       failed_checks: r.checks.filter((c) => c.status === "fail").length,
       unmet_needs: r.cart.unmet.length,
     },

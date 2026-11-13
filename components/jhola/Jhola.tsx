@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { listText } from "@/lib/chat/client";
 import { fitsDiet } from "@/lib/requirements";
@@ -141,8 +142,8 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
             </main>
           </>
         )}
-        <SiteFooter />
       </div>
+      <SiteFooter />
 
       <Sheet open={cartOpen} onClose={() => setCartOpen(false)} title="Your cart">
         {panel(true)}
@@ -162,6 +163,7 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
         cart={j.now.cart}
         title={j.now.session.brief.summary}
         onRecheck={j.recheck}
+        onOrder={j.order}
         onClose={() => setCheckout(false)}
         onDone={() => {
           setCheckout(false);
@@ -216,6 +218,13 @@ function StartBox({ onSend }: { onSend: (s: string) => void }) {
           Build my cart
         </button>
       </form>
+      <p className="mt-2 text-sm text-ink-soft">
+        Runs are listed on the public{" "}
+        <Link href="/history" className={button("quiet-soft")}>
+          History
+        </Link>{" "}
+        page. Your messages are not shown.
+      </p>
       <p className="mt-5 text-sm font-semibold text-ink-soft">Or start with one of these</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {EXAMPLES.map((c) => (

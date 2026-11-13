@@ -9,11 +9,6 @@ export interface Limiter {
 
 export type LimitConfig = { perHour: number; perDay: number };
 
-export function limitConfigFromEnv(): LimitConfig {
-  const num = (v: string | undefined, fallback: number) => (v && Number(v) > 0 ? Number(v) : fallback);
-  return { perHour: num(process.env.RATE_LIMIT_PER_HOUR, 10), perDay: num(process.env.DAILY_REQUEST_CAP, 300) };
-}
-
 /** The Upstash Redis client, or null if it isn't configured. */
 export function redisFromEnv(): Redis | null {
   const url = process.env.UPSTASH_REDIS_REST_URL;
@@ -25,7 +20,7 @@ const secondsUntil = (resetMs: number) => Math.max(1, Math.ceil((resetMs - Date.
 
 /**
  * Limits stored in Upstash, so counts survive restarts and deploys of the server.
- * `prefix` keeps separate limiters (cart builds, agent turns) from sharing counts.
+ * `prefix` keeps separate limiters (chat turns, taps, orders) from sharing counts.
  */
 export function createUpstashLimiter(redis: Redis, config: LimitConfig, prefix = "acb:rl"): Limiter & { reset(ip: string): Promise<void> } {
   const perIp = new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(config.perHour, "1 h"), prefix: `${prefix}:ip` });

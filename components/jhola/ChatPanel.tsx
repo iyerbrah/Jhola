@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { changeParts } from "@/lib/chat/client";
 import type { CartDiff } from "@/lib/cart/diff";
-import { Feedback } from "../Feedback";
-import { rupees } from "../format";
+import { Feedback } from "./Feedback";
+import { rupees, rupeesExact, secs } from "../format";
 import { button, chip, PANEL } from "../ui";
 import type { ChatTurnView, TurnView } from "./useJhola";
 
@@ -54,7 +54,7 @@ export function ChatPanel({ turns, busy, canUndo, onSend, onUndo, onStop, onConf
                       {rupees(t.diff.total_before)} → {rupees(t.diff.total_after)}
                     </span>
                   )}
-                  <span>No AI call, {t.ms < 1 ? "under 1" : Math.round(t.ms)} ms</span>
+                  <span>No model call, {t.ms < 1 ? "under 1" : Math.round(t.ms)} ms</span>
                   {t.undone ? (
                     <span>Undone</span>
                   ) : (
@@ -168,7 +168,7 @@ function AgentTurn({
         )}
 
         {t.question && t.state === "done" && (
-          <div className="flex flex-wrap gap-2" aria-label={t.question.question}>
+          <div role="group" className="flex flex-wrap gap-2" aria-label={t.question.question}>
             <span className="sr-only">{t.question.question}</span>
             {t.question.options.map((o) => (
               <button key={o} type="button" disabled={busy} onClick={() => onSend(o)} className={chip("pref", "hover:bg-sign-soft")}>
@@ -203,12 +203,12 @@ function AgentTurn({
 
         {t.meta && t.state !== "working" && (
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <button type="button" onClick={onTrace} className="num flex flex-wrap gap-x-2 text-xs text-ink-soft underline decoration-line underline-offset-4 hover:text-ink hover:decoration-rani">
-              <span>{t.meta.cached ? "From the answer cache" : `${t.meta.model_calls === 0 ? "Answered" : "Built"} in ${(t.meta.latency_ms / 1000).toFixed(1)} s`}</span>
+            <button type="button" onClick={onTrace} className={button("quiet-soft", "num flex flex-wrap gap-x-2 text-xs")}>
+              <span>{t.meta.cached ? "From the cache" : `${t.meta.model_calls === 0 ? "Answered" : "Built"} in ${secs(t.meta.latency_ms)}`}</span>
               <span>{t.meta.model_calls + t.meta.tool_calls} steps</span>
-              <span>{t.meta.cost_inr != null ? `₹${t.meta.cost_inr.toFixed(2)}` : "–"} to run</span>
+              <span>{rupeesExact(t.meta.cost_inr)} to run</span>
             </button>
-            <Feedback key={t.meta.request_id} requestId={t.meta.request_id} target="reply" label="Helpful?" />
+            <Feedback key={t.meta.request_id} requestId={t.meta.request_id} label="Helpful?" />
           </div>
         )}
       </div>
@@ -249,7 +249,7 @@ function Composer({ busy, onSend, chips, inputRef }: { busy: boolean; onSend: (s
   return (
     <div className="sticky bottom-0 -mx-4 mt-6 bg-wall/95 px-4 pb-4 pt-3 backdrop-blur sm:mx-0 sm:px-0">
       {chips.length > 0 && (
-        <div className="mb-2.5 flex flex-wrap gap-2" aria-label="Suggestions">
+        <div role="group" className="mb-2.5 flex flex-wrap gap-2" aria-label="Suggestions">
           {chips.map((c) => (
             <button key={c} type="button" onClick={() => onSend(c)} className={chip("suggest")}>
               {c}

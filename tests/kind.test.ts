@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { indexCatalog } from "@/lib/catalog";
 import { solve } from "@/lib/cart/solve";
-import { isSameKind, matchesKind } from "@/lib/kind";
+import { isSameKind, matchesKind } from "@/lib/cart/kind";
 import type { Product } from "@/lib/schema";
 
 // The real catalog files rice flour and rice cakes under "rice", and cumin powder next to whole cumin.

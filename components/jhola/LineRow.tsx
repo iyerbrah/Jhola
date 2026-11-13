@@ -94,12 +94,7 @@ export function LineRow({ line: l, people, flash, disabled, onQty, onSwap, onRem
         >
           Remove
         </button>
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          aria-expanded={open}
-          className="ml-auto text-sm text-ink-soft underline decoration-line underline-offset-4 hover:text-ink hover:decoration-rani"
-        >
+        <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className={button("quiet-soft", "ml-auto text-sm")}>
           How I picked this
         </button>
       </div>

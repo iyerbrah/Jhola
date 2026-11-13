@@ -1,4 +1,4 @@
-/** Small helpers shared by the API handlers (build-carts, agent, feedback). */
+/** Small helpers shared by the API handlers (chat, solve, share, feedback, orders, export). */
 
 /**
  * The caller's IP, for rate limits. x-real-ip comes first: nginx (deploy/nginx/jhola.conf) sets it
@@ -7,8 +7,13 @@
  * This is safe because the app listens on 127.0.0.1 only, so every request comes through nginx.
  */
 export function clientIp(req: Request): string {
-  const real = req.headers.get("x-real-ip")?.trim();
-  const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  return clientIpFrom(req.headers);
+}
+
+/** The same, from the headers alone (server actions have no Request). */
+export function clientIpFrom(headers: Headers): string {
+  const real = headers.get("x-real-ip")?.trim();
+  const forwarded = headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   return real || forwarded || "local";
 }
 

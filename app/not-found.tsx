@@ -14,12 +14,12 @@ export default function NotFound() {
           <p>The link may be old or mistyped.</p>
         </SignHeadline>
       </SiteHeader>
-      <div className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 sm:px-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 sm:px-6">
         <Link href="/" className={button("primary", "inline-block px-5 py-3")}>
           Build a cart
         </Link>
-        <SiteFooter />
-      </div>
+      </main>
+      <SiteFooter />
     </div>
   );
 }

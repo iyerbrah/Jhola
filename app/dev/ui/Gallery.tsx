@@ -10,6 +10,7 @@ import { useCatalog } from "@/components/useCatalog";
 import { CartPanel } from "@/components/jhola/CartPanel";
 import { ChatPanel } from "@/components/jhola/ChatPanel";
 import { CheckoutSheet, PickSheet, TraceSheet } from "@/components/jhola/Sheets";
+import type { Placed } from "@/components/jhola/useJhola";
 import type { ChatTurnView, TurnView } from "@/components/jhola/useJhola";
 import { OpenInJhola } from "@/app/c/[id]/OpenInJhola";
 
@@ -141,14 +142,33 @@ export function Gallery({ session, cart, checks, diff }: { session: Session; car
             })}
           </div>
         </main>
-        <SiteFooter />
       </div>
+      <SiteFooter />
       <Sheet open={sheet} onClose={() => setSheet(false)} title="Your cart">
         {panel(true)}
       </Sheet>
       <PickSheet line={picking} brief={brief} products={products} onClose={() => setPicking(null)} onPick={() => setPicking(null)} />
-      <CheckoutSheet open={checkout} cart={cart} title={brief.summary} onRecheck={async () => null} onClose={() => setCheckout(false)} onDone={() => setCheckout(false)} />
+      <CheckoutSheet
+        open={checkout}
+        cart={cart}
+        title={brief.summary}
+        onRecheck={async () => null}
+        onOrder={() => placeOrder(session, cart)}
+        onClose={() => setCheckout(false)}
+        onDone={() => setCheckout(false)}
+      />
       <TraceSheet turn={trace} onClose={() => setTrace(null)} />
     </div>
   );
+}
+
+/** Places a real order for the fixture cart (dev only), as its own run, so History can be checked without a model call. */
+function placeOrder(session: Session, cart: Cart): Placed {
+  const placed: Placed = { id: crypto.randomUUID(), number: `JH-${Math.floor(100000 + Math.random() * 900000)}`, total: cart.total, items: cart.lines.filter((l) => l.counted).length };
+  void fetch("/api/order", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ order_id: placed.id, number: placed.number, session_id: crypto.randomUUID(), session, messages: 0 }),
+  });
+  return placed;
 }

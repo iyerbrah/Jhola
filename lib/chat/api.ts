@@ -16,7 +16,7 @@ import { catalog, catalogIndex, type CatalogIndex } from "../catalog";
 import { clientIp, json } from "../http";
 import { modelName } from "../llm";
 import { createMemoryLimiter, createUpstashLimiter, redisFromEnv, type LimitConfig, type Limiter } from "../ratelimit";
-import { defaultRequestLog, errorRecord, logInBackground, maskPii, type RequestLog } from "../requestLog";
+import { defaultRequestLog, errorRecord, logInBackground, maskPii, type RequestLog } from "../log/requestLog";
 import { visitorId } from "../visitor";
 import { createMemorySearch } from "../search";
 import { diffCarts } from "../cart/diff";

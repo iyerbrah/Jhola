@@ -2,15 +2,14 @@ import fs from "node:fs";
 import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DailyChart } from "@/components/DailyChart";
-import { usd } from "@/components/format";
+import { day, pct, secs, usd } from "@/components/format";
 import { REPO_URL, SiteFooter } from "@/components/SiteFooter";
 import { SignHeadline, SiteHeader } from "@/components/SiteHeader";
-import { TrendChart, type TrendPoint } from "@/components/TrendChart";
-import { button, H2, Notice, StatBoard } from "@/components/ui";
+import { TrendChart, type TrendPoint } from "@/components/results/TrendChart";
+import { button, CARD, H2, H3, Notice, StatBoard } from "@/components/ui";
 import type { ChatSummary, ScenarioScore } from "@/evals/chatScore";
 import { change, HISTORY_FILE, LATEST_FILE, THEMES, themeScores, type HistoryEntry } from "@/evals/history";
-import { loadStats, type Stats } from "@/lib/stats";
+import { loadStats, type Stats } from "@/lib/log/stats";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -36,11 +35,6 @@ const read = <T,>(file: string): T | null => {
   }
 };
 
-const pct = (x: number | null | undefined) => (x == null ? "–" : `${Math.round(x * 100)}%`);
-const secs = (ms: number | null | undefined) => (ms == null ? "–" : `${(ms / 1000).toFixed(1)} s`);
-const day = new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
-const date = (iso: string) => day.format(new Date(iso));
-const shortDay = (d: string) => day.format(new Date(`${d}T12:00:00+05:30`));
 
 const CATEGORY: Record<string, string> = {
   not_ready: "Cart not ready to order",
@@ -111,15 +105,18 @@ export default async function ResultsPage() {
 
   const measured: [string, string, string][] = s
     ? [
-        ["Carts ready to order", pct(s.ready_to_order), change(s.ready_to_order, prev?.ready_to_order) ? `${change(s.ready_to_order, prev?.ready_to_order)} since ${date(prev!.ran_at)}` : `of ${s.scenarios} scripted chats`],
-        ["Chats passed", `${s.passed} / ${s.scenarios}`, change(s.task_success, prev?.task_success) ? `${change(s.task_success, prev?.task_success)} since ${date(prev!.ran_at)}` : "every check in the chat"],
+        ["Carts ready to order", pct(s.ready_to_order), change(s.ready_to_order, prev?.ready_to_order) ? `${change(s.ready_to_order, prev?.ready_to_order)} since ${day(prev!.ran_at)}` : `of ${s.scenarios} scripted chats`],
+        ["Chats passed", `${s.passed} / ${s.scenarios}`, change(s.task_success, prev?.task_success) ? `${change(s.task_success, prev?.task_success)} since ${day(prev!.ran_at)}` : "every check in the chat"],
         ["Rule breaks", String(s.rule_breaks), "a cart that broke the shopper's diet, allergy or rules"],
       ]
     : [];
   const live: [string, string, string][] = stats
     ? [
-        ["Carts ready to order", pct(a?.ready_rate), a?.judged_chats ? `${a.judged_chats} real chats${change(liveNow, liveBefore) ? `, ${change(liveNow, liveBefore)} on the week before` : ""}` : "judged from the next chat on"],
-        ["Thumbs up", votes ? pct(stats.feedback.up / votes) : "–", `${votes} vote${votes === 1 ? "" : "s"}`],
+        ["Runs that ended in an order", pct(stats.success.order_rate), `${stats.success.ordered} of ${stats.success.runs} runs`],
+        ["Carts ready to order", pct(a?.ready_rate), a?.judged_chats ? `checked in code, ${a.judged_chats} real chats${change(liveNow, liveBefore) ? `, ${change(liveNow, liveBefore)} on the week before` : ""}` : "checked in code, from the next chat on"],
+        ["Messages to order", stats.success.messages_median == null ? "–" : String(Math.round(stats.success.messages_median * 10) / 10), "median, before the order"],
+        ["Average rating", stats.success.avg_stars == null ? "–" : `★ ${stats.success.avg_stars.toFixed(1)}`, `from ${stats.success.ratings} rating${stats.success.ratings === 1 ? "" : "s"}`],
+        ["Helpful replies", votes ? pct(stats.feedback.up / votes) : "–", `${votes} vote${votes === 1 ? "" : "s"}`],
         ["Turns that went wrong", pct((stats.totals.give_up_rate ?? 0) + (stats.totals.error_rate ?? 0)), "gave up or failed"],
       ]
     : [];
@@ -142,13 +139,11 @@ export default async function ResultsPage() {
           </h2>
           <div className="mt-5 grid gap-10 lg:grid-cols-2">
             <div>
-              <p className="mb-3 text-sm font-semibold text-ink">
-                Measured: the eval{run ? `, run on ${date(run.meta.ran_at)} with ${run.meta.model}` : ""}
-              </p>
+              <h3 className={`mb-3 ${H3}`}>Measured: the eval{run ? `, run on ${day(run.meta.ran_at)} with ${run.meta.model}` : ""}</h3>
               {s ? <StatBoard cols={3} items={measured} /> : <Notice>No eval run saved yet. Run it with npm run eval:chat.</Notice>}
             </div>
             <div>
-              <p className="mb-3 text-sm font-semibold text-ink">In use: real chats, last 30 days</p>
+              <h3 className={`mb-3 ${H3}`}>In use: real runs, last 30 days</h3>
               {liveDown ? (
                 <Notice tone="warn">The request log can&apos;t be reached right now; check back in a minute.</Notice>
               ) : stats ? (
@@ -166,11 +161,11 @@ export default async function ResultsPage() {
             Accuracy over time
           </h2>
           <div className="mt-5 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-md border-2 border-sign bg-paper p-5 sm:p-6">
-              <h3 className="font-semibold text-ink">The eval, run by run</h3>
+            <div className={CARD}>
+              <h3 className={H3}>The eval, run by run</h3>
               <p className="mt-1 text-sm text-ink-soft">
                 {history.length >= 2 && first && latest
-                  ? `Ready to order ${pct(first.ready_to_order)} → ${pct(latest.ready_to_order)} over ${history.length} runs, since ${date(first.ran_at)}.`
+                  ? `Ready to order ${pct(first.ready_to_order)} → ${pct(latest.ready_to_order)} over ${history.length} runs, since ${day(first.ran_at)}.`
                   : history.length === 1
                     ? "One run so far: each new run adds a point, and the line shows whether changes helped."
                     : "No runs saved yet."}
@@ -185,8 +180,8 @@ export default async function ResultsPage() {
                     ]}
                     points={history.map(
                       (h): TrendPoint => ({
-                        label: date(h.ran_at),
-                        title: `${date(h.ran_at)}${h.commit ? ` (${h.commit})` : ""}: ready ${pct(h.ready_to_order)}, passed ${h.passed}/${h.scenarios}, ${h.rule_breaks} rule break${h.rule_breaks === 1 ? "" : "s"}${h.note ? `. ${h.note}` : ""}`,
+                        label: day(h.ran_at),
+                        title: `${day(h.ran_at)}${h.commit ? ` (${h.commit})` : ""}: ready ${pct(h.ready_to_order)}, passed ${h.passed}/${h.scenarios}, ${h.rule_breaks} rule break${h.rule_breaks === 1 ? "" : "s"}${h.note ? `. ${h.note}` : ""}`,
                         values: { ready: h.ready_to_order, passed: h.task_success },
                       }),
                     )}
@@ -194,10 +189,10 @@ export default async function ResultsPage() {
                 </div>
               )}
             </div>
-            <div className="rounded-md border-2 border-line bg-paper p-5 sm:p-6">
-              <h3 className="font-semibold text-ink">Real chats, day by day</h3>
+            <div className={CARD}>
+              <h3 className={H3}>Real chats, day by day</h3>
               <p className="mt-1 text-sm text-ink-soft">
-                {a?.tracked_since ? `Judged since ${shortDay(a.tracked_since)}, the same way the eval judges a chat.` : "Each chat is judged from its last turn, the same way the eval judges a chat."}
+                {a?.tracked_since ? `Judged since ${day(a.tracked_since)}, the same way the eval judges a chat.` : "Each chat is judged from its last turn, the same way the eval judges a chat."}
               </p>
               {stats ? (
                 <div className="mt-4">
@@ -209,8 +204,8 @@ export default async function ResultsPage() {
                     ]}
                     points={stats.daily.map(
                       (d): TrendPoint => ({
-                        label: shortDay(d.day),
-                        title: `${shortDay(d.day)}: ${d.judged_chats} judged chat${d.judged_chats === 1 ? "" : "s"}, ready ${pct(d.ready_rate)}; ${d.votes} vote${d.votes === 1 ? "" : "s"}`,
+                        label: day(d.day),
+                        title: `${day(d.day)}: ${d.judged_chats} judged chat${d.judged_chats === 1 ? "" : "s"}, ready ${pct(d.ready_rate)}; ${d.votes} vote${d.votes === 1 ? "" : "s"}`,
                         values: { ready: d.ready_rate, up: d.votes ? d.up / d.votes : null },
                       }),
                     )}
@@ -239,7 +234,7 @@ export default async function ResultsPage() {
                   {[...history].reverse().map((h) => (
                     <tr key={h.ran_at} className="border-t border-line align-top">
                       <td className="py-1.5">
-                        {date(h.ran_at)} {h.commit && <span className="text-ink-soft">({h.commit})</span>}
+                        {day(h.ran_at)} {h.commit && <span className="text-ink-soft">({h.commit})</span>}
                       </td>
                       <td className="py-1.5 font-sans">{h.note || "–"}</td>
                       <td className="py-1.5 text-right">{pct(h.ready_to_order)}</td>
@@ -259,7 +254,18 @@ export default async function ResultsPage() {
         {s && run && <EvalDetail run={run} prev={prev} />}
 
         {/* 6. Running in production */}
-        {stats && stats.totals.requests > 0 && <Production stats={stats} />}
+        <section aria-labelledby="runs" className="mt-14">
+          <h2 id="runs" className={H2}>
+            Every run, in detail
+          </h2>
+          <p className="mt-2 max-w-2xl text-ink-soft">
+            Cost, time, model and tool calls, traces, how each chat ended and what shoppers said about it are on the{" "}
+            <Link href="/history" className={button("quiet")}>
+              History
+            </Link>{" "}
+            page.
+          </p>
+        </section>
 
         {bench && (
           <section className="mt-14">
@@ -293,7 +299,8 @@ export default async function ResultsPage() {
               refusals, prompt injection and big changes that wait for a yes. Every result is checked in code.
             </li>
             <li>
-              <strong>Real chats</strong> are judged the same way, from each chat&apos;s last turn. Only totals are shown: no messages, and visitors are a daily code that can&apos;t be traced back.
+              <strong>Real runs</strong> are judged the same way, from each chat&apos;s last turn, and the main measure is whether the shopper said &ldquo;I&apos;m ready to order&rdquo;. This page shows
+              totals; <Link href="/history" className={button("quiet")}>History</Link> lists every run, with chat messages kept behind the admin key.
             </li>
             <li>
               <strong>One run is a snapshot.</strong> The model doesn&apos;t answer identically every time, so a few points either way between runs can be chance; a trend over several runs is the
@@ -304,12 +311,12 @@ export default async function ResultsPage() {
               <a href={`${REPO_URL}/tree/main/evals/final`} className={button("quiet")}>
                 37-chat subset
               </a>{" "}
-              against the last saved run. A full run is capped at $1.50.
+              when the PR gets the run-evals label. A full run is capped at $1.50.
             </li>
           </ul>
         </section>
-        <SiteFooter />
       </main>
+      <SiteFooter />
     </div>
   );
 }
@@ -335,14 +342,14 @@ function EvalDetail({ run, prev }: { run: Run; prev: HistoryEntry | undefined })
           {byTheme.map((t) => (
             <div key={t.id} className="border-t-[3px] border-sign pt-2.5">
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="font-semibold text-ink">{t.title}</h3>
+                <h3 className={H3}>{t.title}</h3>
                 <span className="num font-sign text-2xl text-ink">
                   {t.score.passed}/{t.score.scenarios}
                 </span>
               </div>
               {prev?.by_theme?.[t.id] && (
                 <p className="text-xs text-ink-soft">
-                  {change(t.score.passed / t.score.scenarios, prev.by_theme[t.id].passed / prev.by_theme[t.id].scenarios) ?? ""} since {date(prev.ran_at)}
+                  {change(t.score.passed / t.score.scenarios, prev.by_theme[t.id].passed / prev.by_theme[t.id].scenarios) ?? ""} since {day(prev.ran_at)}
                 </p>
               )}
               <dl className="mt-2 divide-y divide-line text-sm">
@@ -417,7 +424,7 @@ function EvalDetail({ run, prev }: { run: Run; prev: HistoryEntry | undefined })
           {byTheme.map((t) => {
             const chats = run.scores.filter((x) => themeOf(x.group) === t.id);
             return (
-              <details key={t.id} className="rounded-md border border-line bg-paper px-4 py-3 open:border-sign">
+              <details key={t.id} className="rounded-md border-2 border-line bg-paper px-4 py-3 open:border-sign">
                 <summary className="cursor-pointer font-semibold text-ink marker:text-sign">
                   {t.title}{" "}
                   <span className="num font-normal text-ink-soft">
@@ -432,17 +439,19 @@ function EvalDetail({ run, prev }: { run: Run; prev: HistoryEntry | undefined })
                       <li key={c.id}>
                         {c.passed ? (
                           <p>
-                            <span className="font-semibold text-sign" aria-label="passed">
+                            <span className="font-semibold text-sign" aria-hidden>
                               ✓
-                            </span>{" "}
+                            </span>
+                            <span className="sr-only">Passed:</span>{" "}
                             {said}
                           </p>
                         ) : (
                           <details>
                             <summary className="cursor-pointer">
-                              <span className="font-semibold text-chilli" aria-label="failed">
+                              <span className="font-semibold text-chilli" aria-hidden>
                                 ✗
-                              </span>{" "}
+                              </span>
+                              <span className="sr-only">Failed:</span>{" "}
                               {said}
                             </summary>
                             <div className="mt-1.5 border-l-2 border-chilli pl-3">
@@ -479,83 +488,3 @@ function EvalDetail({ run, prev }: { run: Run; prev: HistoryEntry | undefined })
   );
 }
 
-function Production({ stats }: { stats: Stats }) {
-  const t = stats.totals;
-  return (
-    <section aria-labelledby="prod" className="mt-14">
-      <h2 id="prod" className={H2}>
-        Running in production
-      </h2>
-      <p className="mt-2 text-ink-soft">The live site&apos;s last 30 days, from its request log, updated every minute.</p>
-      <div className="mt-5">
-        <StatBoard
-          cols={4}
-          items={[
-            ["Chats", String(t.chats), `${t.turns} turns`],
-            ["Turn, median", secs(t.turn_p50_ms), `p95 ${secs(t.turn_p95_ms)}`],
-            ["Ended by code", pct(t.code_finished_rate), "no model call to finish"],
-            ["Cost per turn", usd(t.cost_per_turn), `${usd(t.cost_usd)} in all`],
-          ]}
-        />
-      </div>
-      <div className="mt-6 rounded-md border-2 border-sign bg-paper p-5 sm:p-6">
-        <h3 className="font-semibold text-ink">Requests per day</h3>
-        <div className="mt-4">
-          <DailyChart daily={stats.daily} />
-        </div>
-      </div>
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-md border-2 border-line bg-paper p-5 sm:p-6">
-          <h3 className="font-semibold text-ink">What went wrong in real chats</h3>
-          <dl className="mt-3 divide-y divide-line">
-            <Row label="Turns whose cart failed a check" value={pct(stats.accuracy.failed_check_rate)} />
-            <Row label="Turns that gave up (cart left as it was)" value={pct(t.give_up_rate)} />
-            <Row label="Requests that failed" value={pct(t.error_rate)} />
-            <Row label="Big changes held for the shopper's yes" value={pct(t.confirm_rate)} />
-            <Row label="First messages answered from the cache" value={pct(t.turn_cache_rate)} />
-          </dl>
-        </div>
-        {stats.steps.length > 0 && (
-          <div className="rounded-md border-2 border-line bg-paper p-5 sm:p-6">
-            <h3 className="font-semibold text-ink">Where the time goes</h3>
-            <table className="mt-3 w-full text-left text-sm">
-              <thead className="text-ink-soft">
-                <tr>
-                  <th className="py-1.5 font-semibold">Model call</th>
-                  <th className="py-1.5 text-right font-semibold">Calls</th>
-                  <th className="py-1.5 text-right font-semibold">Average</th>
-                  <th className="py-1.5 text-right font-semibold">p95</th>
-                </tr>
-              </thead>
-              <tbody className="num">
-                {stats.steps.map((x) => (
-                  <tr key={x.step} className="border-t border-line">
-                    <td className="py-1.5 text-ink">{x.step === "agent" ? "One agent model call" : `${x.step} (old 3-cart builder)`}</td>
-                    <td className="py-1.5 text-right">{x.calls}</td>
-                    <td className="py-1.5 text-right">{secs(x.avg_ms)}</td>
-                    <td className="py-1.5 text-right">{secs(x.p95_ms)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-      <p className="mt-4 text-sm">
-        <Link href="/" className={button("quiet")}>
-          Build a cart
-        </Link>{" "}
-        <span className="text-ink-soft">and it counts here.</span>
-      </p>
-    </section>
-  );
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 py-2">
-      <dt className="text-ink">{label}</dt>
-      <dd className="num font-semibold text-ink">{value}</dd>
-    </div>
-  );
-}

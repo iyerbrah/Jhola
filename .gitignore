@@ -46,3 +46,10 @@ next-env.d.ts
 
 # PR eval check report (posted as a PR comment, not committed)
 /evals/ci-report.md
+
+# eval runs: only the newest full run (latest-final.json) is committed
+/evals/chat/results/*
+!/evals/chat/results/latest-final.json
+
+# local editor settings
+/.vscode/

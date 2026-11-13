@@ -12,8 +12,8 @@ if ! command -v npm >/dev/null; then
 fi
 
 if ! grep -qsE '^OPENROUTER_API_KEY=.+' .env .env.local; then
-  echo "Add your OpenRouter key to .env (OPENROUTER_API_KEY=...) first; carts can't be built without it."
-  echo "Copy .env.example to .env if you haven't. The page will still open, but building carts will show an error."
+  echo "Add your OpenRouter key to .env (OPENROUTER_API_KEY=...) first; the agent can't build carts without it."
+  echo "Copy .env.example to .env if you haven't. The page still opens, but sending a message shows an error."
   echo
 fi
 

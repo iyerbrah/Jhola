@@ -50,6 +50,11 @@ const PAIRS: [string, string, string, boolean?][] = [
   [color("chilli"), color("paper"), "errors and removals"],
   [color("chilli"), color("chilli-soft"), "flagged listing, error box"],
   [color("ink"), color("chilli-soft"), "error box text"],
+  // Graphics (3:1, WCAG 1.4.11): the star's ink outline against white and against its turmeric fill.
+  [color("ink"), color("paper"), "star rating outline", true],
+  [color("ink"), color("turmeric"), "star rating outline on a filled star", true],
+  [color("turmeric-text"), color("wall"), "stars on History"],
+  [color("turmeric-text"), color("paper"), "stars in a run's feedback"],
 ];
 
 let failed = 0;

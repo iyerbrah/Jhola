@@ -9,7 +9,7 @@ Browser ──HTTPS──▶ nginx (ports 80/443, Let's Encrypt certificate)
                    Next.js on 127.0.0.1:3000 (systemd service "jhola", user "jhola")
                      ├──▶ OpenRouter (openai/gpt-5.4-mini)
                      ├──▶ Upstash Redis (HTTPS): rate limits, first-answer cache
-                     └──▶ PostgreSQL on 127.0.0.1:5432: request log, feedback, /stats
+                     └──▶ PostgreSQL on 127.0.0.1:5432: request log, votes, orders, shared carts
 ```
 
 | What | Where |
@@ -102,11 +102,11 @@ sudo nginx -t && sudo systemctl reload nginx
 sudo journalctl -u jhola -f
 ```
 
-Each cart request logs one `build_carts` line with its query, time, tokens and whether it came from the cache. Each agent turn logs one `agent_step` line per model or tool call and one `agent_turn` line, all sharing a `trace_id`. To follow one turn: `sudo journalctl -u jhola | grep <trace_id>`. Ctrl+C stops watching.
+Each chat turn logs one `chat_step` line per model or tool call and one `chat_turn` line, all sharing a `trace_id`. To follow one turn: `sudo journalctl -u jhola | grep <trace_id>`. Ctrl+C stops watching.
 
 ### Look at the request log
 
-Every cart build and agent turn is saved in Postgres (`requests`, with `carts`, `cart_items` and `trace_steps`). For a quick look on the server:
+Every chat turn is saved in Postgres (`requests`, with `carts`, `cart_items` and `trace_steps`), and every "I'm ready to order" in `orders`. The same data is on [/history](https://jhola.ramiyer.tech/history). For a quick look on the server:
 
 ```bash
 sudo -u postgres psql jhola -c "select kind, status, count(*), round(avg(latency_ms)) as avg_ms from requests where created_at > now() - interval '1 day' group by 1, 2 order by 1, 2"
@@ -138,12 +138,12 @@ sudo systemctl restart jhola
 
 The exception is `SITE_URL`: it's read at build time, so after changing it, run `deploy/deploy.sh` instead of only restarting.
 
-The file holds `SITE_URL`, `LLM_PROVIDER`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` (plus `OPENAI_API_KEY` and `OPENAI_MODEL` only to call OpenAI directly), `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `RATE_LIMIT_PER_HOUR`, `DAILY_REQUEST_CAP`, `HISTORY_KEY`, `DATABASE_URL` and `VISITOR_SECRET`. [.env.example](../.env.example) explains each one.
+The file holds `SITE_URL`, `LLM_PROVIDER`, `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` (plus `OPENAI_API_KEY` and `OPENAI_MODEL` only to call OpenAI directly), `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `ADMIN_KEY`, `DATABASE_URL` and `VISITOR_SECRET`. [.env.example](../.env.example) explains each one.
 
 ### Rotate a key
 
 - **Upstash:** in [console.upstash.com](https://console.upstash.com), open the database and use **Reset Password**. That replaces the REST token; the URL stays the same. Copy the new token from **Connect → REST**, put it in the secrets file and restart. Until you do, the site keeps working but without rate limits or the answer cache.
-- **OpenRouter** (or OpenAI, if you call it directly): create the new key first, put it in the secrets file, restart, check a cart builds, then revoke the old key.
+- **OpenRouter** (or OpenAI, if you call it directly): create the new key first, put it in the secrets file, restart, check that a chat builds a cart, then revoke the old key.
 
 ### Other checks
 
@@ -153,8 +153,9 @@ The file holds `SITE_URL`, `LLM_PROVIDER`, `OPENROUTER_API_KEY`, `OPENROUTER_MOD
 | Test certificate renewal | `sudo certbot renew --dry-run` |
 | See the certificate's expiry | `sudo certbot certificates` |
 | Install Ubuntu and Node.js updates | `sudo apt update && sudo apt upgrade`, then `sudo systemctl restart jhola` |
-| Read recent builds and their cost | open `https://jhola.ramiyer.tech/history?key=<HISTORY_KEY>` |
-| See volume, speed, cost and feedback | open `https://jhola.ramiyer.tech/stats` (public, totals only) |
+| See every run: outcome, rating, cost, time, trace | open `https://jhola.ramiyer.tech/history`; on a run's page, type the admin key to see its messages |
+| Export the logs | on History, press Export logs and type the admin key: a zip of CSVs for the last 90 days |
+| See accuracy over time | open `https://jhola.ramiyer.tech/results` |
 
 ## Setting up a server from scratch
 
@@ -229,12 +230,10 @@ OPENROUTER_API_KEY=
 OPENROUTER_MODEL=openai/gpt-5.4-mini
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
-RATE_LIMIT_PER_HOUR=10
-DAILY_REQUEST_CAP=300
-HISTORY_KEY=
+ADMIN_KEY=
 ```
 
-Fill in the values with no quote marks (`DATABASE_URL` and `VISITOR_SECRET` are added in step 10). For `HISTORY_KEY`, `openssl rand -hex 16` prints a good one. Then lock the file down:
+Fill in the values with no quote marks (`DATABASE_URL` and `VISITOR_SECRET` are added in step 10). For `ADMIN_KEY`, `openssl rand -hex 16` prints a good one (an existing `HISTORY_KEY` keeps working). Then lock the file down:
 
 ```bash
 sudo chmod 600 /opt/jhola/.env.production.local
