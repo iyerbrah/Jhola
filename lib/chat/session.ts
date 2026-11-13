@@ -29,7 +29,7 @@ export function parseSession(input: unknown): { ok: true; session: Session } | {
 }
 
 export const ActionSchema = z.discriminatedUnion("type", [
-  /** Re-solve as is: checkout's stock check, or applying a change the shopper confirmed. */
+  /** Re-solve as is: opening a shared cart, or applying a change the shopper confirmed. */
   z.object({ type: z.literal("solve") }),
   z.object({
     type: z.literal("brief"),

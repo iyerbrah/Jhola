@@ -13,8 +13,8 @@ import { button, chip, PANEL, PriceTag } from "../ui";
 import { useCatalog } from "../useCatalog";
 import { CartPanel } from "./CartPanel";
 import { ChatPanel } from "./ChatPanel";
-import { CheckoutSheet, PickSheet, TraceSheet } from "./Sheets";
-import { useJhola, type ChatTurnView } from "./useJhola";
+import { OrderedSheet, PickSheet, TraceSheet } from "./Sheets";
+import { useJhola, type ChatTurnView, type Placed } from "./useJhola";
 
 export const EXAMPLES = ["Stuff for pasta night for 4, vegetarian, around ₹600", "Weekly veggies for 2, no onions", "Cleaning supplies for a new flat", "Gift of 4 dark chocolates under ₹1000"];
 
@@ -22,7 +22,7 @@ export const EXAMPLES = ["Stuff for pasta night for 4, vegetarian, around ₹600
 export function Jhola({ catalogSize }: { catalogSize: number }) {
   const j = useJhola();
   const [picking, setPicking] = useState<Line | null>(null);
-  const [checkout, setCheckout] = useState(false);
+  const [placed, setPlaced] = useState<Placed | null>(null);
   const [trace, setTrace] = useState<ChatTurnView | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [shareNote, setShareNote] = useState<string | null>(null);
@@ -71,9 +71,9 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
       flash={j.flash}
       onTap={(a, text) => void j.tap(a, text)}
       onSwap={setPicking}
-      onCheckout={() => {
+      onOrder={() => {
         setCartOpen(false);
-        setCheckout(true);
+        setPlaced(j.order());
       }}
       onCopy={copy}
       onShare={share}
@@ -158,15 +158,10 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
           setPicking(null);
         }}
       />
-      <CheckoutSheet
-        open={checkout}
-        cart={j.now.cart}
-        title={j.now.session.brief.summary}
-        onRecheck={j.recheck}
-        onOrder={j.order}
-        onClose={() => setCheckout(false)}
+      <OrderedSheet
+        placed={placed}
         onDone={() => {
-          setCheckout(false);
+          setPlaced(null);
           j.reset();
         }}
       />

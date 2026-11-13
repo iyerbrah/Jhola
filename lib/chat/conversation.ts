@@ -61,7 +61,6 @@ export type ConversationAction =
   | { type: "declined"; id: number }
   | { type: "tap"; id: number; text: string; result: Solved }
   | { type: "tap_error"; id: number; text: string; error: string }
-  | { type: "recheck"; id: number; result: Solved }
   | { type: "undo"; id: number }
   | { type: "clear_flash" }
   | { type: "reset" };
@@ -134,12 +133,6 @@ export function conversationReducer(s: ConversationState, a: ConversationAction)
     }
     case "tap_error":
       return { ...s, turns: [...s.turns, { id: a.id, kind: "tap", text: a.text, diff: noDiff(s.now.cart.total), ms: 0, error: a.error }] };
-    case "recheck": {
-      // Checkout's stock check: only a cart that changed becomes a turn (swapped, shown, undoable).
-      if (isEmpty(a.result.diff)) return s;
-      const [next, undoTo] = commit(s, snapshotOf(a.result), a.result.diff);
-      return { ...next, turns: [...next.turns, { id: a.id, kind: "tap", text: "Stock changed at checkout", diff: a.result.diff, ms: a.result.meta.ms, undoTo }] };
-    }
     case "undo": {
       const t = s.turns.find((x) => x.id === a.id);
       if (!t || !canUndo(s, t)) return s;

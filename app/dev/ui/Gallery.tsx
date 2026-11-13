@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { useCatalog } from "@/components/useCatalog";
 import { CartPanel } from "@/components/jhola/CartPanel";
 import { ChatPanel } from "@/components/jhola/ChatPanel";
-import { CheckoutSheet, PickSheet, TraceSheet } from "@/components/jhola/Sheets";
+import { OrderedSheet, PickSheet, TraceSheet } from "@/components/jhola/Sheets";
 import type { Placed } from "@/components/jhola/useJhola";
 import type { ChatTurnView, TurnView } from "@/components/jhola/useJhola";
 import { OpenInJhola } from "@/app/c/[id]/OpenInJhola";
@@ -36,7 +36,7 @@ const meta = (id: string, cost: number): NonNullable<ChatTurnView["meta"]> => ({
 /** Renders the real components in every state they have. Taps are logged, not sent. */
 export function Gallery({ session, cart, checks, diff }: { session: Session; cart: Cart; checks: Check[]; diff: CartDiff }) {
   const [picking, setPicking] = useState<Line | null>(null);
-  const [checkout, setCheckout] = useState(false);
+  const [placed, setPlaced] = useState<Placed | null>(null);
   const [trace, setTrace] = useState<ChatTurnView | null>(null);
   const [sheet, setSheet] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -95,7 +95,7 @@ export function Gallery({ session, cart, checks, diff }: { session: Session; car
       flash={[cart.lines[1]?.product.id ?? ""]}
       onTap={(a, text) => console.log("tap", a, text)}
       onSwap={setPicking}
-      onCheckout={() => setCheckout(true)}
+      onOrder={() => setPlaced(placeOrder(session, cart))}
       onCopy={() => {}}
       onShare={() => {}}
       shareNote={null}
@@ -148,15 +148,7 @@ export function Gallery({ session, cart, checks, diff }: { session: Session; car
         {panel(true)}
       </Sheet>
       <PickSheet line={picking} brief={brief} products={products} onClose={() => setPicking(null)} onPick={() => setPicking(null)} />
-      <CheckoutSheet
-        open={checkout}
-        cart={cart}
-        title={brief.summary}
-        onRecheck={async () => null}
-        onOrder={() => placeOrder(session, cart)}
-        onClose={() => setCheckout(false)}
-        onDone={() => setCheckout(false)}
-      />
+      <OrderedSheet placed={placed} onDone={() => setPlaced(null)} />
       <TraceSheet turn={trace} onClose={() => setTrace(null)} />
     </div>
   );

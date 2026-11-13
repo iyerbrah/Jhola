@@ -11,7 +11,7 @@ type ButtonKind = "primary" | "buy" | "secondary" | "quiet" | "quiet-soft";
 const BUTTON: Record<ButtonKind, string> = {
   // Painted-sign green: the main action of a view.
   primary: "rounded-md bg-sign px-4 py-2.5 font-bold text-on-sign hover:bg-sign-deep",
-  // Turmeric, the price tag's colour: only for ordering (Review & checkout, I'm ready to order).
+  // Turmeric, the price tag's colour: only for ordering (I'm ready to order).
   buy: "rounded-md bg-turmeric px-4 py-3 font-bold text-ink hover:bg-turmeric-deep",
   secondary: "rounded-md border-2 border-sign bg-paper px-4 py-2 font-semibold text-sign hover:bg-sign-soft",
   quiet: "font-semibold text-ink underline decoration-line decoration-2 underline-offset-4 hover:decoration-rani",

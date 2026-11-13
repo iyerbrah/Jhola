@@ -104,12 +104,6 @@ describe("conversation reducer", () => {
     expect(reduce(s, { type: "declined", id: 2 }).now).toBe(before);
   });
 
-  it("a stock recheck that changed nothing adds no turn", () => {
-    const s = chat(initialConversation(), 1, "pasta night", done(pasta));
-    const same = solved(s.now.session, solved(s.now.session));
-    expect(reduce(s, { type: "recheck", id: 2, result: same })).toBe(s);
-  });
-
   it("restore drops a turn that was still working, and saving does the same", () => {
     const s = reduce(chat(initialConversation(), 1, "pasta night", done(pasta)), { type: "send", id: 2, message: "more" });
     const kept = saved(s);
