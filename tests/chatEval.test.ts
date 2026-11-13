@@ -39,7 +39,7 @@ describe("the scenarios", () => {
       const setup = setUp(s, catalog);
       expect(setup.start.checks.filter((c) => c.status === "fail"), s.id).toEqual([]);
     }
-  });
+  }, 60_000); // sets up every scenario against the whole catalogue: about 10 s on a CI runner
 
   it("a stock-out scenario sells out the start product; a pin scenario pins it", () => {
     const oos = setUp(all.find((s) => s.id === "stock-cheese-sold-out")!, catalog);

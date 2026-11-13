@@ -14,7 +14,7 @@ describe.each(["final", "goal", "core"] as const)("the %s suite against the groc
   it("has no chat that no cart could pass: every item, brand, amount, count and budget is achievable", () => {
     const bad = allScenarios(suite).flatMap((s) => feasibility(s, catalog).map((p) => `${s.id}: ${p}`));
     expect(bad).toEqual([]);
-  });
+  }, 60_000); // solves every chat of the suite against the whole catalogue: seconds on a CI runner
 });
 
 describe("the feasibility check itself", () => {
