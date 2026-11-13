@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { handleChat, handleShare, handleSolve, type ChatApiDeps, type ChatStreamEvent, type TurnCache } from "@/lib/chat/api";
 import { runChatTurn, type ChatTurnResult } from "@/lib/chat/loop";
 import { createMemoryShareStore } from "@/lib/chat/share";
-import { createMemoryRequestLog } from "@/lib/requestLog";
+import { createMemoryRequestLog } from "@/lib/log/requestLog";
 import type { Limiter } from "@/lib/ratelimit";
 import { build, kinds, scripted, search, step } from "./chatHarness";
 import { index, products } from "./cartFixtures";

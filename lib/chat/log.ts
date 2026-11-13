@@ -2,8 +2,9 @@
  * A chat turn as a request-log record. Turns are stored with kind "agent" (the table's existing kind),
  * the cart before and after at position 0, and every model and tool step as trace steps.
  */
-import { catalog } from "../catalog";
-import type { CartRecord, RequestRecord, StepRecord } from "../requestLog";
+import { catalog, catalogIndex } from "../catalog";
+import { readyToOrder } from "../cart/ready";
+import type { CartRecord, RequestRecord, StepRecord } from "../log/requestLog";
 import type { Cart } from "../cart/types";
 import type { ChatTurnResult } from "./loop";
 
@@ -30,6 +31,9 @@ export function chatRecord(a: {
 }): RequestRecord {
   const r = a.result;
   const steps: StepRecord[] = r.meta.steps.map((s) => ({ ...s, name: s.name.slice(0, 80) }));
+  // Accuracy in production, judged like the eval judges it (lib/cart/ready.ts). The reasons are shown
+  // only behind the admin key on History; the yes or no is public.
+  const notReady = readyToOrder(r, catalogIndex);
   const changed = r.status === "done" && (r.diff.added.length || r.diff.removed.length || r.diff.swapped.length || r.diff.packs.length);
   return {
     id: a.id,
@@ -60,6 +64,10 @@ export function chatRecord(a: {
       note: r.note,
       confirm: r.pending?.reason ?? null,
       finished_by: r.meta.finished_by ?? null,
+      ready: notReady.length === 0,
+      not_ready: notReady,
+      failed_checks: r.checks.filter((c) => c.status === "fail").length,
+      unmet_needs: r.cart.unmet.length,
     },
     carts: [cartRecord("before", a.before, r.session.brief.summary), ...(changed ? [cartRecord("after", r.cart, r.session.brief.summary)] : [])],
     steps: a.cached ? [] : steps,

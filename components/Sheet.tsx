@@ -23,18 +23,26 @@ export function Sheet({ open, onClose, title, children }: Props) {
       onClick={(e) => {
         if (e.target === ref.current) onClose(); // click on the backdrop
       }}
-      className="sheet-enter fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85vh] w-full max-w-none overflow-y-auto rounded-t-3xl border-2 border-b-0 border-ink bg-paper p-0 text-ink sm:inset-0 sm:m-auto sm:max-w-lg sm:rounded-3xl sm:border-b-2"
+      className="sheet-enter fixed inset-x-0 bottom-0 top-auto m-0 max-h-[88vh] w-full max-w-none overflow-y-auto rounded-t-xl border-0 bg-paper p-0 text-ink sm:inset-0 sm:m-auto sm:max-w-lg sm:rounded-xl"
     >
       {open && (
-        <div className="p-5">
-          <div className="mb-3 flex items-start justify-between gap-4">
-            <h2 className="font-display text-2xl leading-tight">{title}</h2>
-            <button type="button" onClick={onClose} className="-mr-1 rounded-lg px-2 py-1 text-ink-soft hover:text-ink" aria-label="Close">
-              ✕
+        <>
+          {/* A strip of the signboard: the sheet belongs to Jhola, not the page behind it. */}
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-4 bg-sign px-5 py-3.5 text-on-sign shadow-[0_4px_0_var(--color-turmeric)]">
+            <h2 className="font-sign text-2xl leading-tight">{title}</h2>
+            <button
+              type="button"
+              onClick={onClose}
+              className="on-sign-focus -mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-on-sign-soft hover:bg-sign-deep hover:text-on-sign"
+              aria-label="Close"
+            >
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden>
+                <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              </svg>
             </button>
           </div>
-          {children}
-        </div>
+          <div className="px-5 pb-6 pt-5">{children}</div>
+        </>
       )}
     </dialog>
   );

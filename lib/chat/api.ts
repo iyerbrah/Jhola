@@ -16,7 +16,7 @@ import { catalog, catalogIndex, type CatalogIndex } from "../catalog";
 import { clientIp, json } from "../http";
 import { modelName } from "../llm";
 import { createMemoryLimiter, createUpstashLimiter, redisFromEnv, type LimitConfig, type Limiter } from "../ratelimit";
-import { defaultRequestLog, errorRecord, logInBackground, maskPii, type RequestLog } from "../requestLog";
+import { defaultRequestLog, errorRecord, logInBackground, maskPii, type RequestLog } from "../log/requestLog";
 import { visitorId } from "../visitor";
 import { createMemorySearch } from "../search";
 import { diffCarts } from "../cart/diff";
@@ -57,7 +57,11 @@ export interface TurnCache {
   get(message: string): Promise<ChatTurnResult | null>;
   set(message: string, r: ChatTurnResult): Promise<void>;
 }
-export const CHAT_CACHE_VERSION = "c2";
+/**
+ * Part of every cache key: bump it when the agent's behaviour changes. The catalogue's own version is added
+ * too (a hash of the products), so a catalogue change never replays carts planned against the old one.
+ */
+export const CHAT_CACHE_VERSION = `c3-${createHash("sha256").update(JSON.stringify(catalog)).digest("hex").slice(0, 8)}`;
 export const noTurnCache: TurnCache = { get: async () => null, set: async () => {} };
 /** "  Pasta night for 4!! " and "pasta night for 4" are one cache entry. */
 export const normalise = (q: string) => q.toLowerCase().replace(/\s+/g, " ").replace(/[.!?]+$/, "").trim();

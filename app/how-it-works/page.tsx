@@ -3,8 +3,13 @@ import path from "node:path";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { REPO_URL, SiteFooter } from "@/components/SiteFooter";
+import { SignHeadline, SiteHeader } from "@/components/SiteHeader";
+import { button, H2, H3, StatBoard } from "@/components/ui";
 import type { ChatSummary } from "@/evals/chatScore";
+import { LATEST_FILE } from "@/evals/history";
+import { pct, secs } from "@/components/format";
 import { catalog } from "@/lib/catalog";
+import report from "@/data/catalog/report.json";
 import { isFood } from "@/lib/schema";
 
 export const dynamic = "force-static";
@@ -21,14 +26,11 @@ function read<T>(file: string): T | null {
     return null;
   }
 }
-/** The newest full chat-eval run, read at build time. */
+/** The latest full run of the final eval (the one /results shows), read at build time. */
 function latestChatRun(): { summary: ChatSummary; date: string } | null {
   try {
-    const dir = path.join(process.cwd(), "evals/chat/results");
-    const f = fs.readdirSync(dir).filter((x) => x.endsWith(".json") && !x.endsWith("-ci.json")).sort().at(-1);
-    if (!f) return null;
-    const run = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
-    return { summary: run.summary, date: f.slice(0, 10) };
+    const run = JSON.parse(fs.readFileSync(path.join(process.cwd(), LATEST_FILE), "utf8"));
+    return { summary: run.summary, date: String(run.meta.ran_at).slice(0, 10) };
   } catch {
     return null;
   }
@@ -41,7 +43,7 @@ const AGENT = [
   },
   {
     title: "Plan the needs",
-    body: "It writes what the request needs, not products: penne, 100 g a person, for the pasta; fresh cream, a guess, for the sauce. It reads a compact index of the 365 kinds of product in stock, so it plans with real kinds without searching.",
+    body: `It writes what the request needs, not products: penne, 100 g a person, for the pasta; fresh cream, a guess, for the sauce. It reads a compact index of the ${report.kinds} kinds of grocery in stock, with the words shoppers use for each ("dahi", "cold drink") and their usual pack sizes, so it plans with real kinds without searching.`,
   },
   {
     title: "Solve, in code",
@@ -49,7 +51,7 @@ const AGENT = [
   },
   {
     title: "Check, then act on what happened",
-    body: "Every change re-solves the cart and re-checks it independently: stock, prices, amounts for the head count, budget, diet, every rule, duplicates. The agent reads the verdict and keeps going (trying options with what_if, browsing a kind, asking) until the checks pass. A clean turn ends in code after one model call.",
+    body: "Every change re-solves the cart and re-checks it independently: stock, prices, amounts for the head count, budget, diet, every rule, duplicates. The agent reads the verdict and keeps going (trying options with what_if, browsing a kind, asking) until the checks pass. Once the cart is right, code ends the turn and writes the reply, with no extra model call.",
   },
   {
     title: "Show its work",
@@ -68,11 +70,11 @@ const GUARANTEES = [
   },
   {
     title: "Recovers, doesn't drop",
-    body: "When a pick sells out, the solver takes the closest in-stock match of the same kind and form and says so: “D'Lecta cheese cubes are out of stock, so I picked Amul cheese slices, same size, ₹21 more”. Checkout re-solves to catch anything that sold out meanwhile.",
+    body: "When a pick sells out, the solver takes the closest in-stock match of the same kind and form and says so: “D'Lecta cheese cubes are out of stock, so I picked Amul cheese slices, same size, ₹21 more”. Review & checkout re-solves to catch anything that sold out meanwhile.",
   },
   {
     title: "Safe by design",
-    body: "The agent has no tool to order, pay or check out: it can't, whatever it's told. Big changes wait for your yes. Catalog text is fenced as data, and a listing with planted instructions is flagged and ignored. Phone numbers and emails are masked before anything is stored.",
+    body: "The agent has no tool to order or pay: it can't, whatever it's told. Only you can say “I'm ready to order”. Big changes wait for your yes. Catalog text is fenced as data, and a listing with planted instructions is flagged and ignored. Phone numbers and emails are masked before anything is stored.",
   },
 ];
 
@@ -80,31 +82,32 @@ const STACK = [
   ["Next.js + TypeScript", "the page, the streaming API and the solver, in one codebase"],
   ["gpt-5.4-mini via OpenRouter", "strict tool calls, streamed, checked again with Zod"],
   ["A solver in TypeScript", "an exact knapsack and stock recovery, property-tested with fast-check"],
-  ["PostgreSQL", "every turn with its cart and a trace of each model and tool call, votes and shared carts"],
+  ["PostgreSQL", "every turn with its cart and a trace of each model and tool call, votes, orders with their ratings, and shared carts"],
   ["Upstash Redis", "rate limits and a 30-day cache of first answers"],
-  ["Vitest + GitHub Actions", "400+ tests on every PR, a real-model eval check on request, a deploy on every merge"],
+  ["Vitest + GitHub Actions", "350+ tests on every PR, a real-model eval check on request, a deploy on every merge"],
   ["Own Ubuntu server", "nginx with HTTPS in front, Node.js kept running by systemd"],
 ];
 
-const pct = (x: number | null | undefined) => (x == null ? "n/a" : `${Math.round(x * 100)}%`);
-
 function Steps({ steps, numbered = true }: { steps: { title: string; body: string }[]; numbered?: boolean }) {
+  const List = numbered ? "ol" : "ul";
   return (
-    <ol className="space-y-4">
+    <List className="divide-y divide-line border-y-2 border-sign">
       {steps.map((step, i) => (
-        <li key={step.title} className="flex gap-4 rounded-2xl border-2 border-line bg-paper p-5">
-          {numbered && (
-            <span className="num flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink font-display text-lg text-on-ink" aria-hidden>
-              {i + 1}
+        <li key={step.title} className="flex gap-4 py-5">
+          {numbered ? (
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-sign pt-1" aria-hidden>
+              <span className="painted num text-xl leading-none">{i + 1}</span>
             </span>
+          ) : (
+            <span className="mt-1.5 h-3 w-3 shrink-0 rotate-45 bg-turmeric" aria-hidden />
           )}
           <div>
-            <h3 className="text-lg font-bold text-ink">{step.title}</h3>
-            <p className="mt-1 text-ink-soft">{step.body}</p>
+            <h3 className={`text-lg ${H3}`}>{step.title}</h3>
+            <p className="mt-1 leading-relaxed text-ink-soft">{step.body}</p>
           </div>
         </li>
       ))}
-    </ol>
+    </List>
   );
 }
 
@@ -116,10 +119,11 @@ export default function HowItWorks() {
   const metrics: [string, string, string][] = [
     ...(s
       ? ([
+          ["Carts ready to order", pct(s.ready_to_order ?? null), `of ${s.scenarios} scripted chats`],
           ["Scenarios passed", `${s.passed} / ${s.scenarios}`, "new chats, edits, diets, budgets, memory, stock, safety"],
           ["Rule breaks", String(s.rule_breaks), "in every turn's cart"],
           ["Edits that changed only what was asked", pct(s.collateral_free), "lines nobody asked about stayed put"],
-          ["Typical turn", `${(s.latency_p50_ms / 1000).toFixed(1)} s`, `${s.model_calls_median} model call (median), ${pct(s.finished_by_code)} ended by code`],
+          ["Typical turn", secs(s.latency_p50_ms), `${s.model_calls_median} model call${s.model_calls_median === 1 ? "" : "s"} (median), ${pct(s.finished_by_code)} ended by code`],
         ] as [string, string, string][])
       : []),
     ...(bench
@@ -135,13 +139,13 @@ export default function HowItWorks() {
       body: "Each turn goes into Postgres with the cart before and after and a trace of every model and tool call: timing, tokens and errors. Writes happen after the answer is sent, so a slow database never slows a reply.",
     },
     {
-      title: "Live numbers, in public",
-      body: "The stats page computes chats, speed, reliability, cost and feedback for the last 30 days straight from that log, in SQL. Totals only: no message text, and visitors are a daily code that can't be traced back.",
-      link: { href: "/stats", text: "See the live stats" },
+      title: "Every run, in public",
+      body: "A run succeeds when the shopper says “I'm ready to order”. History lists every run with how it ended, its rating and comment, its cost and time, and a trace of every model and tool call, next to the last 30 days' charts. Chat messages stay private behind an admin key, and visitors are a daily code that can't be traced back.",
+      link: { href: "/history", text: "See every run" },
     },
     {
-      title: "A catalog built and checked by code",
-      body: `${catalog.length.toLocaleString("en-IN")} products (${food.toLocaleString("en-IN")} food, ${(catalog.length - food).toLocaleString("en-IN")} household and personal care) built from a public BigBasket dataset by a tested pipeline. IDs stay stable across rebuilds, misfilings are caught by rules, and every build writes a quality report.`,
+      title: "A grocery catalogue checked by code",
+      body: `${catalog.length.toLocaleString("en-IN")} grocery products in ${report.kinds} kinds (${food.toLocaleString("en-IN")} food and drink, ${(catalog.length - food).toLocaleString("en-IN")} household, cleaning, personal, baby and pet care), kept in one CSV file. A build checks every row: stable IDs, honest diet tags, what each food contains (dairy, gluten, nuts and more, so "no dairy" is a hard rule), and at least 3 choices in stock for every kind. A coverage check confirms that 130+ everyday grocery requests can be filled. Prices are approximate (${report.prices_as_of}).`,
     },
     {
       title: "Shareable carts",
@@ -151,75 +155,63 @@ export default function HowItWorks() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="hero-band">
-        <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-          <header className="flex items-center justify-between py-5">
-            <Link href="/" className="font-display text-3xl leading-none text-on-ink">
-              Jhola
-            </Link>
-            <Link href="/" className="text-sm font-semibold text-on-ink underline decoration-marigold decoration-2 underline-offset-4">
-              Build a cart
-            </Link>
-          </header>
-          <h1 className="rise mt-8 max-w-3xl font-display text-5xl leading-[1.05] text-on-ink sm:text-6xl">The model reasons. Code guarantees.</h1>
-          <p className="rise mt-5 max-w-2xl text-lg leading-relaxed text-on-ink-soft" style={{ "--i": 1 } as React.CSSProperties}>
-            Jhola is a shopping agent you chat with. It turns one sentence into one ready cart from {catalog.length.toLocaleString("en-IN")} real Indian groceries and household essentials, then changes it as you ask. The model decides what you need; a solver in code decides which products, how many and what it costs, so every cart is in stock, in budget and true to your rules.
+      <SiteHeader current="how">
+        <SignHeadline title="The model reasons. Code guarantees.">
+          <p>
+            Jhola is a shopping agent you chat with. It turns one sentence into one ready cart from {catalog.length.toLocaleString("en-IN")} real Indian grocery products, then changes it as you ask.
+            The model decides what you need; a solver in code decides which products, how many and what it costs, so every cart is in stock, in budget and true to your rules.
           </p>
-        </div>
-      </div>
+        </SignHeadline>
+      </SiteHeader>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6">
-        <section className="mt-12 grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-14 sm:px-6">
+        <section aria-labelledby="loop" className="grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-14">
           <div>
-            <h2 className="font-display text-3xl text-ink">One chat, one cart</h2>
-            <p className="mt-3 max-w-md text-ink-soft">
-              The agent plans, acts through tools, reads what really happened and acts again, until its own checks pass. Most turns take a single model call, because code ends a turn itself once the cart is right.
+            <h2 id="loop" className={H2}>One chat, one cart</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-ink-soft">
+              The agent plans, acts through tools, reads what really happened and acts again, until its own checks pass. Most turns take one or two model calls, because code ends a turn itself
+              once the cart is right.
             </p>
           </div>
           <Steps steps={AGENT} />
         </section>
 
-        <section className="mt-16 grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+        <section aria-labelledby="code" className="mt-14 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-14">
           <div>
-            <h2 className="font-display text-3xl text-ink">What code guarantees</h2>
-            <p className="mt-3 max-w-md text-ink-soft">The parts that must never go wrong don&apos;t depend on the model getting them right.</p>
+            <h2 id="code" className={H2}>What code guarantees</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-ink-soft">The parts that must never go wrong don&apos;t depend on the model getting them right.</p>
           </div>
           <Steps steps={GUARANTEES} numbered={false} />
         </section>
 
         {metrics.length > 0 && (
-          <section className="mt-16">
-            <h2 className="font-display text-3xl text-ink">Measured, not guessed</h2>
-            <p className="mt-3 max-w-2xl text-ink-soft">
-              About 80 scripted chats run against the real model and are checked in code, with no AI judge{run ? ` (latest run ${run.date})` : ""}. A pull request that changes answers runs the PR subset and fails if it breaks a rule or scores below the baseline.
+          <section aria-labelledby="measured" className="mt-14">
+            <h2 id="measured" className={H2}>Measured, not guessed</h2>
+            <p className="mt-3 max-w-2xl leading-relaxed text-ink-soft">
+              {s?.scenarios ?? "About 100"} scripted chats run against the real model and are checked in code, with no AI judge{run ? ` (latest run ${run.date})` : ""}. A pull request that changes the agent
+              can run a 37-chat subset on request, which fails if it breaks a rule.
             </p>
-            <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {metrics.map(([label, value, note]) => (
-                <div key={label} className="rounded-2xl border-2 border-ink bg-paper px-5 py-4 shadow-lift">
-                  <dt className="text-sm text-ink-soft">{label}</dt>
-                  <dd className="num mt-1 font-display text-3xl leading-tight text-ink">{value}</dd>
-                  <dd className="mt-1 text-sm text-ink-soft">{note}</dd>
-                </div>
-              ))}
-            </dl>
-            <Link href="/evals" className="mt-4 inline-block font-semibold text-ink underline decoration-marigold decoration-2 underline-offset-4">
-              See every result, and every failure
+            <div className="mt-6">
+              <StatBoard items={metrics} />
+            </div>
+            <Link href="/results" className={button("quiet", "mt-6 inline-block")}>
+              See accuracy over time, every result and every failure
             </Link>
           </section>
         )}
 
-        <section className="mt-16 grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+        <section aria-labelledby="data" className="mt-14 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-14">
           <div>
-            <h2 className="font-display text-3xl text-ink">The data behind it</h2>
-            <p className="mt-3 max-w-md text-ink-soft">What the live site records, how it&apos;s checked, and where the products come from.</p>
+            <h2 id="data" className={H2}>The data behind it</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-ink-soft">What the live site records, how it&apos;s checked, and where the products come from.</p>
           </div>
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="grid gap-x-8 gap-y-6 sm:grid-cols-2">
             {DATA.map((d) => (
-              <li key={d.title} className="rounded-2xl border-2 border-line bg-paper p-5">
-                <h3 className="text-lg font-bold text-ink">{d.title}</h3>
-                <p className="mt-1 text-ink-soft">{d.body}</p>
+              <li key={d.title} className="border-t-[3px] border-sign pt-3">
+                <h3 className={`text-lg ${H3}`}>{d.title}</h3>
+                <p className="mt-1 leading-relaxed text-ink-soft">{d.body}</p>
                 {d.link && (
-                  <Link href={d.link.href} className="mt-2 inline-block font-semibold text-ink underline decoration-marigold decoration-2 underline-offset-4">
+                  <Link href={d.link.href} className={button("quiet", "mt-2 inline-block")}>
                     {d.link.text}
                   </Link>
                 )}
@@ -228,35 +220,34 @@ export default function HowItWorks() {
           </ul>
         </section>
 
-        <section className="mt-16 grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+        <section aria-labelledby="stack" className="mt-14 grid gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-14">
           <div>
-            <h2 className="font-display text-3xl text-ink">Built with</h2>
-            <p className="mt-3 max-w-md text-ink-soft">
+            <h2 id="stack" className={H2}>Built with</h2>
+            <p className="mt-3 max-w-md leading-relaxed text-ink-soft">
               The full design and how each part is tested are in the{" "}
-              <a href={`${REPO_URL}#readme`} className="font-semibold text-ink underline underline-offset-4">
+              <a href={`${REPO_URL}#readme`} className={button("quiet")}>
                 README
               </a>
               .
             </p>
           </div>
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <dl className="divide-y divide-line border-y-2 border-sign">
             {STACK.map(([name, why]) => (
-              <li key={name} className="rounded-2xl bg-paper px-5 py-4">
-                <p className="font-bold text-ink">{name}</p>
-                <p className="text-sm text-ink-soft">{why}</p>
-              </li>
+              <div key={name} className="grid gap-1 py-3 sm:grid-cols-[14rem_1fr] sm:gap-4">
+                <dt className="font-semibold text-ink">{name}</dt>
+                <dd className="text-ink-soft">{why}</dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         </section>
 
         <div className="mt-14">
-          <Link href="/" className="inline-block rounded-xl border-2 border-ink bg-paper px-5 py-3 font-bold text-ink shadow-[5px_5px_0_var(--color-marigold)]">
+          <Link href="/" className={button("primary", "inline-block px-5 py-3")}>
             Try it: build a cart
           </Link>
         </div>
-
-        <SiteFooter />
       </main>
+      <SiteFooter />
     </div>
   );
 }

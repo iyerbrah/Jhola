@@ -7,7 +7,8 @@ import { z } from "zod";
 import type { CatalogIndex } from "../catalog";
 import { DIET_LABELS, DIETS } from "../requirements";
 import { blockedBy } from "../cart/solve";
-import { QUALITIES, SessionSchema, type Brief, type Session } from "../cart/types";
+import { CONTAINS } from "../schema";
+import { avoidOf, preferOf, QUALITIES, SessionSchema, type Brief, type Session } from "../cart/types";
 
 export const EMPTY_BRIEF: Brief = { summary: "", people: null, budget_inr: null, diet: null, quality: "balanced", rules: [], assumptions: [], plan: [] };
 export const emptySession = (): Session => ({ brief: { ...EMPTY_BRIEF, rules: [], assumptions: [], plan: [] }, needs: [], pins: [], picks: {}, choices: {} });
@@ -39,6 +40,10 @@ export const ActionSchema = z.discriminatedUnion("type", [
     quality: z.enum(QUALITIES).optional(),
   }),
   z.object({ type: z.literal("remove_rule"), label: z.string().max(60) }),
+  /** The shopper taps off an allergy or free-from chip ("No nuts"). */
+  z.object({ type: z.literal("remove_avoid"), value: z.enum(CONTAINS) }),
+  /** The shopper taps off a standing preference chip ("Organic", "Amul"). */
+  z.object({ type: z.literal("remove_prefer"), value: z.string().max(40) }),
   z.object({ type: z.literal("tick"), need_id: z.string().max(32), ticked: z.boolean() }),
   z.object({ type: z.literal("pin"), need_id: z.string().max(32), product_id: z.string().max(12), qty: z.number().int().min(1).max(10).nullable() }),
   z.object({ type: z.literal("unpin"), need_id: z.string().max(32) }),
@@ -63,6 +68,17 @@ export function applyAction(s: Session, a: Action, index: CatalogIndex): Session
     case "remove_rule": {
       if (!s.brief.rules.some((r) => r.label === a.label)) return `There's no "${a.label}" preference.`;
       return { ...s, brief: { ...s.brief, rules: s.brief.rules.filter((r) => r.label !== a.label) } };
+    }
+    case "remove_avoid": {
+      const avoid = avoidOf(s.brief);
+      if (!avoid.includes(a.value)) return `There's no "No ${a.value}" preference.`;
+      return { ...s, brief: { ...s.brief, avoid: avoid.filter((c) => c !== a.value) } };
+    }
+    case "remove_prefer": {
+      const p = preferOf(s.brief);
+      const next = { labels: p.labels.filter((l) => l !== a.value), brands: p.brands.filter((b) => b !== a.value) };
+      if (next.labels.length === p.labels.length && next.brands.length === p.brands.length) return `There's no "${a.value}" preference.`;
+      return { ...s, brief: { ...s.brief, prefer: next } };
     }
     case "tick": {
       if (!s.needs.some((n) => n.id === a.need_id)) return "That item isn't in the cart any more.";

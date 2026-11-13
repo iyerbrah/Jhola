@@ -3,7 +3,7 @@
  * where its price per gram, ml or piece falls among the other products of its kind, nudged by
  * name and brand words that mark a premium or a budget line.
  */
-import type { Product } from "../schema";
+import type { Contains, Product } from "../schema";
 import type { Quality } from "./types";
 
 /** Where each quality setting aims, as a quality score (0 = cheapest per unit, 1 = priciest). */
@@ -15,20 +15,44 @@ const WORD_NUDGE = 0.15;
 
 const cache = new WeakMap<Product[], Map<string, number>>();
 
-/** Price per unit percentile within the kind, 0..1. A kind with one product scores 0.5. */
+/** Packs within this factor of each other count as the same size class when comparing prices. */
+const SIZE_CLASS = 2.5;
+/** Fewest products a size class needs before it's used; smaller classes fall back to the whole kind. */
+const MIN_CLASS = 3;
+
+/** Where `p`'s price per unit falls among `peers` (which include it), 0..1. Equal prices score the same. */
+function percentile(p: Product, peers: Product[]): number {
+  if (peers.length <= 1) return 0.5;
+  const unit = (x: Product) => x.price / x.pack_size;
+  const sorted = [...peers].sort((a, b) => unit(a) - unit(b) || a.id.localeCompare(b.id));
+  // Products at the same price per unit (a 1 kg and a 2 kg bag of the same onions) score the same.
+  const first = sorted.findIndex((x) => Math.abs(unit(x) - unit(p)) < 1e-9);
+  const last = sorted.length - 1 - [...sorted].reverse().findIndex((x) => Math.abs(unit(x) - unit(p)) < 1e-9);
+  return (first + last) / 2 / (sorted.length - 1);
+}
+
+/**
+ * Price per unit percentile within the kind, 0..1. A kind with one product scores 0.5.
+ *
+ * A product is compared with products of a similar pack size (same unit, within 2.5x), because big packs
+ * cost less per unit: compared with the whole kind, a 250 ml cola would look "premium" next to a 2.25 L
+ * bottle of the same cola, and a balanced cart would buy eight small bottles. Within a size class, the
+ * score says what it should: how premium the product is. A class with fewer than 3 products falls back to
+ * the kind's products in the same unit; prices per piece and per gram are never compared, so a product
+ * with fewer than 3 others in its unit scores a neutral 0.5.
+ */
 function percentiles(products: Product[]): Map<string, number> {
   const byKind = new Map<string, Product[]>();
   for (const p of products) byKind.set(p.sub_category, [...(byKind.get(p.sub_category) ?? []), p]);
   const out = new Map<string, number>();
   for (const ps of byKind.values()) {
-    const unit = (p: Product) => p.price / p.pack_size;
-    const sorted = [...ps].sort((a, b) => unit(a) - unit(b) || a.id.localeCompare(b.id));
-    // Products at the same price per unit (a 1 kg and a 2 kg bag of the same onions) score the same.
-    sorted.forEach((p) => {
-      const first = sorted.findIndex((x) => Math.abs(unit(x) - unit(p)) < 1e-9);
-      const last = sorted.length - 1 - [...sorted].reverse().findIndex((x) => Math.abs(unit(x) - unit(p)) < 1e-9);
-      out.set(p.id, sorted.length === 1 ? 0.5 : (first + last) / 2 / (sorted.length - 1));
-    });
+    for (const p of ps) {
+      const sameUnit = ps.filter((x) => x.unit === p.unit);
+      const sameSize = sameUnit.filter((x) => x.pack_size <= p.pack_size * SIZE_CLASS && x.pack_size * SIZE_CLASS >= p.pack_size);
+      if (sameSize.length >= MIN_CLASS) out.set(p.id, percentile(p, sameSize));
+      else if (sameUnit.length >= MIN_CLASS) out.set(p.id, percentile(p, sameUnit));
+      else out.set(p.id, sameUnit.length === ps.length ? percentile(p, ps) : 0.5);
+    }
   }
   return out;
 }
@@ -37,14 +61,19 @@ function percentiles(products: Product[]): Map<string, number> {
 export function qualityScore(p: Product, products: Product[]): number {
   let map = cache.get(products);
   if (!map) cache.set(products, (map = percentiles(products)));
-  const text = `${p.name} ${p.brand}`;
-  const nudge = (PREMIUM_WORDS.test(text) ? WORD_NUDGE : 0) - (BUDGET_WORDS.test(text) ? WORD_NUDGE : 0);
+  // Words in the product's own name, not its brand: "BB Royal" is a house staples brand, not a premium line.
+  // Organic counts as premium, said in the name or not.
+  const premium = PREMIUM_WORDS.test(p.name) || p.tags.includes("organic");
+  const budget = BUDGET_WORDS.test(p.name) || BUDGET_WORDS.test(p.brand);
+  const nudge = (premium ? WORD_NUDGE : 0) - (budget ? WORD_NUDGE : 0);
   return Math.min(1, Math.max(0, (map.get(p.id) ?? 0.5) + nudge));
 }
 
 const NAME_STOP = new Set(["and", "with", "the", "for", "pack", "pcs", "of", "in", "a", "fresh", "premium", "organic", "classic", "original", "new", "pure", "natural"]);
 const nameWords = (p: Product) => new Set((p.name.toLowerCase().match(/[a-z]{3,}/g) ?? []).map(singular).filter((w) => !NAME_STOP.has(w)));
 const typicalCache = new WeakMap<Product[], Map<string, number>>();
+/** A product named with its kind's own words is at least this typical. */
+const TYPICAL_BY_KIND_WORD = 0.75;
 
 /**
  * How typical a product is of its kind (0..1): the share of the kind's products that share its most
@@ -62,9 +91,15 @@ export function typicality(p: Product, products: Product[]): number {
       const names = [...new Map(ps.map((x) => [x.name.toLowerCase(), x])).values()];
       const df = new Map<string, number>();
       for (const x of names) for (const w of nameWords(x)) df.set(w, (df.get(w) ?? 0) + 1);
+      // The kind's own words and its shopper words are typical too: in an umbrella kind (pulses, biscuits,
+      // soft drinks) names share little, but "Toor Dal" in pulses or "Cola" in soft drinks is no oddity.
+      const kindWords = new Set(
+        [ps[0].sub_category.replace(/_/g, " "), ...(ps[0].search_terms ?? [])].flatMap((t) => (t.toLowerCase().match(/[a-z]{3,}/g) ?? []).map(singular)),
+      );
       for (const x of ps) {
         const best = Math.max(0, ...[...nameWords(x)].map((w) => df.get(w) ?? 0));
-        map.set(x.id, names.length <= 1 ? 1 : (best - 1) / (names.length - 1));
+        const shared = names.length <= 1 ? 1 : (best - 1) / (names.length - 1);
+        map.set(x.id, [...nameWords(x)].some((w) => kindWords.has(w)) ? Math.max(shared, TYPICAL_BY_KIND_WORD) : shared);
       }
     }
     typicalCache.set(products, map);
@@ -117,14 +152,39 @@ export function oddSize(p: Product, products: Product[]): number {
   return map.get(p.id) ?? 0;
 }
 
-/** How well a product matches a need's preference words (0..1): the share of the words in its name, kind or tags. */
+/** Free-from words in a preference ("dairy free", "no egg", "eggless") and what they mean in `contains`. */
+const FREE_FROM: [RegExp, Contains][] = [
+  [/\b(dairy|milk|lactose)[\s-]*free\b|\bno (dairy|milk)\b|\bnon[\s-]?dairy\b/g, "dairy"],
+  [/\begg[\s-]*free\b|\beggless\b|\bno eggs?\b/g, "egg"],
+  [/\bgluten[\s-]*free\b|\bno gluten\b/g, "gluten"],
+  [/\bnut[\s-]*free\b|\bno nuts?\b/g, "nuts"],
+  [/\bpeanut[\s-]*free\b|\bno peanuts?\b/g, "peanut"],
+  [/\bsoy[\s-]*free\b|\bno soy\b/g, "soy"],
+];
+const PREFER_STOP = new Set(["no", "the", "and", "with", "of", "for", "a", "an"]);
+
+/**
+ * How well a product matches a need's preference words (0..1): the share of the words found as whole
+ * words in its name, brand, kind or tags. Free-from words count by what it contains:
+ * "dairy free" matches a product without dairy, not one with "dairy" in its name.
+ */
 export function preferScore(p: Product, prefer: string | null): number {
   if (!prefer) return 0;
-  const words = prefer.toLowerCase().match(/[a-z0-9%]+/g)?.filter((w) => w.length > 1) ?? [];
-  if (!words.length) return 0;
-  const text = `${p.name} ${p.sub_category.replace(/_/g, " ")} ${p.tags.join(" ").replace(/_/g, " ")}`.toLowerCase();
-  const hit = words.filter((w) => new RegExp(`(^|[^a-z0-9])${w.replace(/[^a-z0-9%]/g, "")}`).test(text)).length;
-  return hit / words.length;
+  let rest = prefer.toLowerCase();
+  const freeFrom: Contains[] = [];
+  for (const [re, c] of FREE_FROM) {
+    if (re.test(rest)) freeFrom.push(c);
+    re.lastIndex = 0;
+    rest = rest.replace(re, " ");
+  }
+  const words = rest.match(/[a-z0-9%]+/g)?.filter((w) => w.length > 1 && !PREFER_STOP.has(w)) ?? [];
+  if (!words.length && !freeFrom.length) return 0;
+  // Not the shopper words: they belong to the whole kind ("nutella" is a word for every choco spread), so
+  // they would make a named brand match every product of the kind.
+  const text = `${p.name} ${p.brand} ${p.sub_category.replace(/_/g, " ")} ${p.tags.join(" ").replace(/_/g, " ")}`.toLowerCase();
+  const hit = words.filter((w) => new RegExp(`(^|[^a-z0-9])${w.replace(/[^a-z0-9%]/g, "")}(e?s|ally|ly)?($|[^a-z0-9])`).test(text)).length;
+  const free = freeFrom.filter((c) => !(p.contains ?? []).includes(c)).length;
+  return (hit + free) / (words.length + freeFrom.length);
 }
 
 /** "onions" -> "onion", "tomatoes" -> "tomato", "chillies" -> "chilli". */

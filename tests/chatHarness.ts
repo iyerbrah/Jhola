@@ -34,6 +34,8 @@ export const brief = (o: Record<string, unknown> = {}) => ({
   quality: null,
   add_rules: [],
   remove_rules: [],
+  avoid: null,
+  prefer: null,
   assumptions: null,
   needs: [],
   remove: [],

@@ -40,8 +40,16 @@ next-env.d.ts
 # keep the env template
 !.env.example
 
-# raw dataset (license: download it yourself)
-/data/raw/
+# generated from data/grocery.csv by npm run catalog:build (runs on install, dev, build and test)
+/data/catalog.json
+/data/catalog/report.json
 
 # PR eval check report (posted as a PR comment, not committed)
 /evals/ci-report.md
+
+# eval runs: only the newest full run (latest-final.json) is committed
+/evals/chat/results/*
+!/evals/chat/results/latest-final.json
+
+# local editor settings
+/.vscode/

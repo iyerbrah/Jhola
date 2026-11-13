@@ -16,15 +16,18 @@
  * stock-outs by taking the closest in-stock match (and says so), and keeps each need's previous product
  * when it is still a good fit, so an edit changes only what it has to.
  */
+import unitHints from "@/data/unit-hints.json";
 import type { CatalogIndex } from "../catalog";
 import { fitsDiet } from "../requirements";
-import { packLabel, type Product } from "../schema";
-import { isSameKind, matchesKind } from "../kind";
+import { isFood, packLabel, type Contains, type Product } from "../schema";
+import { isSameKind, matchesKind } from "./kind";
 import { detectInjection } from "./safety";
 import { namesWord, oddSize, plainness, preferScore, QUALITY_TARGET, qualityScore, typicality } from "./quality";
 import {
   amountLabel,
+  avoidOf,
   cartTotal,
+  preferOf,
   toLineProduct,
   type Brief,
   type Cart,
@@ -72,6 +75,8 @@ const WARN_WASTE_INR = 50;
 const W_PIN = 5;
 /** The agent's choice among close options: stronger than keeping last time's pick, weaker than a pin. */
 const W_CHOSEN = 1.5;
+/** A standing preference from the brief (organic, a liked brand) the product meets: outweighs price, waste and naming, so it wins whenever the store has one (only pins and diet or rules come first). */
+const W_BRIEF_PREFER = 2;
 /** A pick counts as unsure when the runner-up is this close, or the product is unusual for its kind. */
 const UNSURE_GAP = 0.15;
 const UNSURE_TYPICAL = 0.5;
@@ -103,17 +108,116 @@ type NeedPlan = {
 
 const g2ml = (u: string) => (u === "ml" ? "g" : u);
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
-/** g and ml count as the same for groceries (oil, ghee, sauces are sold either way). */
-function compatible(needUnit: Need["unit"], p: Product): boolean {
-  return needUnit === "pack" || g2ml(needUnit) === g2ml(p.unit);
+
+/** Rough grams per piece, by kind (data/unit-hints.json): a banana, a cabbage, a bunch of coriander. */
+const GRAMS_PER_PIECE: Record<string, number> = Object.fromEntries(
+  Object.entries(unitHints.grams_per_piece).filter((e): e is [string, number] => typeof e[1] === "number"),
+);
+
+/**
+ * The need's amount in the product's own unit, or null when they can't be compared. g and ml count as
+ * the same for groceries (oil, ghee, sauces are sold either way). Kinds sold both by the piece and by
+ * weight convert through their weight per piece: "12 bananas" can be a 1 kg bag, "2 kg cabbage" is 3 heads.
+ */
+export function amountInUnit(needUnit: Need["unit"], amount: number, p: Pick<Product, "unit" | "sub_category" | "pack_size">): number | null {
+  if (needUnit === "pack") return null;
+  if (g2ml(needUnit) === g2ml(p.unit)) return amount;
+  const perPiece = GRAMS_PER_PIECE[p.sub_category];
+  if (needUnit === "pcs" && g2ml(p.unit) === "g") {
+    // A counted thing sold by weight: fresh produce by its weight per piece; anything else (a soap bar,
+    // a bottle of cola, a packet of salt) is one pack per piece.
+    return amount * (perPiece ?? p.pack_size);
+  }
+  if (g2ml(needUnit) === "g" && p.unit === "pcs" && perPiece) return amount / perPiece;
+  return null;
 }
 
-/** Does the rule exclude this product? */
+/** Can this product be bought by the need's amount (directly or through its weight per piece)? */
+function compatible(needUnit: Need["unit"], p: Product): boolean {
+  return needUnit === "pack" || amountInUnit(needUnit, 1, p) != null;
+}
+
+/** Labels a stand-in must keep: an organic pick is never replaced by a plain one without asking. */
+const KEPT_LABELS = ["organic", "sugar_free", "whole_grain"];
+/** Can `alt` stand in for `wanted` without losing what the shopper got: its labels, and no new allergen? */
+export function keepsIntent(wanted: Product, alt: Product): boolean {
+  if (!KEPT_LABELS.every((l) => !wanted.tags.includes(l) || alt.tags.includes(l))) return false;
+  const had = new Set(wanted.contains ?? []);
+  return (alt.contains ?? []).every((c) => had.has(c));
+}
+
+/** Does the product contain something the brief avoids? Returns the first one, for the label. */
+export function avoidedBy(p: Product, brief: Brief): Contains | null {
+  if (!isFood(p)) return null;
+  return avoidOf(brief).find((c) => p.contains?.includes(c)) ?? null;
+}
+
+/** "No nuts", "No gluten": how an avoided ingredient reads to the shopper. */
+export const avoidLabel = (c: Contains) => `No ${c}`;
+
+/** How strongly a product meets the brief's standing preferences, 0..1. */
+export function briefPreferScore(p: Product, brief: Brief): number {
+  const { labels, brands } = preferOf(brief);
+  const wants = labels.length + (brands.length ? 1 : 0);
+  if (!wants) return 0;
+  const got = labels.filter((l) => p.tags.includes(l)).length + (brands.some((b) => namesWord(p.brand, b)) ? 1 : 0);
+  return got / wants;
+}
+
+/**
+ * The name with its negated mentions taken out: "Chhole Masala With No Garlic & Onion" -> "Chhole Masala
+ * With", "Gluten Free Oats" -> "Oats". A "no onions" rule must not throw out the onion-free masala.
+ */
+export function withoutNegations(name: string): string {
+  return name
+    .replace(/\b(no|without|zero|non)[\s-]+[a-z]+(\s*(&|and|,)\s*[a-z]+)*/gi, " ")
+    .replace(/\b[a-z]+[\s-]free\b/gi, " ")
+    .replace(/\b[a-z]+less\b/gi, " ");
+}
+
+/**
+ * Rule words that name what a food contains ("no dairy", "nut allergy", "gluten free"), so the rule also
+ * catches products that contain it without saying so in the name (butter cookies, cakes, chocolate).
+ */
+const CONTAINS_WORDS: Record<string, Contains> = {
+  dairy: "dairy",
+  "dairy product": "dairy",
+  "milk product": "dairy",
+  lactose: "dairy",
+  egg: "egg",
+  gluten: "gluten",
+  wheat: "gluten",
+  nut: "nuts",
+  "tree nut": "nuts",
+  peanut: "peanut",
+  groundnut: "peanut",
+  soy: "soy",
+  soya: "soy",
+};
+
+/** The `contains` value a rule word names, if any ("eggs" -> egg, "nuts" -> nuts). */
+export function containsFor(word: string): Contains | null {
+  const w = word.toLowerCase().trim().replace(/[\s_-]+/g, " ");
+  return CONTAINS_WORDS[w] ?? CONTAINS_WORDS[w.replace(/s$/, "")] ?? null;
+}
+
+/**
+ * Does the rule exclude this product?
+ * - A rule naming what food contains ("no dairy", "nut allergy", "gluten free") is decided by the
+ *   catalogue's `contains` column alone: butter cookies count as dairy, and "Gluten Free" oats, tofu and
+ *   soy milk stay in.
+ * - Other words match the product's name and kind as whole words, never its tags ("no sugar" keeps
+ *   sugar-free products) and never a negated mention ("no onions" keeps "Masala With No Garlic & Onion").
+ */
 export function excludedBy(p: Product, rule: Rule): boolean {
-  const text = `${p.name} ${p.sub_category} ${p.tags.join(" ")}`;
+  const contained = rule.kind === "exclude_kind" || rule.kind === "exclude_word" ? containsFor(rule.value) : null;
+  if (contained) return isFood(p) && (p.contains?.includes(contained) ?? false);
+  const text = `${withoutNegations(p.name)} ${p.sub_category}`;
   switch (rule.kind) {
-    case "exclude_kind":
-      return p.sub_category === rule.value.replace(/[\s-]+/g, "_") || p.category === rule.value.replace(/[\s-]+/g, "_") || matchesKind(p, rule.value);
+    case "exclude_kind": {
+      const value = rule.value.replace(/[\s-]+/g, "_");
+      return p.sub_category === value || p.category === value || namesWord(text, rule.value);
+    }
     case "exclude_word":
       return namesWord(text, rule.value);
     case "exclude_brand":
@@ -132,6 +236,8 @@ export function coveredByHave(need: Need, rule: Rule): boolean {
 /** Why a product can't go in this cart, or null if it can. */
 export function blockedBy(p: Product, brief: Brief): string | null {
   if (brief.diet && !fitsDiet(p, brief.diet)) return "diet";
+  const avoided = avoidedBy(p, brief);
+  if (avoided) return avoidLabel(avoided);
   const rule = brief.rules.find((r) => excludedBy(p, r));
   return rule ? rule.label : null;
 }
@@ -142,8 +248,9 @@ function peopleFor(brief: Brief): number {
 
 /** Packs of p that cover `amount` (in the need's unit), or null if it takes more than MAX_PACKS. */
 function packsFor(need: Need, amount: number, p: Product): number | null {
-  if (need.unit === "pack" || !compatible(need.unit, p)) return Math.min(MAX_PACKS, Math.max(1, Math.round(need.unit === "pack" ? amount : 1)));
-  const n = Math.max(1, Math.ceil(amount / p.pack_size - 0.05));
+  const inUnit = amountInUnit(need.unit, amount, p);
+  if (inUnit == null) return Math.min(MAX_PACKS, Math.max(1, Math.round(need.unit === "pack" ? amount : 1)));
+  const n = Math.max(1, Math.ceil(inUnit / p.pack_size - 0.05));
   return n <= MAX_PACKS ? n : null;
 }
 
@@ -178,27 +285,24 @@ function plan(need: Need, brief: Brief, pins: Map<string, Pin>, picks: Record<st
     const blocked = blockedBy(p, brief);
     if (blocked) return { unmet: "pin_breaks_rule", detail: `your pick ${p.name} breaks "${blocked === "diet" ? brief.diet : blocked}"` };
     // A pinned product that went out of stock falls back to its closest twins, and says so.
-    pool = p.in_stock ? [p] : [p, ...ctx.products.filter((x) => x.in_stock && x.id !== p.id && isSameKind(p, x) && !blockedBy(x, brief))];
+    pool = p.in_stock ? [p] : [p, ...ctx.products.filter((x) => x.in_stock && x.id !== p.id && isSameKind(p, x) && keepsIntent(p, x) && !blockedBy(x, brief))];
   } else {
     const all = kindProducts(need, ctx.products);
     if (!all.length) return { unmet: "unknown_kind", detail: `the store has nothing that counts as ${need.kind.replace(/_/g, " ")}` };
     const fitDiet = all.filter((p) => !brief.diet || fitsDiet(p, brief.diet));
     if (!fitDiet.length) return { unmet: "none_fit_diet", detail: `nothing ${need.label.toLowerCase()} fits ${brief.diet}` };
-    pool = fitDiet.filter((p) => !brief.rules.some((r) => excludedBy(p, r)));
+    const noAvoided = fitDiet.filter((p) => !avoidedBy(p, brief));
+    if (!noAvoided.length) return { skip: avoidLabel(avoidedBy(fitDiet[0], brief)!) };
+    pool = noAvoided.filter((p) => !brief.rules.some((r) => excludedBy(p, r)));
     if (!pool.length) {
       // The shopper's rule left this need out ("no onions" and an onion need): that's the rule working,
       // not a failure. Name the rule that rules out the most of the kind.
-      const rule = [...brief.rules].sort((a, b) => fitDiet.filter((p) => excludedBy(p, b)).length - fitDiet.filter((p) => excludedBy(p, a)).length)[0];
+      const rule = [...brief.rules].sort((a, b) => noAvoided.filter((p) => excludedBy(p, b)).length - noAvoided.filter((p) => excludedBy(p, a)).length)[0];
       return { skip: rule.label };
     }
-    // Same-unit products only, when the kind has any in stock (pieces of lemon vs grams of lemon). Sold-out
-    // ones alone don't count: "2 pcs of soap" must not come back empty because the only soaps sold by the
-    // piece are sold out, when bars sold by weight are in stock.
-    const sameUnit = pool.filter((p) => compatible(need.unit, p));
-    if (sameUnit.some((p) => p.in_stock)) pool = sameUnit;
-    else if (need.unit !== "pack") warnings.push(`Sold as ${packLabel(pool[0])} packs, not by ${need.unit}: check the amount`);
-    // Preference words narrow the kind ("fresh cream" within cream, "curry cut" within chicken): keep the
-    // products that match them best among those in stock (and sold-out ones as good, for stand-ins).
+    // Preference words narrow the kind first ("fresh cream" within cream, "organic" within bananas), across
+    // every unit the kind is sold in: an organic banana sold by the piece still counts for a need in grams.
+    // Keep the products that match best among those in stock (and sold-out ones as good, for stand-ins).
     // If nothing in stock matches, the preference stays a nudge rather than leaving the need unfilled.
     if (need.prefer) {
       // Products matching at least half as well stay in the running (the scoring still favours the best
@@ -206,6 +310,15 @@ function plan(need: Need, brief: Brief, pins: Map<string, Pin>, picks: Record<st
       const best = Math.max(0, ...pool.filter((p) => p.in_stock).map((p) => preferScore(p, need.prefer)));
       if (best > 0) pool = pool.filter((p) => preferScore(p, need.prefer) >= best / 2);
       else if (pool.some((p) => preferScore(p, need.prefer) > 0)) warnings.push(`No "${need.prefer}" in stock, so this is the closest`);
+    }
+    // Then products that can be bought by the need's amount (same unit, or converted by weight per piece),
+    // when any are in stock. Sold-out ones alone don't count: "2 pcs of soap" must not come back empty because
+    // the only soaps sold by the piece are sold out, when bars sold by weight are in stock.
+    const sameUnit = pool.filter((p) => compatible(need.unit, p));
+    if (sameUnit.some((p) => p.in_stock)) pool = sameUnit;
+    else if (need.unit !== "pack") {
+      const sold = pool[0].unit === "pcs" ? "by the piece" : `by ${pool[0].unit === "ml" ? "volume" : "weight"}`;
+      warnings.push(`Sold ${sold} (${packLabel(pool[0])}), not by ${need.unit}: bought 1 pack, check the amount`);
     }
   }
 
@@ -222,8 +335,9 @@ function plan(need: Need, brief: Brief, pins: Map<string, Pin>, picks: Record<st
     const fit = (1 - Math.abs(qualityScore(p, ctx.products) - target)) * (0.5 + 0.5 * plain);
     const bought = packs * p.pack_size;
     // Buying 16× what's needed is worse than 2×, but not without limit, and a ₹26 kilo of onions is no waste.
-    const byAmount = need.unit !== "pack" && compatible(need.unit, p);
-    const waste = byAmount ? Math.min(5, Math.log2(Math.max(1, bought / amount))) * Math.min(1, (p.price * packs) / WASTE_FULL_AT) : 0;
+    const inUnit = amountInUnit(need.unit, amount, p);
+    const byAmount = inUnit != null;
+    const waste = inUnit != null ? Math.min(5, Math.log2(Math.max(1, bought / inUnit))) * Math.min(1, (p.price * packs) / WASTE_FULL_AT) : 0;
     // Bought by the pack: the usual size of the kind is the safe default.
     const odd = byAmount ? 0 : oddSize(p, ctx.products);
     const pricier = Math.min(1, (p.price * packs) / minCost - 1);
@@ -237,6 +351,7 @@ function plan(need: Need, brief: Brief, pins: Map<string, Pin>, picks: Record<st
       W_COST[brief.quality] * pricier +
       W_PREFER * preferScore(p, need.prefer) +
       W_LABEL * preferScore(p, need.label) +
+      W_BRIEF_PREFER * briefPreferScore(p, brief) +
       W_TYPICAL * typicality(p, ctx.products) +
       W_PLAIN * plain -
       W_SIZE * odd +
@@ -278,13 +393,15 @@ function plan(need: Need, brief: Brief, pins: Map<string, Pin>, picks: Record<st
   // A stand-in for a sold-out pick must be as close as the pick was: its twin (same kind, unit and form),
   // or a product that matches the need at least as well. Fresh cream never becomes a cream biscuit:
   // when nothing that close is in stock, the honest answer is that it's out of stock.
+  // It also keeps what the pick gave the shopper: an organic pick stays organic, and no new allergen comes in.
   const closeEnough = (p: Product) =>
     best.p.in_stock ||
     need.count != null ||
-    isSameKind(best.p, p) ||
-    (preferScore(p, need.prefer) >= preferScore(best.p, need.prefer) &&
-      preferScore(p, need.label) >= preferScore(best.p, need.label) &&
-      typicality(p, ctx.products) >= typicality(best.p, ctx.products) - 0.2);
+    (keepsIntent(best.p, p) &&
+      (isSameKind(best.p, p) ||
+        (preferScore(p, need.prefer) >= preferScore(best.p, need.prefer) &&
+          preferScore(p, need.label) >= preferScore(best.p, need.label) &&
+          typicality(p, ctx.products) >= typicality(best.p, ctx.products) - 0.2)));
   const inStock = ranked
     .filter((r) => r.p.in_stock && closeEnough(r.p))
     .map((r) => ({ ...r, util: r.util + twinBonus(r.p) }))
@@ -496,14 +613,17 @@ export function solve(session: Session, ctx: SolveContext): Cart {
                   ? `Matches "${pl.need.prefer}"; ${QUALITY_RULE[brief.quality].toLowerCase()}`
                   : QUALITY_RULE[brief.quality];
       const warnings = [...pl.warnings];
-      const unitOk = pl.need.unit !== "pack" && compatible(pl.need.unit, c.p);
-      if (unitOk) {
+      const needed = amountInUnit(pl.need.unit, pl.amount, c.p);
+      if (needed != null) {
         const bought = c.packs * c.p.pack_size;
         // A pack much bigger than the need, when no smaller pack in stock would do: say so.
-        const smaller = inStockRanked.some((r) => r.packs * r.p.pack_size < bought);
+        const smaller = inStockRanked.some((r) => {
+          const n = amountInUnit(pl.need.unit, pl.amount, r.p);
+          return n != null && (r.packs * r.p.pack_size) / n < bought / needed;
+        });
         // Only for counted lines, and only when the unused part is worth something.
-        const unusedInr = Math.round((c.p.price * c.packs * (bought - pl.amount)) / bought);
-        if (isCounted && !smaller && bought >= pl.amount * 3 && unusedInr >= WARN_WASTE_INR) {
+        const unusedInr = Math.round((c.p.price * c.packs * (bought - needed)) / bought);
+        if (isCounted && !smaller && bought >= needed * 3 && unusedInr >= WARN_WASTE_INR) {
           warnings.push(`${cap(pl.need.label)} only comes in ${packLabel(c.p)}; you need about ${amountLabel(pl.amount, pl.need.unit as "g")}`);
         }
       }
@@ -571,11 +691,15 @@ function mergeDuplicates(lines: Line[]): Line[] {
       if (!same.counted) Object.assign(same, { ...l, also_for: [...same.also_for.filter((id) => id !== l.need_id), same.need_id] });
       continue;
     }
+    const wanted = same.packs + l.packs;
     if (same.needed && l.needed && same.needed.unit === l.needed.unit) {
       same.needed = { amount: same.needed.amount + l.needed.amount, unit: same.needed.unit };
-      same.packs = Math.min(MAX_PACKS, same.packs + l.packs, Math.max(1, Math.ceil(same.needed.amount / same.product.pack_size - 0.05)));
+      const inUnit = amountInUnit(same.needed.unit, same.needed.amount, same.product);
+      const covering = inUnit == null ? wanted : Math.max(1, Math.ceil(inUnit / same.product.pack_size - 0.05));
+      same.packs = Math.min(MAX_PACKS, wanted, covering);
+      if (covering > MAX_PACKS) same.warnings = [...new Set([...same.warnings, `Needs more than ${MAX_PACKS} packs; capped at ${MAX_PACKS}`])];
     } else {
-      same.packs = Math.min(MAX_PACKS, same.packs + l.packs);
+      same.packs = Math.min(MAX_PACKS, wanted);
     }
     same.line_total = same.product.price * same.packs;
     same.pinned = same.pinned || l.pinned;

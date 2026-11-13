@@ -241,3 +241,49 @@ describe("claimsChange", () => {
     for (const s of ["I haven't swapped anything yet.", "Added nothing: you already have it.", "No need to change the bread.", "That's the right pasta.", "I didn't replace it."]) expect(claimsChange(s), s).toBe(false);
   });
 });
+
+describe("avoid and prefer: the shopper's allergies and standing preferences", () => {
+  it("sets avoid from what the shopper said, and keeps it until they say otherwise", async () => {
+    const st = state(emptySession(), "pasta for 4, my son is allergic to peanuts and nuts");
+    const r = await run("update_cart", brief({ avoid: ["nuts", "peanut"] }), st);
+    expect(r.ok).toBe(true);
+    expect(st.session.brief.avoid).toEqual(["nuts", "peanut"]);
+    expect(r.output).toMatch(/avoid: nuts, peanut/);
+
+    st.message = "make it 6 people";
+    const dropped = await run("update_cart", brief({ people: 6, avoid: [] }), st);
+    expect(dropped.ok).toBe(false);
+    expect(dropped.notable).toBe(true);
+    expect(st.session.brief.avoid).toEqual(["nuts", "peanut"]);
+
+    st.message = "actually nuts are fine, it was only peanuts";
+    expect((await run("update_cart", brief({ avoid: ["peanut"] }), st)).ok).toBe(true);
+    expect(st.session.brief.avoid).toEqual(["peanut"]);
+  });
+
+  it("refuses an avoid or a preference the shopper never mentioned", async () => {
+    const st = state(emptySession(), "pasta for 4");
+    expect((await run("update_cart", brief({ avoid: ["gluten"] }), st)).ok).toBe(false);
+    expect((await run("update_cart", brief({ prefer: { labels: ["organic"], brands: [] } }), st)).ok).toBe(false);
+    st.message = "pasta for 4, we only buy organic and we like Amul";
+    expect((await run("update_cart", brief({ prefer: { labels: ["organic"], brands: ["amul"] } }), st)).ok).toBe(true);
+    expect(st.session.brief.prefer).toEqual({ labels: ["organic"], brands: ["amul"] });
+  });
+});
+
+describe("what the shopper names is never left unticked", () => {
+  it("ticks a pantry need the message asked for", async () => {
+    const st = state(emptySession(), "just some cooking oil");
+    await run("update_cart", brief({ summary: "Cooking oil", people: null, needs: [{ ...addNeed("oil", "cooking_oil", 1, "pack"), label: "Cooking oil", role: "pantry", per_person: false }] }), st);
+    expect(st.session.needs.find((n) => n.id === "oil")?.ticked).toBe(true);
+    expect(st.cart.lines.filter((l) => l.counted).length).toBe(1);
+  });
+});
+
+describe("pantry items nobody named stay unticked", () => {
+  it("leaves cooking oil unticked in a pasta cart", async () => {
+    const st = state(emptySession(), "pasta night for 4");
+    await run("update_cart", brief({ needs: [{ ...addNeed("oil", "cooking_oil", 1, "pack"), label: "Cooking oil", role: "pantry", per_person: false }] }), st);
+    expect(st.session.needs.find((n) => n.id === "oil")?.ticked).toBe(false);
+  });
+});

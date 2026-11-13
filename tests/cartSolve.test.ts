@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { knapsack, picksOf, solve } from "@/lib/cart/solve";
+import { containsFor, excludedBy, keepsIntent, knapsack, picksOf, solve, withoutNegations } from "@/lib/cart/solve";
+import { catalog } from "@/lib/catalog";
+import type { Session } from "@/lib/cart/types";
 import { review, passes } from "@/lib/cart/review";
 import { endNote } from "@/lib/cart/notes";
 import { collateral, describeDiff, diffCarts } from "@/lib/cart/diff";
@@ -342,5 +344,121 @@ describe("solve: picking the ordinary product", () => {
     expect(cart.lines).toHaveLength(0);
     expect(cart.unmet[0]).toMatchObject({ need_id: "cream", reason: "out_of_stock" });
     expect(cart.unmet[0].detail).toMatch(/Fresh Cream is out of stock, and nothing close enough is in stock/);
+  });
+});
+
+describe("rules and what a product contains", () => {
+  const cookie: Product = { id: "p900", name: "Good Day Butter Cookies", brand: "Britannia", category: "snacks", sub_category: "biscuits", pack_size: 200, unit: "g", price: 50, in_stock: true, tags: ["veg"], contains: ["dairy", "gluten"] };
+  const crackers: Product = { ...cookie, id: "p901", name: "Monaco Classic", contains: ["gluten"] };
+
+  it("reads allergy words as contains values", () => {
+    expect(["dairy", "Lactose", "eggs", "nuts", "tree nuts", "peanuts", "groundnut", "soya", "wheat"].map(containsFor)).toEqual(["dairy", "dairy", "egg", "nuts", "nuts", "peanut", "peanut", "soy", "gluten"]);
+    expect(containsFor("onion")).toBeNull();
+  });
+
+  it("excludes a product that contains the ruled-out thing, even when its name doesn't say so", () => {
+    const noDairy = { kind: "exclude_word" as const, value: "dairy", label: "No dairy" };
+    expect(excludedBy(cookie, noDairy)).toBe(true);
+    expect(excludedBy(crackers, noDairy)).toBe(false);
+    expect(excludedBy(cookie, { kind: "exclude_kind", value: "dairy", label: "No dairy" })).toBe(true);
+    expect(excludedBy(crackers, { kind: "exclude_word", value: "gluten", label: "Gluten free" })).toBe(true);
+  });
+
+  it("keeps a contains rule in the cart: a no-dairy cart gets the crackers", () => {
+    const all = [...products, cookie, crackers];
+    const c = { products: all, index: indexCatalog(all) };
+    const cart = solve(session([need("biscuits", "biscuits", 1, "pack", { per_person: false })], { rules: [{ kind: "exclude_word", value: "dairy", label: "No dairy" }] }), c);
+    expect(line(cart, "biscuits")?.product.id).toBe("p901");
+  });
+});
+
+describe("intent on the real catalogue", () => {
+  const real = { products: catalog, index: indexCatalog(catalog) };
+  const fresh = (needs: ReturnType<typeof need>[], b: Partial<Session["brief"]> = {}) => session(needs, { people: 2, ...b });
+  const lineFor = (cart: ReturnType<typeof solve>, id: string) => cart.lines.find((l) => l.need_id === id);
+  const product = (cart: ReturnType<typeof solve>, id: string) => real.index.get(lineFor(cart, id)!.product.id)!;
+
+  it("avoid gluten keeps the gluten-free oats and drops the rest", () => {
+    const cart = solve(fresh([need("oats", "oats", 500, "g", { per_person: false })], { avoid: ["gluten"] }), real);
+    const p = product(cart, "oats");
+    expect(p.contains ?? []).not.toContain("gluten");
+    expect(p.name).toMatch(/gluten free/i);
+  });
+
+  it("avoid dairy keeps tofu and soy milk", () => {
+    const cart = solve(fresh([need("tofu", "tofu", 200, "g", { per_person: false }), need("milk", "plant_milk", 1000, "ml", { per_person: false, prefer: "soy" })], { avoid: ["dairy"] }), real);
+    expect(lineFor(cart, "tofu")).toBeTruthy();
+    expect(product(cart, "milk").name).toMatch(/soy/i);
+    expect(review(fresh([], { avoid: ["dairy"] }), cart, real.index).find((c) => c.id === "avoid:dairy")?.status).toBe("pass");
+  });
+
+  it("a 'no dairy' rule reads contains: soy milk stays, cheese goes", () => {
+    const rule = { kind: "exclude_kind" as const, value: "dairy", label: "No dairy" };
+    const tofu = catalog.find((p) => p.sub_category === "tofu")!;
+    const cheese = catalog.find((p) => p.sub_category === "cheese")!;
+    expect(excludedBy(tofu, rule)).toBe(false);
+    expect(excludedBy(cheese, rule)).toBe(true);
+  });
+
+  it("'no onions' keeps a masala made without onion; 'no sugar' keeps sugar-free products", () => {
+    const noOnion = catalog.find((p) => /no garlic & onion/i.test(p.name))!;
+    expect(excludedBy(noOnion, { kind: "exclude_word", value: "onion", label: "No onions" })).toBe(false);
+    const sugarFree = catalog.find((p) => p.tags.includes("sugar_free") && !/sugar/i.test(withoutNegations(p.name)))!;
+    expect(excludedBy(sugarFree, { kind: "exclude_word", value: "sugar", label: "No sugar" })).toBe(false);
+  });
+
+  it("prefer organic finds organic bananas sold by the piece for a need in grams", () => {
+    const cart = solve(fresh([need("banana", "banana", 1000, "g", { per_person: false, prefer: "organic" })]), real);
+    expect(product(cart, "banana").tags).toContain("organic");
+  });
+
+  it("converts pieces and weight: 2 kg of cabbage is 3 heads, a dozen bananas is covered", () => {
+    const pcsOnly = catalog.filter((p) => p.sub_category !== "cabbage" || p.unit === "pcs");
+    const ctxPcs = { products: pcsOnly, index: indexCatalog(pcsOnly) };
+    const cabbage = solve(fresh([need("cabbage", "cabbage", 2000, "g", { per_person: false })]), ctxPcs);
+    expect(lineFor(cabbage, "cabbage")!.product.unit).toBe("pcs");
+    expect(lineFor(cabbage, "cabbage")!.packs).toBe(3);
+    const bananas = solve(fresh([need("banana", "banana", 12, "pcs", { per_person: false })]), real);
+    const l = lineFor(bananas, "banana")!;
+    const p = product(bananas, "banana");
+    expect(p.unit === "pcs" ? l.packs * p.pack_size : (l.packs * p.pack_size) / 120).toBeGreaterThanOrEqual(11.4);
+    expect(review(fresh([]), bananas, real.index).find((c) => c.id === "amounts")).toBeUndefined();
+  });
+
+  it("standing preferences win where the store has them, and the checklist counts them", () => {
+    const s = fresh([need("tomato", "tomato", 500, "g", { per_person: false }), need("salt", "salt", 1, "pack", { per_person: false })], { prefer: { labels: ["organic"], brands: [] } });
+    const cart = solve(s, real);
+    expect(product(cart, "tomato").tags).toContain("organic");
+    const c = review(s, cart, real.index).find((x) => x.id === "prefer:organic")!;
+    expect(c.label).toMatch(/^Organic on \d of 2 items/);
+  });
+
+  it("a stand-in never drops organic or adds an allergen", () => {
+    const organic = catalog.find((p) => p.tags.includes("organic") && p.sub_category === "tomato")!;
+    const plain = catalog.find((p) => !p.tags.includes("organic") && p.sub_category === "tomato")!;
+    expect(keepsIntent(organic, plain)).toBe(false);
+    expect(keepsIntent(plain, organic)).toBe(true);
+    const cookie = catalog.find((p) => p.sub_category === "biscuits" && (p.contains ?? []).includes("nuts"))!;
+    const plainBiscuit = catalog.find((p) => p.sub_category === "biscuits" && !(p.contains ?? []).includes("nuts"))!;
+    expect(keepsIntent(plainBiscuit, cookie)).toBe(false);
+  });
+});
+
+describe("counted things sold by weight or volume", () => {
+  const real = { products: catalog, index: indexCatalog(catalog) };
+  it("buys one pack per piece for packaged goods: 3 soaps, 4 bottles of cola", () => {
+    const cart = solve(session([need("soap", "soap", 3, "pcs", { per_person: false }), need("cola", "soft_drink", 4, "pcs", { per_person: false })], { people: 2 }), real);
+    for (const id of ["soap", "cola"]) {
+      const l = cart.lines.find((x) => x.need_id === id)!;
+      expect(l.warnings.filter((w) => w.startsWith("Sold "))).toEqual([]);
+      expect(l.product.unit === "pcs" ? l.packs * l.product.pack_size : l.packs).toBeGreaterThanOrEqual(id === "soap" ? 3 : 4);
+    }
+  });
+
+  it("weighs fresh produce counted in pieces: 2 green chillies is one small pack", () => {
+    const cart = solve(session([need("chilli", "green_chilli", 2, "pcs", { per_person: false })], { people: 2 }), real);
+    const l = cart.lines.find((x) => x.need_id === "chilli")!;
+    expect(l.packs).toBe(1);
+    expect(l.warnings.filter((w) => w.startsWith("Sold "))).toEqual([]);
   });
 });

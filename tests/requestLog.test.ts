@@ -1,12 +1,12 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import postgres from "postgres";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { ensureSchema, type Sql } from "@/lib/db";
+import { ensureSchema, type Sql } from "@/lib/log/db";
 import { chatRecord } from "@/lib/chat/log";
 import { solveSession, type ChatTurnResult } from "@/lib/chat/loop";
 import { createPgShareStore } from "@/lib/chat/share";
 import { diffCarts } from "@/lib/cart/diff";
-import { createMemoryRequestLog, createPgRequestLog, errorRecord, maskPii, maskRecord, type RequestRecord } from "@/lib/requestLog";
+import { createMemoryRequestLog, createPgRequestLog, errorRecord, maskPii, maskRecord, type RequestRecord } from "@/lib/log/requestLog";
 import { visitorId } from "@/lib/visitor";
 import { ctx, pastaNeeds, session } from "./cartFixtures";
 
@@ -52,14 +52,15 @@ describe("turning a chat turn into a record", () => {
 });
 
 describe("memory request log", () => {
-  it("lists chat turns newest first, with the cart each one left", async () => {
+  it("puts a run's turns in order with the cart each one left, leaving out failed requests", async () => {
     const log = createMemoryRequestLog(500);
-    await log.record(chat({}, result(), { message: "first" }));
+    await log.record(chat({ created_at: new Date(Date.now() - 1000) }, result(), { message: "first" }));
     await log.record(errorRecord({ id: randomUUID(), kind: "agent", visitor: "v", query: "broken", error_kind: "timeout", latency_ms: 50 }));
     await log.record(chat({}, result(), { message: "second" }));
-    const entries = await log.recentTurns(10);
-    expect(entries.map((e) => e.message)).toEqual(["second", "first"]);
-    expect(entries[0]).toMatchObject({ session_id: "s1", status: "done", total: after.cart.total, items: after.cart.lines.filter((l) => l.counted).length, finished_by: "code", summary: "Pasta night, 6 people" });
+    const run = (await log.run("s1"))!;
+    expect(run.turns.map((t) => t.private?.message)).toEqual(["first", "second"]);
+    expect(run.turns[1]).toMatchObject({ status: "done", cart: { total: after.cart.total, items: after.cart.lines.filter((l) => l.counted).length }, finished_by: "code" });
+    expect(run.private?.brief).toBe("Pasta night, 6 people");
   });
 });
 
@@ -98,7 +99,7 @@ describe("masking personal details", () => {
     await log.record(chat({}, result(), { message: "eggs, my email is x@y.in" }));
     await log.record(chat({}, result(), { message: "deliver to 9876543210" }));
     expect(log.records.map((r) => r.query)).toEqual(["deliver to [phone]", "eggs, my email is [email]"]);
-    expect((await log.recentTurns(1))[0].message).toBe("deliver to [phone]");
+    expect((await log.run("s1"))!.turns.map((t) => t.private?.message)).toContain("deliver to [phone]");
   });
 });
 
@@ -143,9 +144,9 @@ describe.skipIf(!url)("Postgres request log", () => {
 
   it("creates its tables, and running the schema again changes nothing", async () => {
     await ensureSchema(sql);
-    await sql.unsafe((await import("@/lib/db")).SCHEMA);
+    await sql.unsafe((await import("@/lib/log/db")).SCHEMA);
     const tables = await sql`select table_name from information_schema.tables where table_schema = ${schema} order by 1`;
-    expect(tables.map((t) => t.table_name)).toEqual(["cart_items", "carts", "feedback", "requests", "shared_carts", "trace_steps"]);
+    expect(tables.map((t) => t.table_name)).toEqual(["cart_items", "carts", "feedback", "orders", "requests", "shared_carts", "trace_steps"]);
   });
 
   it("stores a turn with its carts, items and steps, and lists it", async () => {
@@ -163,8 +164,8 @@ describe.skipIf(!url)("Postgres request log", () => {
     const steps = await sql`select step, kind, name from trace_steps where request_id = ${r.id} order by step`;
     expect(steps.map((s) => `${s.step}:${s.kind}:${s.name}`)).toEqual(["1:model:gpt-5.4-mini", "2:tool:update_brief"]);
 
-    const [entry] = await log.recentTurns(1);
-    expect(entry).toMatchObject({ id: r.id, message: "pg turn", status: "done", total: after.cart.total, session_id: "s1" });
+    const turn = (await log.run("s1"))!.turns.find((t) => t.id === r.id);
+    expect(turn).toMatchObject({ status: "done", cart: { total: after.cart.total }, private: { message: "pg turn" } });
   });
 
   it("stores the message with phone numbers and emails masked", async () => {
@@ -199,6 +200,47 @@ describe.skipIf(!url)("Postgres request log", () => {
     await expect(log.record({ ...r, query: "duplicate" })).rejects.toThrow();
     const [{ n }] = await sql`select count(*)::int as n from carts where request_id = ${r.id}`;
     expect(n).toBe(2);
+  });
+
+  it("stores orders and ratings, and puts each run together from its turns, steps, votes and order", async () => {
+    const log = createPgRequestLog(sql);
+    const sid = randomUUID();
+    const t1 = chat({ created_at: new Date(Date.now() - 60_000) }, result(), { session_id: sid, message: "pasta for 4" });
+    const t2 = chat({}, result(), { session_id: sid, message: "make it 6" });
+    await log.record(t1);
+    await log.record(t2);
+    expect(await log.countMessages(sid)).toBe(2);
+    await log.rate({ request_id: t2.id, target: "reply", cart_position: -1, rating: 1, visitor: "v1" });
+    const order = { id: randomUUID(), number: "JH-123456", session_id: sid, request_id: t2.id, visitor: "v1", total: 640, items: 5, lines: [{ product_id: "p1", qty: 2, price: 100 }], failed: ["Under ₹600"], messages: 2 };
+    await log.placeOrder(order);
+    await log.placeOrder(order); // the same order twice is one order
+    expect(await log.rateOrder({ order_id: order.id, stars: 4, comment: "Good", name: "Asha" })).toBe("saved");
+    expect(await log.rateOrder({ order_id: randomUUID(), stars: 4, comment: null, name: null })).toBe("unknown");
+    const [{ n }] = await sql`select count(*)::int as n from orders where session_id = ${sid}`;
+    expect(n).toBe(1);
+
+    const runs = await log.recentRuns(50);
+    const r = runs.find((x) => x.session_id === sid)!;
+    expect(r).toMatchObject({ turns: 2, model_calls: 2, tool_calls: 2, latency_ms: 3600, up: 1, down: 0, code_finished: 2 });
+    expect(r.cost_usd).toBeCloseTo(0.004, 6);
+    expect(r.order).toMatchObject({ number: "JH-123456", total: 640, items: 5, messages: 2, failed_checks: 1, stars: 4, comment: "Good", name: "Asha" });
+    expect(runs[0].session_id).toBe(sid);
+
+    const full = (await log.run(sid))!;
+    expect(full.turns.map((t) => t.private?.message)).toEqual(["pasta for 4", "make it 6"]);
+    expect(full.turns[1].steps.map((s) => s.name)).toEqual(["gpt-5.4-mini", "update_brief"]);
+    expect(full.turns[1].cart?.total).toBe(after.cart.total);
+    expect(full.summary.order?.private?.lines).toEqual([{ product_id: "p1", qty: 2, price: 100, name: expect.any(String) }]);
+    expect(await log.run(randomUUID())).toBeNull();
+
+    // An order whose chat wasn't logged is still a run.
+    const lone = randomUUID();
+    await log.placeOrder({ ...order, id: randomUUID(), session_id: lone, request_id: null });
+    expect((await log.recentRuns(1))[0]).toMatchObject({ session_id: lone, turns: 0, order: { number: "JH-123456" } });
+
+    const exported = await log.exportLogs(90);
+    expect(exported.runs.map((x) => x.summary.session_id)).toEqual(expect.arrayContaining([sid, lone]));
+    expect(exported.votes).toEqual(expect.arrayContaining([expect.objectContaining({ request_id: t2.id, rating: 1 })]));
   });
 
   it("saves a shared cart and loads it back", async () => {

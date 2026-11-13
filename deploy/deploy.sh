@@ -25,7 +25,7 @@ echo "→ Copying code to $HOST"
 # Into a staging folder in your home on the server first; the server then copies it into place.
 rsync -az --delete \
   --include='.env.example' --exclude='.env*' \
-  --exclude='node_modules' --exclude='.next' --exclude='.git' --exclude='.claude' \
+  --exclude='node_modules' --exclude='/.*/' \
   --exclude='.DS_Store' --exclude='start-jhola.command' \
   ./ "$HOST:jhola-src/"
 

@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 import { catalog, catalogIndex } from "@/lib/catalog";
 import { solveSession, type ChatTurnResult, type Solved } from "@/lib/chat/loop";
 import { diffCarts } from "@/lib/cart/diff";
-import type { Session } from "@/lib/cart/types";
+import { toLineProduct, type Session } from "@/lib/cart/types";
+import { packLabel } from "@/lib/schema";
 import { allScenarios, fromQuery, setUp } from "@/evals/chatScenarios";
 import { lineMatches, scoreChat, summariseChat, type ChatScenario, type TurnOutcome } from "@/evals/chatScore";
 import { checkChatGate, renderChatReport } from "@/evals/chatGate";
 
-const KNOWN = ["status", "covers", "contains_any", "lacks", "diet", "max_total", "cheaper_by", "budget_honest", "rule_holds", "amount_range", "replaces_amount", "count", "count_any", "budget_use_min", "people", "collateral_max", "unchanged", "kept", "substituted", "asked_question", "note_mentions", "reply_any", "injection_ignored", "model_calls_max", "empty"];
+const KNOWN = ["status", "covers", "contains_any", "lacks", "diet", "max_total", "cheaper_by", "budget_honest", "rule_holds", "amount_range", "replaces_amount", "count", "count_any", "budget_use_min", "people", "collateral_max", "unchanged", "kept", "substituted", "asked_question", "note_mentions", "reply_any", "injection_ignored", "model_calls_max", "empty", "lacks_contains", "brief_avoid", "brief_prefer", "prefer_met", "brands_any", "pieces_min", "ready", "asked_on_turn"];
 
 describe("the scenarios", () => {
   const all = allScenarios();
@@ -17,19 +18,35 @@ describe("the scenarios", () => {
     for (const s of all) for (const c of s.checks) expect(KNOWN).toContain(Object.keys(c)[0]);
   });
 
+  it("names only words that match real in-stock products, so a check can't pass or fail for want of data", () => {
+    const lines = catalog.filter((p) => p.in_stock).map((p) => ({ product: toLineProduct(p, packLabel(p)) }));
+    const words = (c: Record<string, unknown>): string[] => {
+      const [k, v] = Object.entries(c)[0] as [string, unknown];
+      if (k === "covers") return (v as string[][]).flat();
+      if (k === "contains_any" || k === "lacks") return v as string[];
+      if (k === "rule_holds") return [v as string];
+      if (k === "count" || k === "amount_range" || k === "pieces_min") return [(v as [string])[0]];
+      if (k === "count_any") return (v as [string[]])[0];
+      return [];
+    };
+    const unknown = new Set<string>();
+    for (const s of all) for (const c of s.checks) for (const w of words(c)) if (!lines.some((l) => lineMatches(l, w))) unknown.add(`${s.id}: ${w}`);
+    expect([...unknown]).toEqual([]);
+  });
+
   it("every one sets up against the real catalog, and its starting cart passes its own rules", () => {
     for (const s of all) {
       const setup = setUp(s, catalog);
       expect(setup.start.checks.filter((c) => c.status === "fail"), s.id).toEqual([]);
     }
-  });
+  }, 60_000); // sets up every scenario against the whole catalogue: about 10 s on a CI runner
 
   it("a stock-out scenario sells out the start product; a pin scenario pins it", () => {
     const oos = setUp(all.find((s) => s.id === "stock-cheese-sold-out")!, catalog);
     const cheese = oos.start.cart.lines.find((l) => l.need_id === "cheese")!;
     expect(oos.index.get(cheese.product.id)!.in_stock).toBe(false);
     expect(solveSession(oos.start.session, oos).cart.lines.find((l) => l.need_id === "cheese")!.substitution).toMatchObject({ wanted: { id: cheese.product.id } });
-    // The only fresh cream sells out: there's no stand-in, and the cart says so instead of adding a biscuit.
+    // Every fresh cream sells out: there's no stand-in, and the cart says so instead of adding a biscuit.
     const only = setUp(all.find((s) => s.id === "stock-only-option-sold-out")!, catalog);
     const after = solveSession(only.start.session, only).cart;
     expect(after.lines.some((l) => l.need_id === "cream")).toBe(false);
@@ -95,6 +112,23 @@ describe("scoring", () => {
     const score = scoreChat(s, [turn("make it vegetarian", b, b.session)], catalogIndex);
     expect(score.failures.map((f) => f.check).sort()).toEqual(["diet", "replaces_amount"]);
     expect(score.coverage).toEqual({ hit: 2, of: 2 });
+  });
+
+  it("checks intent: what the brief avoids and prefers, what the cart contains, brands and pieces", () => {
+    const s: ChatScenario = {
+      id: "x",
+      group: "diet",
+      start: "breakfast",
+      turns: ["no dairy, we buy organic"],
+      checks: [{ brief_avoid: ["dairy"] }, { lacks_contains: ["dairy"] }, { brief_prefer: ["organic"] }, { brands_any: [["amul", "mother dairy", "nandini", "heritage"]] }, { pieces_min: ["banana", 4] }, { pieces_min: ["eggs", 100] }],
+    };
+    const b = setUp(s, catalog).start;
+    const fails = scoreChat(s, [turn("no dairy, we buy organic", b, b.session)], catalogIndex).failures.map((f) => f.check);
+    // The start cart has milk and butter, no avoid and no preference; it has eggs and bananas, but not 100 eggs.
+    expect(fails.sort()).toEqual(["brief_avoid", "brief_prefer", "lacks_contains", "pieces_min"]);
+    const fixed = { ...b.session, brief: { ...b.session.brief, avoid: ["dairy" as const], prefer: { labels: ["organic" as const], brands: [] } } };
+    const after = scoreChat({ ...s, checks: [{ brief_avoid: ["dairy"] }, { lacks_contains: ["dairy"] }, { brief_prefer: ["organic"] }] }, [turn("no dairy, we buy organic", b, fixed)], catalogIndex);
+    expect(after.failures).toEqual([]);
   });
 
   it("checks how much of the budget a cart uses, and how many different products of a group it has", () => {

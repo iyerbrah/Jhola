@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { sendChat, sendSolve, shareLink } from "@/lib/chat/client";
 import {
   canUndo as canUndoIn,
@@ -20,6 +20,13 @@ import type { Session } from "@/lib/cart/types";
 export type { ChatTurnView, Live, Snapshot, TapTurnView, TurnView } from "@/lib/chat/conversation";
 
 const STORE = "jhola:chat:v1";
+/** The run's id: every turn and the order carry it, so History can put them together. */
+const RUN = "jhola:run:v1";
+
+const newUuid = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined);
+
+/** What "I'm ready to order" hands to the thank-you popup. */
+export type Placed = { id: string; number: string; total: number; items: number };
 
 /**
  * The whole chat for the page. The state and its rules live in lib/chat/conversation.ts (a pure reducer);
@@ -27,7 +34,17 @@ const STORE = "jhola:chat:v1";
  */
 export function useJhola() {
   const [state, dispatch] = useReducer(conversationReducer, undefined, initialConversation);
-  const [sessionId] = useState(() => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined));
+  // One id per run: kept through a reload (this tab only), and a new one for each new cart.
+  const sessionId = useRef<string | undefined>(undefined);
+  const runId = () => {
+    if (!sessionId.current) {
+      sessionId.current = newUuid();
+      try {
+        if (sessionId.current) sessionStorage.setItem(RUN, sessionId.current);
+      } catch {}
+    }
+    return sessionId.current;
+  };
   const lastRequest = useRef<string | undefined>(undefined);
   const abort = useRef<AbortController | null>(null);
   const restored = useRef(false);
@@ -52,10 +69,13 @@ export function useJhola() {
       const shared = sessionStorage.getItem("jhola:open");
       if (shared) {
         sessionStorage.removeItem("jhola:open");
+        // A shared cart opened here starts a new run.
+        sessionStorage.removeItem(RUN);
         const session = JSON.parse(shared) as Session;
         void sendSolve(session, { type: "solve" }).then((r) => r.ok && dispatch({ type: "open", now: snapshot(r.result) }));
         return;
       }
+      sessionId.current = sessionStorage.getItem(RUN) ?? undefined;
       const raw = sessionStorage.getItem(STORE);
       if (raw) {
         const s = JSON.parse(raw) as { now: Snapshot; turns: TurnView[] };
@@ -85,7 +105,7 @@ export function useJhola() {
     dispatch({ type: "send", id, message });
     abort.current = new AbortController();
     const outcome = await sendChat(
-      { session, message, history, session_id: sessionId, parent_id: lastRequest.current },
+      { session, message, history, session_id: runId(), parent_id: lastRequest.current },
       { signal: abort.current.signal, onEvent: (event) => dispatch({ type: "event", id, event }) },
     );
     if (outcome.kind === "error") return dispatch({ type: "chat_error", id, error: outcome.error });
@@ -134,9 +154,35 @@ export function useJhola() {
     abort.current?.abort();
     dispatch({ type: "reset" });
     lastRequest.current = undefined;
+    sessionId.current = undefined;
     try {
       sessionStorage.removeItem(STORE);
+      sessionStorage.removeItem(RUN);
     } catch {}
+  }
+
+  /**
+   * "I'm ready to order": logs the order in the background (the server solves the cart again for its own
+   * total) and returns what the thank-you popup shows. Saving never holds up the shopper.
+   */
+  function order(): Placed {
+    const { session, cart } = current.current.now;
+    const placed: Placed = {
+      id: newUuid() ?? "",
+      number: `JH-${Math.floor(100000 + Math.random() * 900000)}`,
+      total: cart.total,
+      items: cart.lines.filter((l) => l.counted).length,
+    };
+    const session_id = runId();
+    const messages = current.current.turns.filter((t) => t.kind === "chat").length;
+    if (placed.id && session_id) {
+      void fetch("/api/order", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ order_id: placed.id, number: placed.number, session_id, request_id: lastRequest.current, session, messages }),
+      }).catch(() => {});
+    }
+    return placed;
   }
 
   return {
@@ -154,6 +200,7 @@ export function useJhola() {
     stop,
     reset,
     recheck,
+    order,
     share: () => shareLink(now.session),
   };
 }

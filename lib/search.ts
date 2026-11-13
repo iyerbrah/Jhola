@@ -1,7 +1,7 @@
 /**
  * Catalog search: the shopping agent's search_catalog tool, and the eval's helpers.
  *
- * In-memory word matching over product name, sub-category, tags, brand and category,
+ * In-memory word matching over product name, sub-category, search terms, tags, brand and category,
  * with Hindi/English grocery synonyms and filters for diet, price, category, kind and stock.
  * The interface is async so a Postgres keyword + vector search can replace it later
  * without changing the agent.
@@ -31,8 +31,6 @@ export type SearchHit = {
   pack_size: number;
   unit: Unit;
   price: number;
-  /** The printed price, when the shop sells for less. */
-  mrp?: number;
   sub_category: string;
   tags: string[];
   in_stock: boolean;
@@ -101,6 +99,8 @@ const SYNONYMS: Record<string, string[]> = {
   kishmish: ["raisin"],
   chai: ["tea"],
   nimbu: ["lemon"],
+  pudina: ["mint"],
+  chole: ["chole", "kabuli", "chickpea"],
   // English -> catalog
   semolina: ["sooji"],
   yogurt: ["curd", "yogurt"],
@@ -124,7 +124,6 @@ const SYNONYMS: Record<string, string[]> = {
   "wheat flour": ["atta"],
   "flattened rice": ["poha"],
   "soft drink": ["soft", "cold", "aerated"],
-  pav: ["pav", "bread"],
   // Household and personal care
   sabun: ["soap"],
   nappy: ["diaper"],
@@ -136,7 +135,6 @@ const SYNONYMS: Record<string, string[]> = {
   "bin bag": ["garbage", "dustbin"],
   "garbage bag": ["garbage", "dustbin"],
   tissue: ["tissue", "napkin"],
-  "toilet roll": ["toilet", "paper"],
   pad: ["sanitary", "pad"],
   deo: ["deodorant"],
   "body spray": ["deodorant"],
@@ -162,19 +160,27 @@ function stem(w: string): string {
 
 const words = (s: string) => (s.toLowerCase().match(/[a-z0-9]+/g) ?? []).map(stem);
 
+/**
+ * The synonyms keyed the way query words arrive: stemmed ("ladies finger" -> "ladi finger", "sweets" ->
+ * "sweet"), so every entry can match. Values are stemmed too.
+ */
+const STEMMED_SYNONYMS: Record<string, string[]> = Object.fromEntries(
+  Object.entries(SYNONYMS).map(([k, v]) => [k.split(" ").map(stem).join(" "), v.map(stem)]),
+);
+
 /** Each query word or phrase becomes a group of alternatives; a product matches a group if it matches any of them. */
 function queryGroups(text: string): string[][] {
   const tokens = words(text).filter((w) => !STOPWORDS.has(w));
   const groups: string[][] = [];
   for (let i = 0; i < tokens.length; i++) {
     const pair = i + 1 < tokens.length ? `${tokens[i]} ${tokens[i + 1]}` : "";
-    if (pair && SYNONYMS[pair]) {
-      groups.push(SYNONYMS[pair].map(stem));
+    if (pair && STEMMED_SYNONYMS[pair]) {
+      groups.push(STEMMED_SYNONYMS[pair]);
       i++;
       continue;
     }
     const t = tokens[i];
-    groups.push([...new Set([t, ...(SYNONYMS[t] ?? []).map(stem)])]);
+    groups.push([...new Set([t, ...(STEMMED_SYNONYMS[t] ?? [])])]);
   }
   return groups;
 }
@@ -182,7 +188,7 @@ function queryGroups(text: string): string[][] {
 type Indexed = { p: Product; fields: { words: Set<string>; weight: number }[]; sub: string; forms: Set<string> };
 
 // How much a match in each field counts: what a product is (sub-category, name) beats who makes it.
-const WEIGHTS = { sub_category: 4, name: 3, tags: 2, brand: 1.5, category: 1 };
+const WEIGHTS = { sub_category: 4, name: 3, search_terms: 2.5, tags: 2, brand: 1.5, category: 1 };
 /** Extra when the query (or one word of it) is the whole sub-category: "paneer" -> paneer, not paneer_masala. */
 const EXACT_SUB_BONUS = 2;
 /**
@@ -202,6 +208,8 @@ function indexProduct(p: Product): Indexed {
     fields: [
       field(p.sub_category.replace(/_/g, " "), WEIGHTS.sub_category),
       field(p.name, WEIGHTS.name),
+      // Shopper words from the catalogue: "dahi", "cold drink", "maggi".
+      field((p.search_terms ?? []).join(" "), WEIGHTS.search_terms),
       field(p.tags.join(" ").replace(/_/g, " "), WEIGHTS.tags),
       field(p.brand, WEIGHTS.brand),
       field(p.category.replace(/_/g, " "), WEIGHTS.category),
@@ -244,7 +252,6 @@ function toHit(p: Product): SearchHit {
     pack_size: p.pack_size,
     unit: p.unit,
     price: p.price,
-    ...(p.mrp != null ? { mrp: p.mrp } : {}),
     sub_category: p.sub_category,
     tags: shownTags(p),
     in_stock: p.in_stock,

@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { changeParts } from "@/lib/chat/client";
 import type { CartDiff } from "@/lib/cart/diff";
-import { Feedback } from "../Feedback";
-import { rupees } from "../format";
+import { Feedback } from "./Feedback";
+import { rupees, rupeesExact, secs } from "../format";
+import { button, chip, PANEL } from "../ui";
 import type { ChatTurnView, TurnView } from "./useJhola";
 
 type Props = {
@@ -33,16 +34,16 @@ export function ChatPanel({ turns, busy, canUndo, onSend, onUndo, onStop, onConf
     <section aria-label="Chat with Jhola" className="flex flex-col">
       {turns.length === 0 && (
         <div className="flex gap-3">
-          <span aria-hidden className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-marigold font-display text-lg text-ink">
-            J
-          </span>
-          <p className="text-ink">Here&apos;s your cart. Tell me what to change: more people, a budget, no onions, other brands, anything. Or tap the cart to change it yourself.</p>
+          <Mark />
+          <p className="text-[1.0625rem] leading-relaxed text-ink">
+            Here&apos;s your cart. Tell me what to change: more people, a budget, no onions, other brands, anything. Or tap the cart to change it yourself.
+          </p>
         </div>
       )}
-      <ol className="space-y-5" aria-live="polite">
+      <ol className="space-y-6" aria-live="polite">
         {turns.map((t) =>
           t.kind === "tap" ? (
-            <li key={t.id} className="text-center text-sm text-ink-soft">
+            <li key={t.id} className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 border-y border-dashed border-line py-2 text-center text-sm text-ink-soft">
               {t.error ? (
                 <span className="text-chilli">{t.error}</span>
               ) : (
@@ -50,30 +51,36 @@ export function ChatPanel({ turns, busy, canUndo, onSend, onUndo, onStop, onConf
                   <span className="font-semibold text-ink">{t.text}</span>
                   {t.diff.total_before !== t.diff.total_after && (
                     <span className="num">
-                      {" "}
-                      · {rupees(t.diff.total_before)} → {rupees(t.diff.total_after)}
+                      {rupees(t.diff.total_before)} → {rupees(t.diff.total_after)}
                     </span>
                   )}
-                  <span> · no AI call, {t.ms < 1 ? "<1" : Math.round(t.ms)} ms</span>
+                  <span>No model call, {t.ms < 1 ? "under 1" : Math.round(t.ms)} ms</span>
                   {t.undone ? (
-                    <span> · undone</span>
+                    <span>Undone</span>
                   ) : (
                     canUndo(t) && (
-                      <>
-                        {" · "}
-                        <button type="button" onClick={() => onUndo(t.id)} className="font-semibold text-ink underline underline-offset-4">
-                          Undo
-                        </button>
-                      </>
+                      <button type="button" onClick={() => onUndo(t.id)} className={button("quiet")}>
+                        Undo
+                      </button>
                     )
                   )}
                 </>
               )}
             </li>
           ) : (
-            <li key={t.id} className="space-y-2">
-              <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-ink px-4 py-2 text-on-ink">{t.message}</p>
-              <AgentTurn t={t} canUndo={canUndo(t)} onUndo={() => onUndo(t.id)} onSend={onSend} onConfirm={() => onConfirm(t.id)} onDecline={() => onDecline(t.id)} onTrace={() => onTrace(t)} onStop={onStop} busy={busy} />
+            <li key={t.id} className="space-y-3">
+              <p className="ml-auto w-fit max-w-[85%] rounded-lg rounded-br-sm bg-sign px-4 py-2.5 text-[1.0625rem] leading-snug text-on-sign">{t.message}</p>
+              <AgentTurn
+                t={t}
+                canUndo={canUndo(t)}
+                onUndo={() => onUndo(t.id)}
+                onSend={onSend}
+                onConfirm={() => onConfirm(t.id)}
+                onDecline={() => onDecline(t.id)}
+                onTrace={() => onTrace(t)}
+                onStop={onStop}
+                busy={busy}
+              />
             </li>
           ),
         )}
@@ -84,41 +91,76 @@ export function ChatPanel({ turns, busy, canUndo, onSend, onUndo, onStop, onConf
   );
 }
 
-function AgentTurn({ t, canUndo, onUndo, onSend, onConfirm, onDecline, onTrace, onStop, busy }: { t: ChatTurnView; canUndo: boolean; onUndo: () => void; onSend: (s: string) => void; onConfirm: () => void; onDecline: () => void; onTrace: () => void; onStop: () => void; busy: boolean }) {
+/** Jhola's mark beside its messages: a tiny painted sign. */
+function Mark() {
+  return (
+    <span aria-hidden className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-sign pt-1">
+      <span className="painted text-xl leading-none">J</span>
+    </span>
+  );
+}
+
+function AgentTurn({
+  t,
+  canUndo,
+  onUndo,
+  onSend,
+  onConfirm,
+  onDecline,
+  onTrace,
+  onStop,
+  busy,
+}: {
+  t: ChatTurnView;
+  canUndo: boolean;
+  onUndo: () => void;
+  onSend: (s: string) => void;
+  onConfirm: () => void;
+  onDecline: () => void;
+  onTrace: () => void;
+  onStop: () => void;
+  busy: boolean;
+}) {
   return (
     <div className="flex gap-3">
-      <span aria-hidden className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-marigold font-display text-lg text-ink">
-        J
-      </span>
-      <div className="min-w-0 flex-1 space-y-2">
+      <Mark />
+      <div className="min-w-0 flex-1 space-y-3">
         {t.brief?.summary && (
-          <p className="w-fit rounded-xl border border-marigold bg-marigold-soft px-3 py-1.5 text-sm text-marigold-text">
-            <span className="font-semibold">I understood:</span> {t.brief.summary}
-            {t.brief.assumptions.length > 0 && <span className="block text-xs">{t.brief.assumptions.join(" · ")}</span>}
-          </p>
+          <div className="w-fit max-w-full rounded-r-md border-l-4 border-turmeric bg-turmeric-soft px-3 py-2 text-sm text-turmeric-text">
+            <p>
+              <span className="font-semibold">I understood:</span> {t.brief.summary}
+            </p>
+            {t.brief.assumptions.length > 0 && (
+              <ul className="mt-1 space-y-0.5 text-[13px]">
+                {t.brief.assumptions.map((a) => (
+                  <li key={a}>{a}</li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
 
         {t.state === "working" && (
-          <p role="status" className="flex items-center gap-2 text-ink-soft">
-            <span className="skeleton inline-block h-2.5 w-2.5 rounded-full" aria-hidden />
-            {t.progress}
-            {t.planned ? <span>· {t.planned} items planned</span> : null}
-            <button type="button" onClick={onStop} className="ml-2 text-sm underline underline-offset-4 hover:text-ink">
+          <p role="status" className="flex flex-wrap items-center gap-x-2 gap-y-1 text-ink-soft">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-rani motion-safe:animate-pulse" aria-hidden />
+            <span>{t.progress}</span>
+            {t.planned ? <span className="num">{t.planned} items planned</span> : null}
+            <button type="button" onClick={onStop} className={button("quiet", "ml-1 text-sm")}>
               Stop
             </button>
           </p>
         )}
 
-        {t.reply && <p className={t.state === "error" || t.state === "gave_up" ? "text-chilli" : "text-ink"}>{t.reply}</p>}
+        {t.reply && <p className={`text-[1.0625rem] leading-relaxed ${t.state === "error" || t.state === "gave_up" ? "text-chilli" : "text-ink"}`}>{t.reply}</p>}
 
         {t.state === "confirm" && t.pending && (
-          <div className="rounded-2xl border-2 border-ink bg-paper px-4 py-3">
+          <div className={`${PANEL} px-4 py-3`}>
             <DiffList d={t.pending.diff} />
-            <div className="mt-3 flex gap-2">
-              <button type="button" onClick={onConfirm} className="rounded-xl bg-ink px-4 py-2 font-bold text-on-ink hover:bg-ink-deep">
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" onClick={onConfirm} className={button("primary")}>
                 Yes, make the change
               </button>
-              <button type="button" onClick={onDecline} className="rounded-xl border-2 border-ink px-4 py-2 font-semibold text-ink hover:bg-mist">
+              <button type="button" onClick={onDecline} className={button("secondary")}>
                 Keep my cart
               </button>
             </div>
@@ -126,10 +168,10 @@ function AgentTurn({ t, canUndo, onUndo, onSend, onConfirm, onDecline, onTrace, 
         )}
 
         {t.question && t.state === "done" && (
-          <div className="flex flex-wrap gap-2" aria-label={t.question.question}>
+          <div role="group" className="flex flex-wrap gap-2" aria-label={t.question.question}>
             <span className="sr-only">{t.question.question}</span>
             {t.question.options.map((o) => (
-              <button key={o} type="button" disabled={busy} onClick={() => onSend(o)} className="rounded-full border-2 border-ink bg-paper px-3 py-1 text-sm font-semibold text-ink hover:bg-mist disabled:opacity-40">
+              <button key={o} type="button" disabled={busy} onClick={() => onSend(o)} className={chip("pref", "hover:bg-sign-soft")}>
                 {o}
               </button>
             ))}
@@ -137,12 +179,16 @@ function AgentTurn({ t, canUndo, onUndo, onSend, onConfirm, onDecline, onTrace, 
         )}
 
         {t.state === "done" && t.diff && hasChanges(t.diff) && t.meta && t.diff.total_before > 0 && (
-          <div className="rounded-2xl bg-chalk px-4 py-3">
+          <div className="rounded-md border border-line bg-paper px-4 py-3">
             <DiffList d={t.diff} />
-            {t.undone ? <p className="mt-2 text-sm text-ink-soft">Undone.</p> : canUndo && (
-              <button type="button" onClick={onUndo} className="mt-2 rounded-xl border-2 border-ink px-3 py-1 text-sm font-bold text-ink hover:bg-mist">
-                Undo
-              </button>
+            {t.undone ? (
+              <p className="mt-2 text-sm text-ink-soft">Undone.</p>
+            ) : (
+              canUndo && (
+                <button type="button" onClick={onUndo} className={button("secondary", "mt-2.5 px-3 py-1 text-sm")}>
+                  Undo
+                </button>
+              )
             )}
           </div>
         )}
@@ -156,11 +202,13 @@ function AgentTurn({ t, canUndo, onUndo, onSend, onConfirm, onDecline, onTrace, 
         )}
 
         {t.meta && t.state !== "working" && (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <button type="button" onClick={onTrace} className="num text-xs text-ink-soft underline decoration-line underline-offset-4 hover:text-ink">
-              {t.meta.cached ? "From the answer cache" : `${t.meta.model_calls === 0 ? "Answered" : "Built"} in ${(t.meta.latency_ms / 1000).toFixed(1)} s`} · {t.meta.model_calls + t.meta.tool_calls} steps · {t.meta.cost_inr != null ? `₹${t.meta.cost_inr.toFixed(2)}` : "–"} to run
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <button type="button" onClick={onTrace} className={button("quiet-soft", "num flex flex-wrap gap-x-2 text-xs")}>
+              <span>{t.meta.cached ? "From the cache" : `${t.meta.model_calls === 0 ? "Answered" : "Built"} in ${secs(t.meta.latency_ms)}`}</span>
+              <span>{t.meta.model_calls + t.meta.tool_calls} steps</span>
+              <span>{rupeesExact(t.meta.cost_inr)} to run</span>
             </button>
-            <Feedback key={t.meta.request_id} requestId={t.meta.request_id} target="reply" label="Helpful?" />
+            <Feedback key={t.meta.request_id} requestId={t.meta.request_id} label="Helpful?" />
           </div>
         )}
       </div>
@@ -176,15 +224,15 @@ function DiffList({ d }: { d: CartDiff }) {
     <div className="text-sm">
       <ul className="space-y-0.5">
         {parts.map((p) => (
-          <li key={`${p.sign}${p.text}`} className={p.sign === "+" ? "text-leaf" : p.sign === "−" ? "text-chilli" : "text-ink"}>
-            <span className="num mr-1 font-bold" aria-hidden>
+          <li key={`${p.sign}${p.text}`} className={`flex gap-2 ${p.sign === "+" ? "text-sign" : p.sign === "−" ? "text-chilli" : "text-ink"}`}>
+            <span className="num w-3 shrink-0 text-center font-bold" aria-hidden>
               {p.sign === "~" ? "↻" : p.sign}
             </span>
-            {p.text}
+            <span>{p.text}</span>
           </li>
         ))}
       </ul>
-      <p className="num mt-1.5 font-semibold text-ink">
+      <p className="num mt-2 border-t border-line pt-1.5 font-semibold text-ink">
         {rupees(d.total_before)} → {rupees(d.total_after)}
       </p>
     </div>
@@ -199,18 +247,18 @@ function Composer({ busy, onSend, chips, inputRef }: { busy: boolean; onSend: (s
     setText("");
   };
   return (
-    <div className="sticky bottom-0 -mx-4 mt-5 bg-chalk/95 px-4 pb-4 pt-2 backdrop-blur sm:mx-0 sm:px-0">
+    <div className="sticky bottom-0 -mx-4 mt-6 bg-wall/95 px-4 pb-4 pt-3 backdrop-blur sm:mx-0 sm:px-0">
       {chips.length > 0 && (
-        <div className="mb-2 flex flex-wrap gap-2" aria-label="Suggestions">
+        <div role="group" className="mb-2.5 flex flex-wrap gap-2" aria-label="Suggestions">
           {chips.map((c) => (
-            <button key={c} type="button" onClick={() => onSend(c)} className="rounded-full border border-line bg-paper px-3 py-1 text-sm text-ink-soft hover:border-ink hover:text-ink">
+            <button key={c} type="button" onClick={() => onSend(c)} className={chip("suggest")}>
               {c}
             </button>
           ))}
         </div>
       )}
       <form
-        className="flex items-end gap-2 rounded-2xl border-2 border-ink bg-paper p-1.5 shadow-[5px_5px_0_var(--color-marigold)]"
+        className={`${PANEL} flex items-end gap-2 p-1.5 focus-within:border-rani`}
         onSubmit={(e) => {
           e.preventDefault();
           submit();
@@ -235,7 +283,7 @@ function Composer({ busy, onSend, chips, inputRef }: { busy: boolean; onSend: (s
           placeholder={busy ? "Jhola is working…" : "Ask for any change…"}
           className="max-h-32 min-w-0 flex-1 resize-none bg-transparent px-3 py-2 text-lg text-ink placeholder:text-ink-soft focus:outline-none"
         />
-        <button type="submit" disabled={busy || !text.trim()} className="shrink-0 rounded-xl bg-ink px-4 py-2 font-bold text-on-ink hover:bg-ink-deep disabled:cursor-not-allowed disabled:opacity-50">
+        <button type="submit" disabled={busy || !text.trim()} className={button("primary", "shrink-0")}>
           Send
         </button>
       </form>

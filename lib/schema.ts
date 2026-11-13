@@ -14,15 +14,14 @@ export const CATEGORIES = [
   "bakery",
   "dry_fruits",
   "sauces_spreads",
-  // Not food: no diet tags, and diet rules don't apply to them.
+  // Household, cleaning and personal care sold with the groceries: no diet tags, and diet rules don't apply to them.
   "personal_care",
   "cleaning_household",
-  "home_kitchen",
   "baby_care",
   "pet_care",
 ] as const;
 
-const NON_FOOD_CATEGORIES = ["personal_care", "cleaning_household", "home_kitchen", "baby_care", "pet_care"] as const;
+const NON_FOOD_CATEGORIES = ["personal_care", "cleaning_household", "baby_care", "pet_care"] as const;
 const NON_FOOD = new Set<string>(NON_FOOD_CATEGORIES);
 
 /** Food is what diets apply to. Soap is never "not vegetarian". */
@@ -31,6 +30,14 @@ export function isFood(p: { category: string }): boolean {
 }
 
 const UNITS = ["g", "ml", "pcs"] as const;
+
+/** Diet tags: hard filters. Every vegan or jain product is also veg. Food only. */
+export const DIET_TAGS = ["veg", "vegan", "jain"] as const;
+/** Preference labels: soft words the agent can prefer ("organic", "sugar free"). */
+export const LABELS = ["organic", "sugar_free", "high_protein", "whole_grain"] as const;
+/** What a food contains that shoppers rule out ("no dairy", "nut allergy", "gluten free"). Food only. */
+export const CONTAINS = ["dairy", "egg", "gluten", "nuts", "peanut", "soy"] as const;
+export type Contains = (typeof CONTAINS)[number];
 
 const ProductSchema = z.object({
   id: z.string().regex(/^p\d{3,}$/),
@@ -41,9 +48,13 @@ const ProductSchema = z.object({
   pack_size: z.number().positive(),
   unit: z.enum(UNITS),
   price: z.number().int().positive(),
-  mrp: z.number().int().positive().optional(),
   in_stock: z.boolean(),
+  /** Diet tags and preference labels (DIET_TAGS, LABELS). */
   tags: z.array(z.string()),
+  /** Allergens and ingredients a rule can exclude (CONTAINS). */
+  contains: z.array(z.enum(CONTAINS)).optional(),
+  /** Words shoppers use for the product: Hindi names, everyday terms ("dahi", "cold drink"). */
+  search_terms: z.array(z.string()).optional(),
   /** Seller-written text. Untrusted: the agent sees it only through lib/cart/safety.ts. */
   description: z.string().max(300).optional(),
 });

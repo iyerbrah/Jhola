@@ -1,33 +1,38 @@
 @import "tailwindcss";
 
 /*
- * Jhola: indigo-dye ink as the dominant base, chalk for reading surfaces,
- * marigold as the one sharp accent. Tiers: leaf (cheapest), marigold, indigo.
- * Every text/background pair used here passes WCAG AA (see scripts/check-contrast.ts).
+ * Jhola, the mandi signboard: a hand-painted green sign with turmeric lettering and a rani-pink
+ * drop shade over a limewashed stall wall. Colour lives on the sign and the price tags; the chat
+ * and the cart read quietly on white. Every text/background pair used here passes WCAG AA
+ * (see scripts/check-contrast.ts).
  */
 @theme {
-  --color-ink: #1f2a5a;
-  --color-ink-deep: #121a3f;
-  --color-ink-soft: #4a5480;
-  --color-on-ink: #f6f7f4;
-  --color-on-ink-soft: #b9c1e6;
-  --color-chalk: #f6f7f4;
+  --color-sign: #0a5a32;
+  --color-sign-deep: #07432a;
+  --color-sign-soft: #ddefe2;
+  --color-on-sign: #ffffff;
+  --color-on-sign-soft: #cde6d5;
+
+  --color-turmeric: #f5b81c;
+  --color-turmeric-deep: #e2a300;
+  --color-turmeric-soft: #fff1c9;
+  --color-turmeric-text: #7a5200;
+
+  --color-rani: #c8195a;
+  --color-rani-bright: #ec4d86;
+  --color-rani-soft: #fce4ee;
+
+  --color-wall: #eef2ea;
   --color-paper: #ffffff;
-  --color-mist: #dde2f2;
-  --color-line: #d6d9e3;
-  --color-marigold: #f0a202;
-  --color-marigold-deep: #d98f00;
-  --color-marigold-text: #7a4f00;
-  --color-marigold-soft: #fdf0d2;
-  --color-leaf: #276b43;
-  --color-leaf-soft: #e3f1e8;
-  --color-chilli: #b8322a;
-  --color-chilli-soft: #fbe9e7;
+  --color-line: #d5dccf;
+  --color-ink: #1e2a22;
+  --color-ink-soft: #4f5c53;
 
-  --font-display: var(--font-yatra), "Mukta", serif;
-  --font-sans: var(--font-mukta), sans-serif;
+  --color-chilli: #b42318;
+  --color-chilli-soft: #fbe6e3;
 
-  --shadow-lift: 0 28px 60px -32px rgb(18 26 63 / 0.55), 0 8px 18px -12px rgb(18 26 63 / 0.25);
+  --font-sign: var(--font-bakbak), "Anek Latin", sans-serif;
+  --font-sans: var(--font-anek), system-ui, sans-serif;
 }
 
 :root {
@@ -35,10 +40,16 @@
 }
 
 body {
-  background: var(--color-chalk);
+  background: var(--color-wall);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-turmeric-soft);
+  color: var(--color-ink);
 }
 
 /* Prices line up when they're compared down a column. */
@@ -46,76 +57,106 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Anek's width axis: wide for small headings, narrow for dense meta. */
+.wide {
+  font-stretch: 118%;
+}
+.narrow {
+  font-stretch: 86%;
+}
+
 :focus-visible {
-  outline: 3px solid var(--color-marigold);
+  outline: 3px solid var(--color-rani);
   outline-offset: 2px;
   border-radius: 6px;
 }
+/* On the green sign, rani is too close in lightness to see: the ring turns turmeric there. */
+.sign-band :focus-visible,
+.on-sign-focus:focus-visible {
+  outline-color: var(--color-turmeric);
+}
 
-/* ---------- Hero band: indigo with a marigold glow, a cooler counter-glow and grain ---------- */
-.hero-band {
+/* ---------- The signboard: painted green, a faint brush grain, a turmeric + rani stripe under it ---------- */
+.sign-band {
   position: relative;
   isolation: isolate;
   background:
-    radial-gradient(60% 80% at 92% 8%, rgb(240 162 2 / 0.38), transparent 60%),
-    radial-gradient(50% 70% at 0% 100%, rgb(86 112 214 / 0.35), transparent 65%),
-    linear-gradient(160deg, var(--color-ink) 0%, var(--color-ink-deep) 100%);
-  color: var(--color-on-ink);
+    linear-gradient(180deg, rgb(255 255 255 / 0.05), transparent 40%),
+    var(--color-sign);
+  color: var(--color-on-sign);
+  box-shadow:
+    0 6px 0 0 var(--color-turmeric),
+    0 10px 0 0 var(--color-rani);
+  margin-bottom: 10px;
 }
-.hero-band::after {
+.sign-band::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: 0.22;
+  opacity: 0.16;
   mix-blend-mode: overlay;
   pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* ---------- The bag handle on top of each cart, in the cart's tier colour ---------- */
-.jhola-handle {
-  position: absolute;
-  left: 50%;
-  top: -22px;
-  width: 64px;
-  height: 34px;
-  transform: translateX(-50%);
-  border: 5px solid var(--tier, var(--color-ink));
-  border-bottom: none;
-  border-radius: 40px 40px 0 0;
+/* Sign lettering: turmeric paint with a hard rani shade, as a sign painter does it. */
+.painted {
+  font-family: var(--font-sign);
+  color: var(--color-turmeric);
+  text-shadow: 0.055em 0.055em 0 var(--color-rani-bright);
 }
 
-/* Ruled lines for the shopping-list card in the hero. */
-.ruled {
-  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--color-mist) 31px, var(--color-mist) 32px);
+/* ---------- The price tag: a turmeric card with a punched hole. It always means "what you pay". ---------- */
+.price-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0.28em 0.6em 0.22em 1.35em;
+  background: var(--color-turmeric);
+  color: var(--color-ink);
+  font-family: var(--font-sign);
+  line-height: 1;
+  white-space: nowrap;
+  clip-path: polygon(0.7em 0, 100% 0, 100% 100%, 0.7em 100%, 0 50%);
+  -webkit-mask: radial-gradient(circle 0.17em at 0.72em 50%, transparent 96%, #000 100%);
+  mask: radial-gradient(circle 0.17em at 0.72em 50%, transparent 96%, #000 100%);
+  transform-origin: 0.72em 50%;
+}
+
+/* The total's tag swings on its string when the total changes, then settles. */
+@keyframes tag-swing {
+  0% {
+    transform: rotate(-14deg);
+  }
+  45% {
+    transform: rotate(7deg);
+  }
+  75% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+.tag-swing {
+  animation: tag-swing 700ms cubic-bezier(0.3, 0.7, 0.3, 1);
 }
 
 dialog::backdrop {
-  background: rgb(18 26 63 / 0.55);
+  background: rgb(7 67 42 / 0.55);
   backdrop-filter: blur(2px);
 }
 
-/* ---------- Motion: one staggered reveal on load, one when carts arrive ---------- */
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-}
-.rise {
-  animation: rise 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  animation-delay: calc(var(--i, 0) * 90ms);
-}
-
+/* ---------- Motion that answers an action ---------- */
 @keyframes pulse-soft {
   50% {
     opacity: 0.45;
   }
 }
 .skeleton {
-  background: var(--color-mist);
-  border-radius: 6px;
+  background: var(--color-line);
+  border-radius: 4px;
   animation: pulse-soft 1.4s ease-in-out infinite;
 }
 
@@ -129,28 +170,28 @@ dialog::backdrop {
   animation: sheet-up 180ms ease-out;
 }
 
-/* A line the cart helper just changed glows marigold, then fades. */
+/* A line Jhola just changed glows rani pink, then fades. */
 @keyframes flash {
   from {
-    background: var(--color-marigold-soft);
-    box-shadow: 0 0 0 6px var(--color-marigold-soft);
+    background: var(--color-rani-soft);
+    box-shadow: 0 0 0 8px var(--color-rani-soft);
   }
 }
 .flash {
   animation: flash 2.4s ease-out;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rise,
   .skeleton,
   .sheet-enter,
-  .flash {
+  .flash,
+  .tag-swing {
     animation: none;
   }
   /* No fade, just a steady highlight while it lasts. */
   .flash {
-    background: var(--color-marigold-soft);
-    box-shadow: 0 0 0 6px var(--color-marigold-soft);
+    background: var(--color-rani-soft);
+    box-shadow: 0 0 0 8px var(--color-rani-soft);
   }
 }

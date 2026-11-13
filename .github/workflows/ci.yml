@@ -56,8 +56,8 @@ jobs:
       - name: Unit tests
         run: npm test
 
-      - name: Catalog covers the promised dishes
-        run: npm run catalog:check
+      - name: Grocery catalogue covers shoppers' requests
+        run: npm run catalog:coverage
 
       - name: UI colours pass WCAG AA
         run: npm run check:contrast

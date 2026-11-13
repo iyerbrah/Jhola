@@ -1,5 +1,6 @@
 "use client";
 
+import { button } from "@/components/ui";
 import type { Session } from "@/lib/cart/types";
 
 /** Opens the shared cart in Jhola, where it can be changed by chatting. */
@@ -14,7 +15,7 @@ export function OpenInJhola({ session }: { session: Session }) {
         } catch {}
         window.location.href = "/";
       }}
-      className="mt-6 w-full rounded-xl bg-marigold px-4 py-3 font-bold text-ink hover:bg-marigold-deep"
+      className={button("primary", "mt-6 w-full py-3")}
     >
       Open in Jhola and change it
     </button>

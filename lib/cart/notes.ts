@@ -18,6 +18,16 @@ export function endNote(session: Session, cart: Cart): string[] {
     notes.push(`${s.wanted.brand} ${s.wanted.name} is out of stock, so I picked ${l.product.brand} ${l.product.name} (${size}, ${price}).`);
   }
   for (const u of cart.unmet) notes.push(`Couldn't add ${u.label.toLowerCase()}: ${u.detail}.`);
+  // Things the shopper should know about a line: it's sold another way, a preference had no match in stock,
+  // fewer different products than asked. Counted lines only, each said once.
+  const said = new Set<string>();
+  for (const l of cart.lines.filter((x) => x.counted)) {
+    for (const w of l.warnings) {
+      if (said.has(w) || !/^(Sold |No "|Only \d)/.test(w)) continue;
+      said.add(w);
+      notes.push(`${l.label}: ${w.charAt(0).toLowerCase()}${w.slice(1)}.`);
+    }
+  }
   const have = cart.skipped.filter((s) => s.reason === "have");
   const ruled = cart.skipped.filter((s) => s.reason === "rule");
   for (const s of have) notes.push(`Skipped ${s.label.toLowerCase()}, since you have it.`);
