@@ -70,7 +70,7 @@ const GUARANTEES = [
   },
   {
     title: "Recovers, doesn't drop",
-    body: "When a pick sells out, the solver takes the closest in-stock match of the same kind and form and says so: “D'Lecta cheese cubes are out of stock, so I picked Amul cheese slices, same size, ₹21 more”. Review & checkout re-solves to catch anything that sold out meanwhile.",
+    body: "When a pick sells out, the solver takes the closest in-stock match of the same kind and form and says so: “D'Lecta cheese cubes are out of stock, so I picked Amul cheese slices, same size, ₹21 more”. When you order, the server solves the cart again, so the order's total always uses current stock and prices.",
   },
   {
     title: "Safe by design",

@@ -14,7 +14,6 @@ import {
   type TurnView,
 } from "@/lib/chat/conversation";
 import type { Action } from "@/lib/chat/session";
-import type { CartDiff } from "@/lib/cart/diff";
 import type { Session } from "@/lib/cart/types";
 
 export type { ChatTurnView, Live, Snapshot, TapTurnView, TurnView } from "@/lib/chat/conversation";
@@ -133,16 +132,6 @@ export function useJhola() {
     dispatch({ type: "tap", id, text, result: r.result });
   }
 
-  /** Checkout's stock check: solve again; if anything sold out it's swapped, shown, and undoable. */
-  async function recheck(): Promise<CartDiff | null> {
-    const r = await sendSolve(current.current.now.session, { type: "solve" });
-    if (!r.ok) return null;
-    const d = r.result.diff;
-    if (!(d.added.length + d.removed.length + d.swapped.length + d.packs.length)) return null;
-    dispatch({ type: "recheck", id: newId(), result: r.result });
-    return d;
-  }
-
   const undo = (turnId: number) => dispatch({ type: "undo", id: turnId });
   const canUndo = (t: TurnView) => canUndoIn(state, t);
 
@@ -199,7 +188,6 @@ export function useJhola() {
     canUndo,
     stop,
     reset,
-    recheck,
     order,
     share: () => shareLink(now.session),
   };

@@ -1,16 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { blockedBy } from "@/lib/cart/solve";
 import { isSameKind } from "@/lib/cart/kind";
-import type { CartDiff } from "@/lib/cart/diff";
-import type { Brief, Cart, Line } from "@/lib/cart/types";
-import { changeParts } from "@/lib/chat/client";
+import type { Brief, Line } from "@/lib/cart/types";
 import { packLabel, type Product } from "@/lib/schema";
 import { count, rupees, rupeesExact, secs, usd } from "../format";
 import { Sheet } from "../Sheet";
 import { StarRating } from "./StarRating";
-import { button, FIELD_ERROR, INPUT, LABEL, PriceTag } from "../ui";
+import { button, FIELD_ERROR, INPUT, LABEL } from "../ui";
 import type { ChatTurnView, Placed } from "./useJhola";
 
 /** Swap a line for another product of its kind that fits the diet and every rule. Picking one pins it. */
@@ -66,90 +64,13 @@ export function PickSheet({ line, brief, products, onPick, onClose }: { line: Li
 }
 
 /**
- * Review & checkout: re-checks stock first (anything that sold out is swapped and shown). "I'm ready to
- * order" logs the order (Jhola's success event) and turns the sheet into a thank-you popup that asks for
- * stars, a comment and a name, all optional to send and shown on the public History page.
+ * The thank-you popup after "I'm ready to order": the order (already logged), then stars, a comment and a
+ * name, all optional to send and shown on the public History page. Closing it any way starts a new cart.
  */
-export function CheckoutSheet({
-  open,
-  cart,
-  title,
-  onRecheck,
-  onOrder,
-  onClose,
-  onDone,
-}: {
-  open: boolean;
-  cart: Cart;
-  title: string;
-  onRecheck: () => Promise<CartDiff | null>;
-  onOrder: () => Placed;
-  onClose: () => void;
-  onDone: () => void;
-}) {
-  const [state, setState] = useState<{ kind: "checking" } | { kind: "ready"; changed: CartDiff | null } | { kind: "placed"; placed: Placed }>({ kind: "checking" });
-  useEffect(() => {
-    if (!open) return;
-    setState((s) => (s.kind === "placed" ? s : { kind: "checking" }));
-    let live = true;
-    onRecheck().then((changed) => live && setState((s) => (s.kind === "placed" ? s : { kind: "ready", changed })));
-    return () => {
-      live = false;
-    };
-    // Only when it opens.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-  const items = cart.lines.filter((l) => l.counted);
-
-  if (state.kind === "placed") {
-    // Closing the thank-you popup any way at all starts a new cart: this one is done.
-    return (
-      <Sheet open={open} onClose={onDone} title="Thank you">
-        <ThankYou placed={state.placed} onDone={onDone} />
-      </Sheet>
-    );
-  }
+export function OrderedSheet({ placed, onDone }: { placed: Placed | null; onDone: () => void }) {
   return (
-    <Sheet open={open} onClose={onClose} title={title || "Your cart"}>
-      {state.kind === "checking" && (
-        <p role="status" className="mb-3 text-ink-soft">
-          Checking stock and prices…
-        </p>
-      )}
-      {state.kind === "ready" && (
-        <p role="status" className={`mb-3 rounded-md px-3 py-2 text-sm ${state.changed ? "border-l-4 border-turmeric bg-turmeric-soft text-turmeric-text" : "bg-sign-soft font-semibold text-sign"}`}>
-          {state.changed
-            ? `Stock changed while you shopped: ${changeParts(state.changed)
-                .map((p) => p.text)
-                .join(", ")}.`
-            : "✓ Everything is in stock at these prices."}
-        </p>
-      )}
-      <ul className="divide-y divide-line">
-        {items.map((l) => (
-          <li key={`${l.need_id}:${l.product.id}`} className="flex justify-between gap-3 py-2">
-            <span className="min-w-0">
-              <span className="font-medium">{l.product.name}</span>
-              <span className="block text-sm text-ink-soft">
-                {l.packs} × {l.product.brand}, {l.product.pack_label} at <span className="num">{rupees(l.product.price)}</span>
-              </span>
-            </span>
-            <span className="num shrink-0 font-semibold">{rupees(l.line_total)}</span>
-          </li>
-        ))}
-      </ul>
-      <div className="mt-3 flex items-center justify-between border-t-2 border-sign pt-4">
-        <span className="font-semibold">
-          Total for {items.length} {items.length === 1 ? "item" : "items"}
-        </span>
-        <PriceTag amount={cart.total} size="lg" label="Total" />
-      </div>
-      <button type="button" disabled={state.kind === "checking" || !items.length} onClick={() => setState({ kind: "placed", placed: onOrder() })} className={button("buy", "mt-6 w-full")}>
-        I&apos;m ready to order
-      </button>
-      <button type="button" onClick={onClose} className="mt-2 w-full rounded-md px-4 py-2 text-ink-soft hover:bg-wall hover:text-ink">
-        Keep shopping
-      </button>
+    <Sheet open={!!placed} onClose={onDone} title="Thank you">
+      {placed && <ThankYou key={placed.id} placed={placed} onDone={onDone} />}
     </Sheet>
   );
 }

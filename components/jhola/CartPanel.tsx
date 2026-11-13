@@ -22,7 +22,8 @@ type Props = {
   flash: string[];
   onTap: (a: Action, text: string) => void;
   onSwap: (line: Line) => void;
-  onCheckout: () => void;
+  /** "I'm ready to order": logs the order and opens the thank-you popup. */
+  onOrder: () => void;
   onCopy: () => void;
   onShare: () => void;
   shareNote: string | null;
@@ -32,7 +33,7 @@ type Props = {
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, flash, onTap, onSwap, onCheckout, onCopy, onShare, shareNote, bare = false }: Props) {
+export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, flash, onTap, onSwap, onOrder, onCopy, onShare, shareNote, bare = false }: Props) {
   const counted = cart.lines.filter((l) => l.counted);
   const pantry = cart.lines.filter((l) => !l.counted && l.role === "pantry");
   const suggestions = cart.lines.filter((l) => !l.counted && l.role !== "pantry");
@@ -185,8 +186,8 @@ export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, fl
             <p className="num font-sign text-[2rem] leading-none text-ink">{rupees(cart.total)}</p>
             <p className="mt-1 text-xs text-ink-soft">Approximate prices, {report.prices_as_of}</p>
           </div>
-          <button type="button" onClick={onCheckout} disabled={busy || !counted.length} className={button("buy")}>
-            Review &amp; checkout
+          <button type="button" onClick={onOrder} disabled={busy || !counted.length} className={button("buy")}>
+            I&apos;m ready to order
           </button>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
