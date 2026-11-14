@@ -15,7 +15,7 @@ import { ExportButton } from "../../components/history/ExportButton";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "History",
-  description: "Every run of Jhola's shopping agent: how it ended, what shoppers said about it, what it cost and how long it took.",
+  description: "Every chat people have had with Jhola, the AI shopping agent: how it ended, what they said about it, what it cost and how long it took.",
   robots: { index: false },
 };
 
@@ -54,8 +54,8 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
       <SiteHeader current="history">
         <SignHeadline title="History">
           <p>
-            Every run on the site: one shopper&apos;s chat, from the first message to &ldquo;I&apos;m ready to order&rdquo;. How it ended, what the shopper said about it, what it cost and how long it
-            took. Open a run for its full trace.
+            Every chat on this site, from the first message to &ldquo;Looks good, I&apos;m done&rdquo;: how it ended, what the shopper said, what it cost and how long it took. Open a run to see
+            every step.
           </p>
         </SignHeadline>
       </SiteHeader>
@@ -64,7 +64,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
           <h2 id="success" className={H2}>
             Did shoppers get their cart?
           </h2>
-          <p className="mt-2 text-ink-soft">A run succeeds when the shopper says &ldquo;I&apos;m ready to order&rdquo;. From {window}.</p>
+          <p className="mt-2 text-ink-soft">A run counts as a success when the shopper presses &ldquo;Looks good, I&apos;m done&rdquo;. From {window}.</p>
           <div className="mt-5">
             <StatBoard
               cols={3}
@@ -75,26 +75,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
               ]}
             />
           </div>
-          <div className="mt-8">
-            <StatBoard
-              cols={6}
-              items={[
-                ["Runs", String(head.runs)],
-                ["Turns", String(t?.turns ?? head.turns)],
-                ["Helpful replies", head.votes ? pct(head.up / head.votes) : "–", `${head.votes} vote${head.votes === 1 ? "" : "s"}`],
-                ["Turn, median", t ? secs(t.turn_p50_ms) : "–", t ? `p95 ${secs(t.turn_p95_ms)}` : undefined],
-                ["Ended by code", t ? pct(t.code_finished_rate) : "–", "no model call to finish"],
-                [
-                  "Cost per order",
-                  head.ordered ? usd(head.cost_usd / head.ordered) : "–",
-                  t?.cost_per_turn != null ? `${usd(t.cost_per_turn)} a turn` : head.turns ? `${usd(head.cost_usd / head.turns)} a turn` : undefined,
-                ],
-              ]}
-            />
-          </div>
         </section>
-
-        {stats && stats.totals.requests > 0 ? <Production stats={stats} /> : !stats && <Notice>Charts of the last 30 days come from the site&apos;s database, which isn&apos;t connected here.</Notice>}
 
         <section aria-labelledby="runs" className="mt-14">
           <div className="flex flex-wrap items-end justify-between gap-4">
@@ -103,7 +84,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
                 Runs
               </h2>
               <p className="mt-2 max-w-2xl text-ink-soft">
-                The {LIST} newest, newest first. Names, ratings and comments are public, with phone numbers, emails and links removed. Chat messages stay private.
+                The {LIST} newest first. Names, stars and comments are public, with phone numbers, emails and links removed. Chat messages stay private.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -134,14 +115,40 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
               <Link href="/" className={button("quiet")}>
                 Build a cart
               </Link>{" "}
-              and it&apos;ll show up here.
+              and yours will be the first.
             </p>
           ) : shown.length === 0 ? (
-            <p className="mt-8 text-lg text-ink-soft">No runs match this filter.</p>
+            <p className="mt-8 text-lg text-ink-soft">No runs match this filter yet.</p>
           ) : (
             <RunTable runs={shown} />
           )}
         </section>
+
+        <section aria-labelledby="more" className="mt-14">
+          <h2 id="more" className={H2}>
+            More numbers
+          </h2>
+          <p className="mt-2 text-ink-soft">How much work each run took, from {window}.</p>
+          <div className="mt-5">
+            <StatBoard
+              cols={6}
+              items={[
+                ["Runs", String(head.runs)],
+                ["Turns", String(t?.turns ?? head.turns)],
+                ["Helpful replies", head.votes ? pct(head.up / head.votes) : "–", `${head.votes} vote${head.votes === 1 ? "" : "s"}`],
+                ["Turn, median", t ? secs(t.turn_p50_ms) : "–", t ? `p95 ${secs(t.turn_p95_ms)}` : undefined],
+                ["Ended by code", t ? pct(t.code_finished_rate) : "–", "no model call to finish"],
+                [
+                  "Cost per order",
+                  head.ordered ? usd(head.cost_usd / head.ordered) : "–",
+                  t?.cost_per_turn != null ? `${usd(t.cost_per_turn)} a turn` : head.turns ? `${usd(head.cost_usd / head.turns)} a turn` : undefined,
+                ],
+              ]}
+            />
+          </div>
+        </section>
+
+        {stats && stats.totals.requests > 0 ? <Production stats={stats} /> : !stats && <Notice>Charts of the last 30 days come from the site&apos;s database, which isn&apos;t connected here.</Notice>}
       </main>
       <SiteFooter />
     </div>

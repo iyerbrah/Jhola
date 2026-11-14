@@ -66,7 +66,7 @@ export interface RequestLog {
   record(r: RequestRecord): Promise<void>;
   /** Saves (or takes back) one visitor's vote. Each visitor has at most one vote per cart or reply. */
   rate(f: FeedbackRecord): Promise<RateResult>;
-  /** Saves "I'm ready to order". The same order id twice is saved once. */
+  /** Saves "Looks good, I'm done". The same order id twice is saved once. */
   placeOrder(o: OrderRecord): Promise<void>;
   /** Saves (or replaces) the shopper's stars, comment and name on an order. */
   rateOrder(r: OrderRating): Promise<"saved" | "unknown">;

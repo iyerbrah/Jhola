@@ -88,18 +88,18 @@ export const EXPORT_FILES = {
 
 const README = `Jhola log export
 
-Every run (one shopper's chat, from first message to "I'm ready to order" or leaving) active in the
+Every run (one shopper's chat, from first message to "Looks good, I'm done" or leaving) active in the
 export's window. Phone numbers and email addresses were masked before anything was stored, and links
 too in names and comments. Times are UTC (ISO 8601). Money: cost_usd in US dollars, totals in rupees.
 
 runs.csv    one row per run: totals over its turns, how it ended, its order and rating.
             ready = the cart after the last turn passed every check (lib/cart/ready.ts).
-            messages_to_order = chat messages before "I'm ready to order" (taps don't count).
+            messages_to_order = chat messages before "Looks good, I'm done" (taps don't count).
 turns.csv   one row per chat turn: what was said, how it ended, cost, tokens, calls, the cart it left.
             not_ready = why the cart wasn't ready to order, joined with " | ".
             cart_lines = JSON [{product_id, name, qty, price, included}].
 steps.csv   every model and tool call inside a turn, in order, with its time and tokens.
-orders.csv  every "I'm ready to order": the server's own total, checklist failures, the rating.
+orders.csv  every "Looks good, I'm done": the server's own total, checklist failures, the rating.
             lines = JSON [{product_id, qty, price}].
 votes.csv   every thumbs up (1) or down (-1) on a reply in the window.
 `;

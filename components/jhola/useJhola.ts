@@ -24,7 +24,7 @@ const RUN = "jhola:run:v1";
 
 const newUuid = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined);
 
-/** What "I'm ready to order" hands to the thank-you popup. */
+/** What "Looks good, I'm done" hands to the thank-you popup. */
 export type Placed = { id: string; number: string; total: number; items: number };
 
 /**
@@ -151,7 +151,7 @@ export function useJhola() {
   }
 
   /**
-   * "I'm ready to order": logs the order in the background (the server solves the cart again for its own
+   * "Looks good, I'm done": logs the order in the background (the server solves the cart again for its own
    * total) and returns what the thank-you popup shows. Saving never holds up the shopper.
    */
   function order(): Placed {
