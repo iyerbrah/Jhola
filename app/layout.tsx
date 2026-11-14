@@ -9,20 +9,21 @@ const anek = Anek_Latin({ variable: "--font-anek", subsets: ["latin", "latin-ext
 
 // The public address, used for link previews (og:url, og:image). Read at build time: on the server
 // it comes from /opt/jhola/.env.production.local (https://jhola.ramiyer.tech).
+const TITLE = "Jhola: an AI agent that builds your grocery cart";
 const SITE_URL = process.env.SITE_URL || "http://localhost:3000";
 /** "3,300+": the catalogue size, rounded down so it stays true as products come and go. */
 const CATALOG_SIZE = `${(Math.floor(report.products / 100) * 100).toLocaleString("en-IN")}+`;
-const DESCRIPTION = `A grocery shopping agent you chat with: describe a dish, a meal or an occasion and get one ready cart from ${CATALOG_SIZE} real Indian grocery products, in stock, the right amounts, within budget. Then change anything by asking.`;
+const DESCRIPTION = `Jhola is an AI shopping agent you chat with. Describe a dish, a list or an occasion and it builds a cart of groceries and household items from ${CATALOG_SIZE} real products: in stock, the right amounts, within budget. Then change anything by asking. A free demo: no real orders or payments.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "Jhola: one ready cart from one sentence", template: "%s · Jhola" },
+  title: { default: TITLE, template: "%s · Jhola" },
   description: DESCRIPTION,
   applicationName: "Jhola",
   authors: [{ name: "Ram Iyer", url: "https://github.com/iyerbrah" }],
   // Link previews (LinkedIn, Slack, WhatsApp, email). The image comes from app/opengraph-image.tsx.
-  openGraph: { type: "website", url: "/", siteName: "Jhola", title: "Jhola: one ready cart from one sentence", description: DESCRIPTION, locale: "en_IN" },
-  twitter: { card: "summary_large_image", title: "Jhola: one ready cart from one sentence", description: DESCRIPTION },
+  openGraph: { type: "website", url: "/", siteName: "Jhola", title: TITLE, description: DESCRIPTION, locale: "en_IN" },
+  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
 };
 
 export const viewport: Viewport = {

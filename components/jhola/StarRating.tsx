@@ -3,6 +3,8 @@
 import { useState } from "react";
 
 const LABELS = ["", "1 star", "2 stars", "3 stars", "4 stars", "5 stars"];
+/** What each rating means, said beside the stars once one is picked. */
+const WORDS = ["", "Didn't work", "Needs work", "Okay", "Good", "Loved it"];
 
 /**
  * One to five stars, as five real radio buttons: arrow keys move between them, and a screen reader hears
@@ -29,11 +31,13 @@ export function StarRating({ value, onChange, legend }: { value: number; onChang
               }}
               className="peer sr-only"
             />
-            <span className="sr-only">{LABELS[n]}</span>
+            <span className="sr-only">
+              {LABELS[n]}, {WORDS[n]}
+            </span>
             <svg
               viewBox="0 0 24 24"
-              width="40"
-              height="40"
+              width="44"
+              height="44"
               aria-hidden
               className="rounded-md transition-transform peer-focus-visible:outline-[3px] peer-focus-visible:outline-offset-2 peer-focus-visible:outline-rani peer-focus-visible:outline-solid motion-safe:hover:scale-110"
             >
@@ -47,8 +51,8 @@ export function StarRating({ value, onChange, legend }: { value: number; onChang
             </svg>
           </label>
         ))}
-        <span className="num ml-2 text-sm text-ink-soft" aria-hidden>
-          {value ? `${value} of 5` : "Pick 1 to 5"}
+        <span className={`ml-2 text-sm ${shown ? "font-semibold text-ink" : "text-ink-soft"}`} aria-hidden>
+          {shown ? WORDS[shown] : "Tap a star"}
         </span>
       </div>
     </fieldset>

@@ -97,7 +97,8 @@ export function Gallery({ session, cart, checks, diff }: { session: Session; car
       onSwap={setPicking}
       onOrder={() => setPlaced(placeOrder(session, cart))}
       onCopy={() => {}}
-      onShare={() => {}}
+      onWhatsApp={() => console.log("whatsapp")}
+      onNewCart={() => console.log("new cart")}
       shareNote={null}
       {...extra}
     />
@@ -131,6 +132,8 @@ export function Gallery({ session, cart, checks, diff }: { session: Session; car
             onTrace={setTrace}
             chips={["Make it for 6", "Cheaper brands", "Add something for dessert"]}
             inputRef={inputRef}
+            cartSummary={{ items: cart.lines.filter((l) => l.counted).length, total: cart.total }}
+            onOpenCart={() => setSheet(true)}
           />
           <div className="space-y-8">
             {panel()}
@@ -144,7 +147,7 @@ export function Gallery({ session, cart, checks, diff }: { session: Session; car
         </main>
       </div>
       <SiteFooter />
-      <Sheet open={sheet} onClose={() => setSheet(false)} title="Your cart">
+      <Sheet open={sheet} onClose={() => setSheet(false)} title="Your cart" closeLabel="Back to chat">
         {panel(true)}
       </Sheet>
       <PickSheet line={picking} brief={brief} products={products} onClose={() => setPicking(null)} onPick={() => setPicking(null)} />

@@ -1,5 +1,5 @@
 /**
- * "I'm ready to order": the shopper's yes to the cart, and Jhola's success event.
+ * "Looks good, I'm done": the shopper's yes to the cart, and Jhola's success event.
  *
  * POST /api/order        { order_id, number, session_id, request_id?, session, messages? }
  *   The cart is solved again here from the session, so the total and lines stored are the server's own,

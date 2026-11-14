@@ -131,6 +131,11 @@
     { "group": "preference", "request": "healthy breakfast, whole grain please", "prefer": ["whole_grain"], "kinds": ["bread", "oats", "atta", "muesli"] },
     { "group": "preference", "request": "high protein vegetarian groceries", "diet": "veg", "prefer": ["high_protein"], "kinds": ["paneer", "moong_dal", "rajma", "curd", "peanuts"] },
     { "group": "diet", "request": "lactose intolerant: breakfast and tea", "exclude": ["dairy"], "kinds": ["plant_milk", "tea", "bread", "jam|peanut_butter", "banana"] },
-    { "group": "pantry", "request": "dairy for the fridge", "kinds": ["milk", "curd", "paneer", "butter", "cheese", "cream"] }
+    { "group": "pantry", "request": "dairy for the fridge", "kinds": ["milk", "curd", "paneer", "butter", "cheese", "cream"] },
+
+    { "group": "starters", "request": "milk, bread and eggs", "kinds": ["milk", "bread", "eggs"] },
+    { "group": "starters", "request": "cleaning supplies for a 2BHK", "kinds": ["floor_cleaner", "toilet_cleaner", "dishwash", "detergent", "scrub_pad", "toilet_other_brushes", "broom", "mop", "garbage_bags", "cleaning_cloth"] },
+    { "group": "starters", "request": "snacks for 10 kids, no nuts", "exclude": ["nuts", "peanut"], "kinds": ["biscuits", "chips", "juice", "popcorn", "chocolate|candy"] },
+    { "group": "starters", "request": "weekly groceries for 2, cat food and diapers", "kinds": ["rice", "atta", "toor_dal", "milk", "onion", "tomato", "banana", "cat_food", "diapers"] }
   ]
 }

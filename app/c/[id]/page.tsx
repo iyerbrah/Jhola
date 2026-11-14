@@ -10,7 +10,7 @@ import { defaultShareStore, SHARE_ID } from "@/lib/chat/share";
 import { OpenInJhola } from "./OpenInJhola";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "A shared cart", description: "A cart someone built with Jhola.", robots: { index: false } };
+export const metadata: Metadata = { title: "A shared cart", description: "A cart someone built by chatting with Jhola, an AI shopping agent.", robots: { index: false } };
 
 /** A shared cart, solved again now: today's stock and prices, the same choices. */
 export default async function SharedCart({ params }: { params: Promise<{ id: string }> }) {
@@ -29,7 +29,7 @@ export default async function SharedCart({ params }: { params: Promise<{ id: str
     <div className="flex min-h-screen flex-col">
       <SiteHeader>
         <SignHeadline title={solved.brief.summary || "A shared cart"}>
-          <p>A cart shared from Jhola, solved again just now against today&apos;s stock and prices.</p>
+          <p>Someone built this cart by chatting with Jhola and sent it to you. It was checked again just now against today&apos;s stock and prices.</p>
         </SignHeadline>
       </SiteHeader>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 sm:px-6">
@@ -38,6 +38,13 @@ export default async function SharedCart({ params }: { params: Promise<{ id: str
             <div className="flex items-center justify-between gap-3 bg-sign px-5 py-3.5 shadow-[0_4px_0_var(--color-turmeric)]">
               <h2 className="font-sign text-2xl leading-tight text-on-sign">The cart</h2>
               <PriceTag amount={cart.total} label="Total" />
+            </div>
+            <div className="border-b-2 border-sign px-5 pb-4 pt-5">
+              <p className="font-semibold text-ink">
+                Total for {lines.length} {lines.length === 1 ? "item" : "items"}
+              </p>
+              <p className="text-sm text-ink-soft">Prices and stock are as of now, so they can differ from when it was shared.</p>
+              <OpenInJhola session={solved} className="mt-3" />
             </div>
             {passed.length > 0 && (
               <ul aria-label="Checks" className="mx-5 mt-5 flex flex-wrap gap-x-3.5 gap-y-0.5 rounded-md bg-sign-soft px-3 py-2 text-sm text-sign">
@@ -49,7 +56,7 @@ export default async function SharedCart({ params }: { params: Promise<{ id: str
                 ))}
               </ul>
             )}
-            <ul className="divide-y divide-line px-5">
+            <ul className="divide-y divide-line px-5 pb-2">
               {lines.map((l) => (
                 <li key={`${l.need_id}:${l.product.id}`} className="flex justify-between gap-3 py-3">
                   <span className="min-w-0">
@@ -63,15 +70,7 @@ export default async function SharedCart({ params }: { params: Promise<{ id: str
                 </li>
               ))}
             </ul>
-            <div className="flex items-baseline justify-between border-t-2 border-sign px-5 py-4">
-              <span className="font-semibold">
-                Total for {lines.length} {lines.length === 1 ? "item" : "items"}
-              </span>
-              <span className="num font-sign text-[2rem] leading-none">{rupees(cart.total)}</span>
-            </div>
           </article>
-          <OpenInJhola session={solved} />
-          <p className="mt-3 text-sm text-ink-soft">Prices and stock are as of now, so they can differ from when it was shared.</p>
         </div>
       </main>
       <SiteFooter />

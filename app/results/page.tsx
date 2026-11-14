@@ -126,7 +126,7 @@ export default async function ResultsPage() {
       <SiteHeader current="results">
         <SignHeadline title="Results">
           <p>
-            How accurate the shopping agent is, and whether it&apos;s getting better. Two kinds of evidence: a fixed eval of {s?.scenarios ?? "about 100"} scripted chats played against the real model
+            How accurate Jhola&apos;s AI shopping agent is, and whether it&apos;s getting better. Two kinds of evidence: a fixed eval of {s?.scenarios ?? "about 100"} scripted chats played against the real model
             and checked in code (no AI judge), and how real chats on this site end. The goal in both is the same: a grocery cart the shopper could order as it is.
           </p>
         </SignHeadline>
@@ -299,7 +299,7 @@ export default async function ResultsPage() {
               refusals, prompt injection and big changes that wait for a yes. Every result is checked in code.
             </li>
             <li>
-              <strong>Real runs</strong> are judged the same way, from each chat&apos;s last turn, and the main measure is whether the shopper said &ldquo;I&apos;m ready to order&rdquo;. This page shows
+              <strong>Real runs</strong> are judged the same way, from each chat&apos;s last turn, and the main measure is whether the shopper pressed &ldquo;Looks good, I&apos;m done&rdquo;. This page shows
               totals; <Link href="/history" className={button("quiet")}>History</Link> lists every run, with chat messages kept behind the admin key.
             </li>
             <li>

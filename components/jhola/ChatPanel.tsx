@@ -20,15 +20,20 @@ type Props = {
   onTrace: (t: ChatTurnView) => void;
   chips: string[];
   inputRef: RefObject<HTMLTextAreaElement | null>;
+  /** The cart in one line, for the button that opens it on phones (where it isn't on screen). */
+  cartSummary?: { items: number; total: number };
+  onOpenCart?: () => void;
 };
 
 /** The conversation: each message, what Jhola understood and did, and the box to say what's next. */
-export function ChatPanel({ turns, busy, canUndo, onSend, onUndo, onStop, onConfirm, onDecline, onTrace, chips, inputRef }: Props) {
+export function ChatPanel({ turns, busy, canUndo, onSend, onUndo, onStop, onConfirm, onDecline, onTrace, chips, inputRef, cartSummary, onOpenCart }: Props) {
   const end = useRef<HTMLDivElement>(null);
   const last = turns.at(-1);
   useEffect(() => {
     end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [last]);
+  const filled = !busy && cartSummary && cartSummary.items > 0;
+  const chats = turns.filter((t) => t.kind === "chat").length;
 
   return (
     <section aria-label="Chat with Jhola" className="flex flex-col">
@@ -36,7 +41,7 @@ export function ChatPanel({ turns, busy, canUndo, onSend, onUndo, onStop, onConf
         <div className="flex gap-3">
           <Mark />
           <p className="text-[1.0625rem] leading-relaxed text-ink">
-            Here&apos;s your cart. Tell me what to change: more people, a budget, no onions, other brands, anything. Or tap the cart to change it yourself.
+            Here&apos;s the cart. Tell me what to change: more people, a budget, no onions, other brands, anything. Or change it yourself on the cart.
           </p>
         </div>
       )}
@@ -85,6 +90,19 @@ export function ChatPanel({ turns, busy, canUndo, onSend, onUndo, onStop, onConf
           ),
         )}
       </ol>
+      {/* The next step, right under the latest reply. Phones: the cart is off screen, so a button opens it. */}
+      {filled && onOpenCart && (
+        <div className="mt-5 pl-12 lg:hidden">
+          <button type="button" onClick={onOpenCart} className={button("secondary", "num w-full py-2.5")}>
+            See your cart: {cartSummary.items} {cartSummary.items === 1 ? "item" : "items"}, {rupees(cartSummary.total)}
+          </button>
+        </div>
+      )}
+      {filled && chats === 1 && (
+        <p className="mt-5 hidden pl-12 text-ink-soft lg:block">
+          Happy with it? Press <span className="font-semibold text-ink">Looks good, I&apos;m done</span> on the cart. Nothing is bought or charged.
+        </p>
+      )}
       <div ref={end} />
       <Composer busy={busy} onSend={onSend} chips={busy ? [] : chips} inputRef={inputRef} />
     </section>
@@ -280,7 +298,7 @@ function Composer({ busy, onSend, chips, inputRef }: { busy: boolean; onSend: (s
               submit();
             }
           }}
-          placeholder={busy ? "Jhola is working…" : "Ask for any change…"}
+          placeholder={busy ? "Jhola is on it…" : "Ask for any change…"}
           className="max-h-32 min-w-0 flex-1 resize-none bg-transparent px-3 py-2 text-lg text-ink placeholder:text-ink-soft focus:outline-none"
         />
         <button type="submit" disabled={busy || !text.trim()} className={button("primary", "shrink-0")}>
