@@ -56,7 +56,7 @@ export type Stats = {
   };
   /** Thumbs up and down on replies (and, from before, on carts). */
   feedback: { votes: number; up: number };
-  /** The success metrics: runs that ended in "I'm ready to order", the messages it took, and the stars. */
+  /** The success metrics: runs that ended in "Looks good, I'm done", the messages it took, and the stars. */
   success: Headline;
   accuracy: LiveAccuracy;
   daily: DayStats[];

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useRef, useState } from "react";
 import { blockedBy } from "@/lib/cart/solve";
 import { isSameKind } from "@/lib/cart/kind";
 import type { Brief, Line } from "@/lib/cart/types";
@@ -64,89 +65,135 @@ export function PickSheet({ line, brief, products, onPick, onClose }: { line: Li
 }
 
 /**
- * The thank-you popup after "I'm ready to order": the order (already logged), then stars, a comment and a
- * name, all optional to send and shown on the public History page. Closing it any way starts a new cart.
+ * The thank-you popup after "Looks good, I'm done": the order (already logged), then stars, a comment and a
+ * first name, shown on the public History page. A star counts the moment it's tapped; sending adds the rest.
+ * Closing it any way starts a new cart.
  */
 export function OrderedSheet({ placed, onDone }: { placed: Placed | null; onDone: () => void }) {
   return (
-    <Sheet open={!!placed} onClose={onDone} title="Thank you">
+    <Sheet open={!!placed} onClose={onDone} title="Your jhola is packed">
       {placed && <ThankYou key={placed.id} placed={placed} onDone={onDone} />}
     </Sheet>
   );
 }
 
-/** The thank-you popup: the order, then stars, a comment and a name for the History page. */
+type Saving = "idle" | "saving" | "saved" | "failed";
+
+/** The thank-you popup: one line about the order, then the ask, first. */
 function ThankYou({ placed, onDone }: { placed: Placed; onDone: () => void }) {
   const [stars, setStars] = useState(0);
   const [comment, setComment] = useState("");
   const [name, setName] = useState("");
-  const [sending, setSending] = useState<"idle" | "sending" | "sent" | "failed" | "skipped">("idle");
+  // The stars alone save on tap ("rated"); the form's send saves everything ("sent"). A later save replaces an earlier one.
+  const [rated, setRated] = useState<Saving>("idle");
+  const [sent, setSent] = useState<Saving>("idle");
+  const [missing, setMissing] = useState(false);
+  const [closing, setClosing] = useState(false);
 
-  async function send(e: React.FormEvent) {
-    e.preventDefault();
-    if (!stars || sending === "sending") return;
-    setSending("sending");
+  // Saves go one after another, so a quick second tap (or a send) always lands last and wins.
+  const queue = useRef<Promise<unknown>>(Promise.resolve());
+  function save(body: { stars: number; comment?: string; name?: string }): Promise<boolean> {
+    const next = queue.current.then(() => post(body));
+    queue.current = next;
+    return next;
+  }
+  async function post(body: { stars: number; comment?: string; name?: string }): Promise<boolean> {
     try {
       const res = await fetch("/api/order/rating", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ order_id: placed.id, stars, comment: comment || undefined, name: name || undefined }),
+        body: JSON.stringify({ order_id: placed.id, ...body }),
       });
-      setSending(res.ok ? "sent" : "failed");
+      return res.ok;
     } catch {
-      setSending("failed");
+      return false;
     }
   }
 
-  const done = sending === "sent" || sending === "skipped";
+  async function rate(n: number) {
+    setStars(n);
+    setMissing(false);
+    setRated("saving");
+    setRated((await save({ stars: n })) ? "saved" : "failed");
+  }
+
+  async function send(e: React.FormEvent) {
+    e.preventDefault();
+    if (!stars) return setMissing(true);
+    if (sent === "saving") return;
+    setSent("saving");
+    setSent((await save({ stars, comment: comment.trim() || undefined, name: name.trim() || undefined })) ? "saved" : "failed");
+  }
+
+  if (sent === "saved" || closing) {
+    return (
+      <div>
+        <p role="status" className="rounded-md bg-sign-soft px-4 py-3 text-lg font-semibold text-sign">
+          {sent === "saved" ? "Thank you! That helps Jhola get better." : rated === "saved" ? "Thanks for the stars." : "No problem."}
+        </p>
+        <button type="button" autoFocus onClick={onDone} className={button("primary", "mt-6 w-full py-3")}>
+          Start a new cart
+        </button>
+        {(sent === "saved" || rated === "saved") && (
+          <p className="mt-4 text-center">
+            <Link href="/history" className={button("quiet")}>
+              See it on History
+            </Link>
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div>
-      <p className="text-lg">
-        Your cart of <span className="num font-semibold">{placed.items}</span> {placed.items === 1 ? "item" : "items"} for <span className="num font-semibold">{rupees(placed.total)}</span> is noted,
-        order <span className="num font-semibold">{placed.number}</span>.
+      <p className="num text-ink-soft">
+        Order <span className="font-semibold text-ink">{placed.number}</span>: {placed.items} {placed.items === 1 ? "item" : "items"},{" "}
+        <span className="font-semibold text-ink">{rupees(placed.total)}</span>. It&apos;s a demo, so nothing is bought or charged.
       </p>
-      <p className="mt-1 text-ink-soft">This is a demo, so nothing is charged or delivered.</p>
 
-      {done ? (
-        <>
-          <p role="status" className="mt-6 rounded-md bg-sign-soft px-3 py-2 font-semibold text-sign">
-            {sending === "sent" ? "Thanks, sent." : "No problem."}
+      <form onSubmit={send} className="mt-5 space-y-5 border-t-2 border-sign pt-5">
+        <div>
+          <StarRating value={stars} onChange={(n) => void rate(n)} legend="How did Jhola do?" />
+          <p role="status" className="mt-1.5 text-sm font-semibold text-sign empty:hidden">
+            {rated === "saved" ? "Saved. Tell us a bit more?" : ""}
           </p>
-          <button type="button" onClick={onDone} className={button("primary", "mt-6 w-full py-3")}>
-            Start a new cart
-          </button>
-        </>
-      ) : (
-        <form onSubmit={send} className="mt-6 space-y-5 border-t-2 border-sign pt-5">
-          <StarRating value={stars} onChange={setStars} legend="How did Jhola do?" />
-          <label className="block">
-            <span className={LABEL}>
-              Anything to fix or keep? <span className="font-normal text-ink-soft">(optional)</span>
-            </span>
-            <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={1000} rows={3} className={INPUT} />
-          </label>
-          <label className="block">
-            <span className={LABEL}>
-              Your name <span className="font-normal text-ink-soft">(optional)</span>
-            </span>
-            <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} autoComplete="given-name" className={INPUT} />
-          </label>
-          <p className="text-sm text-ink-soft">Your name, stars and comment appear on the public History page. Phone numbers, emails and links are removed.</p>
-          {sending === "failed" && (
-            <p role="alert" className={FIELD_ERROR}>
-              Couldn&apos;t save that. Try again.
+          {(rated === "failed" || missing) && (
+            <p role="alert" className={`mt-1.5 ${FIELD_ERROR}`}>
+              {missing ? "Pick 1 to 5 stars first." : "Couldn't save that. Tap a star again."}
             </p>
           )}
-          <div className="flex flex-wrap items-center gap-4">
-            <button type="submit" disabled={!stars || sending === "sending"} className={button("primary", "flex-1 py-3")}>
-              {sending === "sending" ? "Sending…" : "Send feedback"}
-            </button>
-            <button type="button" onClick={() => setSending("skipped")} className={button("quiet")}>
-              Skip
-            </button>
-          </div>
-        </form>
-      )}
+        </div>
+        <label className="block">
+          <span className={LABEL}>What should Jhola do better?</span>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            maxLength={1000}
+            rows={3}
+            placeholder="e.g. right amounts, but it missed the bread"
+            className={`${INPUT} placeholder:text-ink-soft`}
+          />
+        </label>
+        <label className="block">
+          <span className={LABEL}>Your first name</span>
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={60} autoComplete="given-name" className={INPUT} />
+          <span className="mt-1.5 block text-sm text-ink-soft">Shown with your stars and comment on the public History page. Phone numbers, emails and links are removed.</span>
+        </label>
+        {sent === "failed" && (
+          <p role="alert" className={FIELD_ERROR}>
+            Couldn&apos;t send that. Try again.
+          </p>
+        )}
+        <div className="flex flex-wrap items-center gap-4">
+          <button type="submit" disabled={sent === "saving"} className={button("primary", "flex-1 py-3")}>
+            {sent === "saving" ? "Sending…" : "Send feedback"}
+          </button>
+          <button type="button" onClick={() => setClosing(true)} className={button("quiet")}>
+            Not now
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

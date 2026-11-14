@@ -11,7 +11,7 @@ type ButtonKind = "primary" | "buy" | "secondary" | "quiet" | "quiet-soft";
 const BUTTON: Record<ButtonKind, string> = {
   // Painted-sign green: the main action of a view.
   primary: "rounded-md bg-sign px-4 py-2.5 font-bold text-on-sign hover:bg-sign-deep",
-  // Turmeric, the price tag's colour: only for ordering (I'm ready to order).
+  // Turmeric, the price tag's colour: only for ordering (Looks good, I'm done).
   buy: "rounded-md bg-turmeric px-4 py-3 font-bold text-ink hover:bg-turmeric-deep",
   secondary: "rounded-md border-2 border-sign bg-paper px-4 py-2 font-semibold text-sign hover:bg-sign-soft",
   quiet: "font-semibold text-ink underline decoration-line decoration-2 underline-offset-4 hover:decoration-rani",
@@ -106,5 +106,32 @@ export function StatBoard({ items, cols = 3 }: { items: [label: string, value: s
         </div>
       ))}
     </dl>
+  );
+}
+
+/**
+ * Steps down a page, each with a short title and a line or two: numbered on a small painted sign, or
+ * marked with a turmeric diamond when the order doesn't matter.
+ */
+export function Steps({ steps, numbered = true, compact = false }: { steps: { title: string; body: ReactNode }[]; numbered?: boolean; compact?: boolean }) {
+  const List = numbered ? "ol" : "ul";
+  return (
+    <List className={`divide-y divide-line border-y-2 border-sign ${compact ? "sm:grid sm:grid-cols-3 sm:divide-x sm:divide-y-0" : ""}`}>
+      {steps.map((step, i) => (
+        <li key={step.title} className={`flex gap-4 ${compact ? "py-4 sm:flex-col sm:gap-3 sm:px-4 sm:first:pl-0 sm:last:pr-0" : "py-5"}`}>
+          {numbered ? (
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-sign pt-1" aria-hidden>
+              <span className="painted num text-xl leading-none">{i + 1}</span>
+            </span>
+          ) : (
+            <span className="mt-1.5 h-3 w-3 shrink-0 rotate-45 bg-turmeric" aria-hidden />
+          )}
+          <div>
+            <h3 className={`text-lg ${H3}`}>{step.title}</h3>
+            <p className="mt-1 leading-relaxed text-ink-soft">{step.body}</p>
+          </div>
+        </li>
+      ))}
+    </List>
   );
 }

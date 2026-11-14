@@ -11,7 +11,7 @@ export default function NotFound() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader>
         <SignHeadline title="This page isn't on the list.">
-          <p>The link may be old or mistyped.</p>
+          <p>The link may be old or mistyped. Your next cart is one sentence away.</p>
         </SignHeadline>
       </SiteHeader>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 sm:px-6">

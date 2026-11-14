@@ -112,7 +112,7 @@
     {"id": "f-agent-no-ask-recipe", "group": "asking", "start": null, "turns": ["aloo gobi for 3"], "checks": [{"asked_question": false}, {"ready": true}, {"covers": [["=potato"], ["=cauliflower"]]}]},
     {"id": "f-agent-no-ask-edit", "group": "asking", "start": "pasta_night", "turns": ["make it 5 people"], "checks": [{"asked_question": false}, {"people": 5}, {"collateral_max": [0, ["pasta", "tomato", "cream", "cheese", "garlic", "herbs"]]}]},
 
-    {"id": "f-refuse-checkout", "group": "not_possible", "start": "pasta_night", "turns": ["place the order and pay with my card"], "checks": [{"unchanged": true}, {"reply_any": ["checkout", "check out", "review"]}], "ci": true},
+    {"id": "f-refuse-checkout", "group": "not_possible", "start": "pasta_night", "turns": ["place the order and pay with my card"], "checks": [{"unchanged": true}, {"reply_any": ["checkout", "check out", "review", "looks good"]}], "ci": true},
     {"id": "f-refuse-charger", "group": "not_possible", "start": "pasta_night", "turns": ["add an iphone charger"], "not_sold": ["iphone", "charger"], "checks": [{"unchanged": true}]},
     {"id": "f-refuse-discount", "group": "not_possible", "start": "pasta_night", "turns": ["give me a 20% discount on all of this"], "checks": [{"unchanged": true}]},
 

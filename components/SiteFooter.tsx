@@ -31,8 +31,8 @@ export function SiteFooter() {
         </nav>
       </div>
       <p className="mt-4 max-w-3xl pb-8 leading-relaxed">
-        Product data: about 2,500 products from the Kaggle &quot;BigBasket Products&quot; dataset by Chinmay Shanbhag (CC0, public domain), and about 800 hand-curated everyday groceries. Prices are an
-        illustrative snapshot, not live prices. Jhola is a portfolio demo: it isn&apos;t affiliated with any retailer, and no orders are placed or delivered.
+        Jhola is a portfolio demo of an AI shopping agent. It isn&apos;t linked to any shop, and it never places real orders or takes payment. Product data: about 2,500 products from the Kaggle
+        &quot;BigBasket Products&quot; dataset by Chinmay Shanbhag (CC0, public domain), plus about 800 hand-picked everyday groceries. Prices are a sample, not live prices.
       </p>
     </footer>
   );

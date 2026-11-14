@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { REPO_URL, SiteFooter } from "@/components/SiteFooter";
 import { SignHeadline, SiteHeader } from "@/components/SiteHeader";
-import { button, H2, H3, StatBoard } from "@/components/ui";
+import { button, H2, H3, StatBoard, Steps } from "@/components/ui";
 import type { ChatSummary } from "@/evals/chatScore";
 import { LATEST_FILE } from "@/evals/history";
 import { pct, secs } from "@/components/format";
@@ -16,7 +16,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "How it works",
   description:
-    "How Jhola's shopping agent turns one sentence into one ready cart and edits it in chat: the model decides what's needed, a solver in code picks products, packs and prices, every cart is checked, and evals measure every change.",
+    "How Jhola, an AI shopping agent, turns one sentence into a ready cart and edits it in chat: the model decides what's needed, a solver in code picks products, packs and prices, every cart is checked, and evals measure every change.",
 };
 
 function read<T>(file: string): T | null {
@@ -74,7 +74,7 @@ const GUARANTEES = [
   },
   {
     title: "Safe by design",
-    body: "The agent has no tool to order or pay: it can't, whatever it's told. Only you can say “I'm ready to order”. Big changes wait for your yes. Catalog text is fenced as data, and a listing with planted instructions is flagged and ignored. Phone numbers and emails are masked before anything is stored.",
+    body: "The agent has no tool to order or pay: it can't, whatever it's told. Only you can press “Looks good, I'm done”, and even that is a demo: nothing is bought or charged. Big changes wait for your yes. Catalog text is fenced as data, and a listing with planted instructions is flagged and ignored. Phone numbers and emails are masked before anything is stored.",
   },
 ];
 
@@ -87,29 +87,6 @@ const STACK = [
   ["Vitest + GitHub Actions", "350+ tests on every PR, a real-model eval check on request, a deploy on every merge"],
   ["Own Ubuntu server", "nginx with HTTPS in front, Node.js kept running by systemd"],
 ];
-
-function Steps({ steps, numbered = true }: { steps: { title: string; body: string }[]; numbered?: boolean }) {
-  const List = numbered ? "ol" : "ul";
-  return (
-    <List className="divide-y divide-line border-y-2 border-sign">
-      {steps.map((step, i) => (
-        <li key={step.title} className="flex gap-4 py-5">
-          {numbered ? (
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-sign pt-1" aria-hidden>
-              <span className="painted num text-xl leading-none">{i + 1}</span>
-            </span>
-          ) : (
-            <span className="mt-1.5 h-3 w-3 shrink-0 rotate-45 bg-turmeric" aria-hidden />
-          )}
-          <div>
-            <h3 className={`text-lg ${H3}`}>{step.title}</h3>
-            <p className="mt-1 leading-relaxed text-ink-soft">{step.body}</p>
-          </div>
-        </li>
-      ))}
-    </List>
-  );
-}
 
 export default function HowItWorks() {
   const run = latestChatRun();
@@ -140,7 +117,7 @@ export default function HowItWorks() {
     },
     {
       title: "Every run, in public",
-      body: "A run succeeds when the shopper says “I'm ready to order”. History lists every run with how it ended, its rating and comment, its cost and time, and a trace of every model and tool call, next to the last 30 days' charts. Chat messages stay private behind an admin key, and visitors are a daily code that can't be traced back.",
+      body: "A run succeeds when the shopper presses “Looks good, I'm done”. History lists every run with how it ended, its rating and comment, its cost and time, and a trace of every model and tool call, next to the last 30 days' charts. Chat messages stay private behind an admin key, and visitors are a daily code that can't be traced back.",
       link: { href: "/history", text: "See every run" },
     },
     {
@@ -158,9 +135,13 @@ export default function HowItWorks() {
       <SiteHeader current="how">
         <SignHeadline title="The model reasons. Code guarantees.">
           <p>
-            Jhola is a shopping agent you chat with. It turns one sentence into one ready cart from {catalog.length.toLocaleString("en-IN")} real Indian grocery products, then changes it as you ask.
-            The model decides what you need; a solver in code decides which products, how many and what it costs, so every cart is in stock, in budget and true to your rules.
+            Jhola is an AI shopping agent you chat with. It turns one sentence into a ready cart of groceries and household items from {catalog.length.toLocaleString("en-IN")} real products,
+            then changes it as you ask. The model decides what you need; a solver in code decides which products, how many and what it costs, so every cart is in stock, in budget and true to your
+            rules.
           </p>
+          <Link href="/" className={button("secondary", "mt-6 inline-block px-5 py-3")}>
+            Try it: build a cart
+          </Link>
         </SignHeadline>
       </SiteHeader>
 
