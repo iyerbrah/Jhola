@@ -9,14 +9,26 @@ import type { Line } from "@/lib/cart/types";
 import { Sheet } from "../Sheet";
 import { SiteFooter } from "../SiteFooter";
 import { SiteHeader } from "../SiteHeader";
-import { button, chip, PANEL, PriceTag } from "../ui";
+import { rupees } from "../format";
+import { button, chip, H2, PANEL, PriceTag, Steps, tag } from "../ui";
 import { useCatalog } from "../useCatalog";
 import { CartPanel } from "./CartPanel";
 import { ChatPanel } from "./ChatPanel";
 import { OrderedSheet, PickSheet, TraceSheet } from "./Sheets";
 import { useJhola, type ChatTurnView, type Placed } from "./useJhola";
 
-export const EXAMPLES = ["Stuff for pasta night for 4, vegetarian, around ₹600", "Weekly veggies for 2, no onions", "Cleaning supplies for a new flat", "Gift of 4 dark chocolates under ₹1000"];
+/**
+ * Five ways to start, each a different way to use Jhola. Every one is covered by the catalogue and passes the
+ * solver's review in code (evals/coverage/requests.json, group "starters"), and each passed the live eval.
+ */
+export const STARTERS: { kind: string; text: string }[] = [
+  { kind: "A meal", text: "Pasta night for 4, vegetarian, around ₹600" },
+  { kind: "A quick list", text: "Milk, bread and eggs" },
+  { kind: "The house", text: "Cleaning supplies for a 2BHK" },
+  { kind: "An allergy", text: "Snacks for 10 kids, no nuts" },
+  { kind: "All at once", text: "Weekly groceries for 2, cat food and diapers" },
+];
+export const EXAMPLES = STARTERS.map((s) => s.text);
 
 /** Jhola: one chat, one cart. The conversation on the left, the cart it builds on the right (a sheet on phones). */
 export function Jhola({ catalogSize }: { catalogSize: number }) {
@@ -45,17 +57,19 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
       setShareNote("Couldn't copy here");
     }
   }
-  async function share() {
-    setShareNote("Making a link…");
+  /** WhatsApp with the list and a link to the cart. The tab opens first, while the click still counts as the shopper's. */
+  async function whatsapp() {
+    const tab = window.open("", "_blank");
+    setShareNote("Opening WhatsApp…");
     const r = await j.share();
-    if (!r.ok) return setShareNote(r.error);
-    const url = `${window.location.origin}${r.path}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      setShareNote(`Link copied: ${r.path}`);
-    } catch {
-      setShareNote(url);
-    }
+    const list = listText(j.now.session, j.now.cart);
+    const text = r.ok ? `${list}\n\nSee it or change it: ${window.location.origin}${r.path}` : list;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    if (tab) {
+      tab.opener = null;
+      tab.location.href = url;
+    } else window.location.href = url;
+    setShareNote(null);
   }
 
   const panel = (bare = false) => (
@@ -76,7 +90,12 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
         setPlaced(j.order());
       }}
       onCopy={copy}
-      onShare={share}
+      onWhatsApp={() => void whatsapp()}
+      onNewCart={() => {
+        setCartOpen(false);
+        setShareNote(null);
+        j.reset();
+      }}
       shareNote={shareNote}
     />
   );
@@ -85,12 +104,16 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
     <div className="flex min-h-screen flex-col">
       <SiteHeader current="home" onHome={j.reset}>
         {!started && (
-          <div className="grid items-start gap-10 pb-14 pt-6 sm:pt-10 lg:grid-cols-[1fr_360px] lg:pb-16">
+          <div className="grid items-start gap-10 pb-10 pt-4 sm:pb-14 sm:pt-10 lg:grid-cols-[1fr_360px] lg:pb-16">
             <div>
-              <h1 className="painted max-w-3xl text-[3rem] leading-[0.98] sm:text-[5.5rem]">What&apos;s on the list today?</h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-on-sign-soft sm:text-[1.1875rem]">
-                Tell Jhola what you need in one line. It fills one cart from {catalogSize.toLocaleString("en-IN")} real groceries and household essentials: in stock, the right amounts, within your
-                budget. Then change anything by asking.
+              <h1 className="painted max-w-3xl text-[2.5rem] leading-[0.98] sm:text-[4.75rem]">Say what you need. Jhola fills the cart.</h1>
+              <p className="mt-4 max-w-xl leading-relaxed text-on-sign-soft sm:mt-6 sm:text-[1.1875rem]">
+                Jhola is an AI shopping agent. Tell it what you need, the way you&apos;d tell your shopkeeper, and it builds a cart of groceries and household items from{" "}
+                {catalogSize.toLocaleString("en-IN")} real products: in stock, the right amounts, within your budget. Then change anything by asking.
+              </p>
+              <p className="mt-4 flex max-w-xl flex-wrap items-center gap-x-2.5 gap-y-1.5 text-sm text-on-sign sm:text-base">
+                <span className={tag("on-sign")}>Free demo</span>
+                <span>Jhola never places real orders or takes payment. No sign-up: just try it.</span>
               </p>
             </div>
             <Preview />
@@ -101,26 +124,47 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 sm:px-6">
         {!started ? (
           // Same columns as the sign, so the box never runs under the hanging board.
-          <div className="grid gap-10 pt-8 sm:pt-10 lg:grid-cols-[1fr_360px]">
+          <div className="grid gap-10 pt-6 sm:pt-10 lg:grid-cols-[1fr_360px]">
             <div className="max-w-2xl">
               <StartBox onSend={j.send} />
+              <section aria-labelledby="how-it-goes" className="mt-12">
+                <h2 id="how-it-goes" className={H2}>
+                  How it goes
+                </h2>
+                <div className="mt-4">
+                  <Steps
+                    compact
+                    steps={[
+                      { title: "Say what you need", body: "A dish, a list, an occasion or a budget, in your own words." },
+                      { title: "Jhola builds the cart", body: "Real products in the right amounts, inside your budget and your rules. Each line says why it's there." },
+                      { title: "Change it, then you're done", body: "Ask for any change or tap the cart. When it looks right, press “Looks good, I'm done”. Nothing is bought or charged." },
+                    ]}
+                  />
+                </div>
+              </section>
             </div>
           </div>
         ) : (
           <>
-            {/* Phones: the cart is one tap away. */}
+            {/* Phones: the cart's own little sign, pinned to the top and one tap away. */}
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="sticky top-0 z-20 -mx-4 flex w-[calc(100%+2rem)] items-center justify-between gap-3 border-b-2 border-sign bg-paper px-4 py-2.5 text-left lg:hidden"
+              aria-label={`Open your cart: ${count} ${count === 1 ? "item" : "items"}, ${rupees(cart.total)}`}
+              className="sticky top-0 z-20 -mx-4 mb-1 flex w-[calc(100%+2rem)] items-center justify-between gap-3 bg-sign px-4 py-2.5 text-left text-on-sign shadow-[0_4px_0_var(--color-turmeric)] lg:hidden"
             >
               <span className="flex flex-col leading-tight">
-                <span className="font-semibold text-ink">Your cart</span>
-                <span className="text-sm text-ink-soft">
-                  {count} {count === 1 ? "item" : "items"}, tap to open
+                <span className="font-sign text-xl">Your cart</span>
+                <span className="text-sm text-on-sign-soft">
+                  {j.busy && !count ? "Filling up…" : `${count} ${count === 1 ? "item" : "items"} · tap to open`}
                 </span>
               </span>
-              <PriceTag amount={cart.total} size="sm" label="Cart total" />
+              <span className="flex items-center gap-2.5">
+                <PriceTag amount={cart.total} size="sm" />
+                <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden className="text-on-sign-soft">
+                  <path d="M3 10l5-5 5 5" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
             </button>
             <main className="grid gap-8 pt-6 lg:grid-cols-[minmax(0,1fr)_440px] lg:pt-8">
               <ChatPanel
@@ -135,6 +179,8 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
                 onTrace={setTrace}
                 chips={followUps(j.now)}
                 inputRef={inputRef}
+                cartSummary={{ items: count, total: cart.total }}
+                onOpenCart={() => setCartOpen(true)}
               />
               <div className="hidden lg:block">
                 <div className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto pb-4 pr-1">{panel()}</div>
@@ -145,7 +191,7 @@ export function Jhola({ catalogSize }: { catalogSize: number }) {
       </div>
       <SiteFooter />
 
-      <Sheet open={cartOpen} onClose={() => setCartOpen(false)} title="Your cart">
+      <Sheet open={cartOpen} onClose={() => setCartOpen(false)} title="Your cart" closeLabel="Back to chat">
         {panel(true)}
       </Sheet>
       <PickSheet
@@ -190,14 +236,14 @@ function StartBox({ onSend }: { onSend: (s: string) => void }) {
   return (
     <div>
       <form
-        className={`${PANEL} flex gap-2 p-1.5 focus-within:border-rani`}
+        className={`${PANEL} flex flex-col gap-1.5 p-1.5 focus-within:border-rani sm:flex-row sm:gap-2`}
         onSubmit={(e) => {
           e.preventDefault();
           go(text);
         }}
       >
         <label htmlFor="start" className="sr-only">
-          What do you need?
+          What do you need? Name a dish, a list or an occasion.
         </label>
         <input
           id="start"
@@ -206,7 +252,7 @@ function StartBox({ onSend }: { onSend: (s: string) => void }) {
           onChange={(e) => setText(e.target.value)}
           maxLength={300}
           autoComplete="off"
-          placeholder="Stuff for pasta night for 4, vegetarian"
+          placeholder="Name a dish, a list or an occasion"
           className="min-w-0 flex-1 bg-transparent px-3 py-2.5 text-lg text-ink placeholder:text-ink-soft focus:outline-none"
         />
         <button type="submit" disabled={text.trim().length < 3} className={button("primary", "shrink-0")}>
@@ -214,17 +260,20 @@ function StartBox({ onSend }: { onSend: (s: string) => void }) {
         </button>
       </form>
       <p className="mt-2 text-sm text-ink-soft">
-        Runs are listed on the public{" "}
+        Each run is listed on the public{" "}
         <Link href="/history" className={button("quiet-soft")}>
           History
         </Link>{" "}
-        page. Your messages are not shown.
+        page. Your messages stay private.
       </p>
-      <p className="mt-5 text-sm font-semibold text-ink-soft">Or start with one of these</p>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {EXAMPLES.map((c) => (
-          <button key={c} type="button" onClick={() => go(c)} className={chip("suggest")}>
-            {c}
+      <p id="starters" className="mt-6 text-sm font-semibold text-ink-soft">
+        Or try one of these
+      </p>
+      <div role="group" aria-labelledby="starters" className="mt-2 flex flex-wrap gap-2">
+        {STARTERS.map((c) => (
+          <button key={c.text} type="button" onClick={() => go(c.text)} className={chip("suggest", "text-left")}>
+            <span className="font-semibold text-sign">{c.kind}</span>
+            <span>{c.text}</span>
           </button>
         ))}
       </div>

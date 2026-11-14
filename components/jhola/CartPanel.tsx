@@ -22,10 +22,14 @@ type Props = {
   flash: string[];
   onTap: (a: Action, text: string) => void;
   onSwap: (line: Line) => void;
-  /** "I'm ready to order": logs the order and opens the thank-you popup. */
+  /** "Looks good, I'm done": logs the order and opens the thank-you popup. */
   onOrder: () => void;
   onCopy: () => void;
-  onShare: () => void;
+  /** Opens WhatsApp with the list and a link to the cart. */
+  onWhatsApp: () => void;
+  /** Clears the cart and the chat, after the shopper says yes. */
+  onNewCart: () => void;
+  /** What the last copy or send did: "List copied". */
   shareNote: string | null;
   /** Inside a sheet that has its own title: no card frame, handle or heading. */
   bare?: boolean;
@@ -33,7 +37,7 @@ type Props = {
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, flash, onTap, onSwap, onOrder, onCopy, onShare, shareNote, bare = false }: Props) {
+export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, flash, onTap, onSwap, onOrder, onCopy, onWhatsApp, onNewCart, shareNote, bare = false }: Props) {
   const counted = cart.lines.filter((l) => l.counted);
   const pantry = cart.lines.filter((l) => !l.counted && l.role === "pantry");
   const suggestions = cart.lines.filter((l) => !l.counted && l.role !== "pantry");
@@ -41,19 +45,13 @@ export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, fl
   const placeholders = planning ? needs.filter((n) => n.ticked && !cart.lines.some((l) => l.need_id === n.id)) : [];
   const listing = plan && plan.length > 0 && !planning ? plan : null;
   const empty = !counted.length && !placeholders.length && !listing;
+  const [confirmNew, setConfirmNew] = useState(false);
 
   return (
-    <article aria-label="Your cart" className={bare ? "-mx-5 -mt-5 flex flex-col" : `${PANEL} flex flex-col overflow-hidden`}>
-      {/* The cart's own little sign: its name and the tag with what you'd pay. */}
-      {bare ? (
-        <div className="flex items-center justify-between gap-3 border-b border-line bg-wall px-5 py-3">
-          <p className="text-ink-soft">
-            {counted.length} {counted.length === 1 ? "item" : "items"}
-          </p>
-          <PriceTag amount={cart.total} label="Cart total" />
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-3 bg-sign px-5 py-3.5 shadow-[0_4px_0_var(--color-turmeric)]">
+    <article aria-label="Your cart" className={bare ? "-mx-5 -mt-5 flex flex-col" : `${PANEL} flex flex-col`}>
+      {/* The cart's own little sign: its name and the tag with what you'd pay. It stays in view while the lines scroll. */}
+      {!bare && (
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 rounded-t-[4px] bg-sign px-5 py-3.5 shadow-[0_4px_0_var(--color-turmeric)]">
           <h2 className="font-sign text-2xl leading-tight text-on-sign">Your cart</h2>
           <span aria-live="polite">
             <PriceTag amount={cart.total} label="Cart total" />
@@ -61,13 +59,72 @@ export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, fl
         </div>
       )}
 
-      <header className={`border-b border-line px-5 pb-4 ${bare ? "pt-3" : "pt-5"}`}>
-        <Preferences brief={brief} disabled={busy} onTap={onTap} />
-        {checks.length > 0 && <Checklist checks={checks} />}
-      </header>
+      {/* What you came for first: the total, the one next step, and what else you can do with the cart. */}
+      <section aria-label="Total and next step" className={`border-b-2 border-sign px-5 pb-4 ${bare ? "bg-wall pt-4" : "pt-5"}`}>
+        <div className="flex items-center justify-between gap-3">
+          <p className="leading-snug">
+            <span className="block font-semibold text-ink">
+              Total for {counted.length} {counted.length === 1 ? "item" : "items"}
+            </span>
+            <span className="block text-xs text-ink-soft">Approximate prices, {report.prices_as_of}</span>
+          </p>
+          {bare && <PriceTag amount={cart.total} label="Cart total" />}
+        </div>
+        <button type="button" onClick={onOrder} disabled={busy || !counted.length} className={button("buy", "mt-3 w-full text-lg")}>
+          Looks good, I&apos;m done
+        </button>
+        <p className="mt-1.5 text-center text-xs text-ink-soft">Demo: nothing is bought or charged.</p>
+        {confirmNew ? (
+          <div role="group" aria-labelledby="start-over" className="mt-3 rounded-md border border-line bg-paper px-4 py-3">
+            <p id="start-over" className="font-semibold text-ink">
+              Clear this cart and the chat?
+            </p>
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirmNew(false);
+                  onNewCart();
+                }}
+                className={button("primary")}
+              >
+                Yes, start over
+              </button>
+              {/* The safe answer takes focus, since the button that opened this is gone. */}
+              <button type="button" autoFocus onClick={() => setConfirmNew(false)} className={button("secondary")}>
+                Keep my cart
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-sm">
+            <button type="button" onClick={onWhatsApp} disabled={busy || !counted.length} className={button("quiet")}>
+              Send on WhatsApp
+            </button>
+            <button type="button" onClick={onCopy} disabled={!counted.length} className={button("quiet")}>
+              Copy list
+            </button>
+            <button type="button" onClick={() => setConfirmNew(true)} disabled={busy} className={button("quiet")}>
+              Start a new cart
+            </button>
+          </div>
+        )}
+        {shareNote && (
+          <p role="status" className="mt-2 text-center text-sm text-ink-soft">
+            {shareNote}
+          </p>
+        )}
+      </section>
+
+      {(hasPreferences(brief) || checks.length > 0) && (
+        <header className="border-b border-line px-5 pb-4 pt-4">
+          <Preferences brief={brief} disabled={busy} onTap={onTap} />
+          {checks.length > 0 && <Checklist checks={checks} />}
+        </header>
+      )}
 
       <div className="flex-1 px-5">
-        {empty && !busy && <p className="py-10 text-center text-ink-soft">Tell Jhola what you need, and the cart fills here.</p>}
+        {empty && !busy && <p className="py-10 text-center text-ink-soft">Your cart fills up here while Jhola works.</p>}
         {listing && (
           <section aria-label="Shopping list" className="my-4 rounded-r-md border-l-4 border-turmeric bg-turmeric-soft px-4 py-3">
             <h3 className="wide text-sm font-semibold text-turmeric-text">Writing the list</h3>
@@ -134,15 +191,15 @@ export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, fl
             ))}
             {cart.skipped.map((s) => (
               <p key={s.need_id} className="text-ink-soft">
-                {s.reason === "rule" ? `Left out ${s.label.toLowerCase()} (${s.rule}).` : `Skipped ${s.label.toLowerCase()}: you have it.`}
+                {s.reason === "rule" ? `Left out ${s.label.toLowerCase()} (${s.rule}).` : `Skipped ${s.label.toLowerCase()}: you said you have it.`}
               </p>
             ))}
           </section>
         )}
 
         {[
-          { title: "You may already have", hint: "Tick anything you need to add it.", lines: pantry },
-          { title: "You might also like", hint: "Suggestions, not counted until you tick them.", lines: suggestions },
+          { title: "You may already have", hint: "Tick anything you're out of to add it.", lines: pantry },
+          { title: "You might also like", hint: "Ideas that go with it. Not in the total until you tick them.", lines: suggestions },
         ]
           .filter((s) => s.lines.length)
           .map((s) => (
@@ -177,36 +234,12 @@ export function CartPanel({ brief, needs, plan, cart, checks, busy, planning, fl
           ))}
       </div>
 
-      <footer className="border-t-2 border-sign px-5 py-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm text-ink-soft">
-              Total for {counted.length} {counted.length === 1 ? "item" : "items"}
-            </p>
-            <p className="num font-sign text-[2rem] leading-none text-ink">{rupees(cart.total)}</p>
-            <p className="mt-1 text-xs text-ink-soft">Approximate prices, {report.prices_as_of}</p>
-          </div>
-          <button type="button" onClick={onOrder} disabled={busy || !counted.length} className={button("buy")}>
-            I&apos;m ready to order
-          </button>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
-          <button type="button" onClick={onCopy} disabled={!counted.length} className={button("quiet")}>
-            Copy list
-          </button>
-          <button type="button" onClick={onShare} disabled={busy || !counted.length} className={button("quiet")}>
-            Share link
-          </button>
-          {shareNote && (
-            <span role="status" className="text-ink-soft">
-              {shareNote}
-            </span>
-          )}
-        </div>
-      </footer>
     </article>
   );
 }
+
+const hasPreferences = (brief: Brief) =>
+  brief.people != null || brief.budget_inr != null || !!brief.diet || brief.rules.length > 0 || (brief.avoid ?? []).length > 0 || !!brief.summary;
 
 /** The pinned preferences: people, budget, diet, quality and every standing rule, each one tap to change. */
 function Preferences({ brief, disabled, onTap }: { brief: Brief; disabled: boolean; onTap: (a: Action, text: string) => void }) {
@@ -226,8 +259,7 @@ function Preferences({ brief, disabled, onTap }: { brief: Brief; disabled: boole
     </button>
   );
   const step = "flex h-6 w-6 items-center justify-center rounded-full text-base leading-none hover:bg-sign-soft disabled:opacity-30";
-  const hasAny = brief.people != null || brief.budget_inr != null || brief.diet || brief.rules.length > 0 || (brief.avoid ?? []).length > 0 || brief.summary;
-  if (!hasAny) return null;
+  if (!hasPreferences(brief)) return null;
   return (
     <div role="group" aria-label="Your preferences">
       <p className="wide text-sm font-semibold text-ink">Your preferences</p>
@@ -338,7 +370,7 @@ function Checklist({ checks }: { checks: Check[] }) {
   const pass = checks.filter((c) => c.status === "pass");
   const other = checks.filter((c) => c.status !== "pass");
   return (
-    <section className="mt-4 rounded-md bg-sign-soft px-3 py-2.5 text-sm" aria-label="Checks">
+    <section className="mt-4 rounded-md bg-sign-soft px-3 py-2.5 text-sm first:mt-0" aria-label="Checks">
       <h3 className="wide font-semibold text-sign">Checked by code, not the model</h3>
       <ul className="mt-1 flex flex-wrap gap-x-3.5 gap-y-0.5 text-sign">
         {pass.map((c) => (

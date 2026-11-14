@@ -90,7 +90,7 @@ create table if not exists feedback (
   unique (request_id, target, cart_position, visitor)
 );
 
--- "I'm ready to order": the success event, and the shopper's rating of the run.
+-- "Looks good, I'm done" (once "I'm ready to order"): the success event, and the shopper's rating of the run.
 create table if not exists orders (
   id          uuid primary key,          -- made by the browser; the rating refers to it
   number      text not null,             -- "JH-482913", shown to the shopper

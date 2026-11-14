@@ -2,7 +2,7 @@ import report from "@/data/catalog/report.json";
 import { ImageResponse } from "next/og";
 
 // The link-preview card (1200x630) shown when the site is shared on LinkedIn, Slack, WhatsApp or email.
-export const alt = "Jhola: a shopping agent that turns one line into one ready cart";
+export const alt = "Jhola: an AI agent that builds your grocery cart";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -30,8 +30,8 @@ async function googleFont(family: string, weight: number, text: string): Promise
   }
 }
 
-const HEADLINE = "One line in. One ready cart out.";
-const SUBLINE = `“Pasta night for 4, vegetarian, around ₹600” → a cart from ${(Math.floor(report.products / 100) * 100).toLocaleString("en-IN")}+ real Indian grocery products, then change anything by chatting.`;
+const HEADLINE = "Say what you need. Get a ready cart.";
+const SUBLINE = `An AI shopping agent: “Pasta night for 4, vegetarian, around ₹600” → a cart of groceries and household items from ${(Math.floor(report.products / 100) * 100).toLocaleString("en-IN")}+ real products. A free demo: no real orders, no payment.`;
 
 export default async function OpengraphImage() {
   const body = CHECKS.join("") + SUBLINE + "0123456789,+";

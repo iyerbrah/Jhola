@@ -1,5 +1,5 @@
 /**
- * Runs: one shopper's chat from first message to "I'm ready to order" (or to leaving). A run is every
+ * Runs: one shopper's chat from first message to "Looks good, I'm done" (or to leaving). A run is every
  * chat turn that carries the same session id, plus its order and rating, if any.
  *
  * What's public and what isn't is decided here, in one place. Everything measured about a run is public:
@@ -11,7 +11,7 @@
 
 export type OrderLine = { product_id: string; qty: number; price: number };
 
-/** What "I'm ready to order" stores. */
+/** What "Looks good, I'm done" stores. */
 export type OrderRecord = {
   id: string;
   number: string;
@@ -137,9 +137,9 @@ export function publicSummary(s: RunSummary): RunSummary {
 export type Headline = {
   runs: number;
   ordered: number;
-  /** Runs that ended in "I'm ready to order", out of all runs: the primary success metric. */
+  /** Runs that ended in "Looks good, I'm done", out of all runs: the primary success metric. */
   order_rate: number | null;
-  /** Chat messages before "I'm ready to order", over ordered runs. Fewer is better. */
+  /** Chat messages before "Looks good, I'm done", over ordered runs. Fewer is better. */
   messages_median: number | null;
   messages_mean: number | null;
   ratings: number;

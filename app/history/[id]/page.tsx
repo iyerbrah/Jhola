@@ -14,7 +14,7 @@ import { isUnlocked } from "../access";
 import { KeyForm, LockButton } from "@/components/history/KeyForm";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Run", robots: { index: false } };
+export const metadata: Metadata = { title: "A run", robots: { index: false } };
 
 const STATUS: Record<string, [string, Tone]> = {
   done: ["Done", "good"],
@@ -64,22 +64,8 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
           <Notice tone="warn">The request log can&apos;t be reached right now. Try again in a minute.</Notice>
         ) : (
           <>
-            <div className="mt-8">
-              <StatBoard
-                cols={6}
-                items={[
-                  ["Cost", rupeesExact(s.cost_usd * USD_TO_INR), usd(s.cost_usd)],
-                  ["Time answering", secs(s.latency_ms), s.turns > 1 ? `slowest turn ${secs(s.slowest_ms)}` : undefined],
-                  ["Turns", String(s.turns), s.code_finished ? `${s.code_finished} ended by code` : undefined],
-                  ["Model calls", String(s.model_calls)],
-                  ["Tool calls", String(s.tool_calls)],
-                  ["Tokens", count(s.input_tokens + s.output_tokens), `${count(s.input_tokens)} in (${count(s.cached_tokens)} cached), ${count(s.output_tokens)} out`],
-                ]}
-              />
-            </div>
-
             {o && (
-              <section aria-labelledby="order" className="mt-14">
+              <section aria-labelledby="order" className="mt-8">
                 <h2 id="order" className={H2}>
                   The order
                 </h2>
@@ -102,7 +88,7 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
                       <figcaption className="mt-2 text-sm text-ink-soft">{o.name ?? "Anonymous"}</figcaption>
                     </figure>
                   ) : (
-                    <p className="mt-4 text-ink-soft">The shopper didn&apos;t rate it.</p>
+                    <p className="mt-4 text-ink-soft">The shopper didn&apos;t leave a rating.</p>
                   )}
                   {o.private && (
                     <div className="mt-5 border-t border-line pt-4">
@@ -113,6 +99,20 @@ export default async function RunPage({ params }: { params: Promise<{ id: string
                 </div>
               </section>
             )}
+
+            <div className={o ? "mt-14" : "mt-8"}>
+              <StatBoard
+                cols={6}
+                items={[
+                  ["Cost", rupeesExact(s.cost_usd * USD_TO_INR), usd(s.cost_usd)],
+                  ["Time answering", secs(s.latency_ms), s.turns > 1 ? `slowest turn ${secs(s.slowest_ms)}` : undefined],
+                  ["Turns", String(s.turns), s.code_finished ? `${s.code_finished} ended by code` : undefined],
+                  ["Model calls", String(s.model_calls)],
+                  ["Tool calls", String(s.tool_calls)],
+                  ["Tokens", count(s.input_tokens + s.output_tokens), `${count(s.input_tokens)} in (${count(s.cached_tokens)} cached), ${count(s.output_tokens)} out`],
+                ]}
+              />
+            </div>
 
             <section aria-labelledby="private" className="mt-14">
               <div className="flex flex-wrap items-baseline justify-between gap-3">
